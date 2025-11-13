@@ -1,23 +1,50 @@
+/**
+ * Class that defines the functionality of the Floor Call Buttons. Represents
+ * the pair of buttons on each floor that allow users to call an elevator for a
+ * specific travel directions, UP/DOWN.
+ * API:
+ *      public boolean isUpCallPressed()
+ *      public boolean isDownCallPressed()
+ *      public void resetCallButton(String direction)
+ * For GUI purposes:
+ *      public void pressUpCall()
+ *      public void pressDownCall()
+ *      public static void setGuiListener(gui.listener l)
+ */
 class FloorCallButtons implements FloorCallButtonsAPI {
 
     // Optional GUI listener
     private static gui.listener guiListener = null;
 
+    /**
+     * Sets the ElevatorFloorDisplay's guiListener.
+     * @param l The ElevatorFloorDisplay's guiListener.
+     */
     public static void setGuiListener(gui.listener l) {
         guiListener = l;
     }
 
-    private final int floorNumber;           // which landing this panel belongs to
-    private final int totalFloors;           // total number of building floors
-    private final boolean hasUp;             // top floor has no Up
-    private final boolean hasDown;           // bottom floor has no Down
-
-    private boolean upPressed;               // true if Up call is active
-    private boolean downPressed;             // true if Down call is active
-
+    // Which landing this panel belongs to
+    private final int floorNumber;
+    // Total number of building floors (=10)
+    private final int totalFloors;
+    // Top floor has no Up
+    private final boolean hasUp;
+    // Bottom floor has no Down
+    private final boolean hasDown;
+    // True if Up call is active
+    private boolean upPressed;
+    // True if Down call is active
+    private boolean downPressed;
+    // TODO: Floor call buttons don't have their own elevators and vice-versa.
     private final int carId;
 
-
+    /**
+     * Constructs the floor call button panel.
+     * @param carId the ID of the elevator TODO: Should only belong to a floor
+     * @param floorNumber the floor the panel is located on
+     * @param totalFloors total number of floors in the building (=10)
+     */
     public FloorCallButtons(int carId, int floorNumber, int totalFloors) {
         this.carId = carId;
         this.floorNumber = floorNumber;
@@ -28,7 +55,9 @@ class FloorCallButtons implements FloorCallButtonsAPI {
         this.downPressed = false;
     }
 
-    /// Simulate pressing the Up call
+    /**
+     * Simulate pressing the Up call
+     */
     public void pressUpCall() {
         if (hasUp) {
             upPressed = true;
@@ -38,7 +67,9 @@ class FloorCallButtons implements FloorCallButtonsAPI {
         }
     }
 
-    /// Simulate pressing the Down call
+    /**
+     * Simulate pressing the Down call
+     */
     public void pressDownCall() {
         if (hasDown) {
             downPressed = true;
@@ -48,19 +79,29 @@ class FloorCallButtons implements FloorCallButtonsAPI {
         }
     }
 
-    // True if the landing panel’s “Up” call is active (not functonal for the top floor).
+    /**
+     * Returns whether the Up request button has been pressed. Inactive on the top floor.
+     * @return boolean hasUp (false when top floor) && upPressed
+     */
     @Override
     public boolean isUpCallPressed() {
         return hasUp && upPressed;
     }
 
-    // True if the landing panel’s “Down” call is active (not functional for the bottom floor).
+    /**
+     * Returns whether the Down request button has been pressed. Inactive on the bottom floor.
+     * @return boolean hasDown (false when bottom floor) && downPressed
+     */
     @Override
     public boolean isDownCallPressed() {
         return hasDown && downPressed;
     }
 
-    // Reset the specified call indicator ("Up" or "Down") after service.
+    /**
+     * Reset the specified call indicator ("Up" or "Down") after service.
+     * Both must be reset upon emergency mode activation.
+     * @param direction the button to be reset
+     */
     @Override
     public void resetCallButton(String direction) {
         if (direction.equals("UP") && hasUp) {

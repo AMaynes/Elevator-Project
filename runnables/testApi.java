@@ -1,3 +1,6 @@
+/**
+ * Old testing code that tests the PFD API.
+ */
 public class testApi {
     public static void main(String[] args) {
         ElevatorFloorDisplay display = new ElevatorFloorDisplay(1);

@@ -1,5 +1,4 @@
 package utils;
-
 import javafx.scene.image.Image;
 import java.util.ArrayList;
 import java.nio.file.Files;
@@ -8,11 +7,18 @@ import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.stream.Stream;
 
+/**
+ * Utility class to load in the PFD images for the GUI.
+ */
 public class imageLoader {
-    public final ArrayList<Image> imageList = new ArrayList<>(); 
+    // All images in res
+    public final ArrayList<Image> imageList = new ArrayList<>();
+    // Path to res folder
     private final String IMAGE_PATH = "res/";
 
-    // Load image resources to imageList array
+    /**
+     * Function to load the image resources to the imageList array.
+     */
     public void loadImages(){
         try (Stream<Path> s = Files.walk(Paths.get(IMAGE_PATH))) {
 

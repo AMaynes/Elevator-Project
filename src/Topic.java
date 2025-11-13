@@ -1,8 +1,14 @@
-
+/**
+ * SOFTWARE BUS: Topic Class obtained from a separate group.
+ * Defines the type of information sent across the software bus.
+ */
 public class Topic {
+    /**
+     * Empty constructor.
+     */
     public Topic() {
-
     }
+
     //100s: Controller -> PFD commands 
 
     public static final int DOOR_CON = 100;

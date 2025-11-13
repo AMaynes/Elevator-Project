@@ -1,5 +1,3 @@
-
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,29 +6,37 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 
-
+/**
+ * SOFTWARE BUS: SoftwareBus Class obtained from a separate group.
+ * TODO: Don't have their SoftwareBusQueue class from the group repository (not that it even does anything)
+ */
 public class SoftwareBus {
-
+    // The topic and subtopic to be subscribed to
     private record Subscription(int topic, int subtopic) {
     }
-
     // Local queue for received messages that match this processor's subscriptions
     private final LinkedList<Message> queue;
-
     // List of all subscriptions for this bus
     private final Set<Subscription> subscriptions;
-
     // For server mode: all currently connected client sockets
     private final Set<Socket> clientSockets;
-
+    // Server-side socket
     private ServerSocket serverSocket;
+    // Client-side socket
     private Socket busSocket;
+    // Send messages out
     private PrintWriter out;
+    // Recieve messages
     private BufferedReader in;
-
+    // Whether the bus is server-side
     private boolean isServer;
+    // Running port
     private int port = 9999;
 
+    /**
+     * Constructor for the SoftwareBus.
+     * @param isServer whether the bus is server-side
+     */
     public SoftwareBus(boolean isServer) {
         this.isServer = isServer;
         queue = new LinkedList<>();
@@ -194,6 +200,10 @@ public class SoftwareBus {
         }
     }
 
+    /**
+     * Socket cleanup.
+     * @param socket to be closed
+     */
     private void cleanupSocket(Socket socket) {
         try {
             synchronized (clientSockets) {

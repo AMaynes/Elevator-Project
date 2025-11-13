@@ -1,5 +1,8 @@
 import java.util.List;
 
+/**
+ * Required API for the CabinPassengerPanel.
+ */
 public interface CabinPassengerPanelAPI {
 
     // Return all floor selections made since last poll, panel queues presses so none are missed.
@@ -24,6 +27,9 @@ public interface CabinPassengerPanelAPI {
     boolean isFireKeyActive();
 }
 
+/**
+ * Required API for the FloorCallButtons.
+ */
 interface FloorCallButtonsAPI {
 
     // True if the landing panel’s “Up” call is active (not functonal for the top floor).

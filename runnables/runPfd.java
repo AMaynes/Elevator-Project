@@ -2,6 +2,9 @@ import javafx.application.Application;
 import java.math.*;
 import java.util.Random;
 
+/**
+ * Old on-rails PFD demo testing code.
+ */
 public class runPfd {
     public static void main(String[] args) throws InterruptedException {
         DeviceMultiplexor mux = DeviceMultiplexor.getInstance();

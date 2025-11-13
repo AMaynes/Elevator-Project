@@ -7,21 +7,27 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
+/**
+ * Defines the GUI for the TCC.
+ */
 public class TestCommandCenterDisplay {
+    // The software bus
     private SoftwareBus softwareBus;
-
+    // The display
     private final BorderPane display;
-
+    // Label showing the message status
     private Label messageStatus;
+    // The message to be sent, defined by the user
     private TextField messageToBeSent;
+    // Button to submit the written message
     private Button submitMessage;
-
+    // The current topic
     int currentTopic;
+    // The current subtopic
     int currentSubtopic;
 
     /**
-     * Constructor for Command Center Display, creates the user interface
-     *
+     * Constructor for Command Center Display, creates the user interface.
      * @param softwareBus Software bus for handling messages
      * @param topic       Topic Command center is subscribed to
      * @param subtopic    Subtopic Command center is subscribed to
@@ -61,7 +67,7 @@ public class TestCommandCenterDisplay {
     }
 
     /**
-     * Check for messages in the software bus
+     * Check for messages in the software bus.
      */
     private void checkForIncomingMessage() {
         Thread thread = new Thread(() -> {
@@ -79,7 +85,7 @@ public class TestCommandCenterDisplay {
     }
 
     /**
-     * Handles messages that need to be sent to the software bus
+     * Handles messages that need to be sent to the software bus.
      */
     private void handleSubmit() {
         String messageString = messageToBeSent.getText();
@@ -101,15 +107,14 @@ public class TestCommandCenterDisplay {
     }
 
     /**
-     * Update label to show that a message to be sent was invalid
+     * Update label to show that a message to be sent was invalid.
      */
     private void invalidMessage() {
         messageStatus.setText("Invalid format!\nExpected: <topic>-<subtopic>-<body>");
     }
 
     /**
-     * Update label to indicate that a message was received
-     *
+     * Update label to indicate that a message was received.
      * @param message Message received
      */
     public void handleNewMessage(Message message) {
@@ -117,8 +122,7 @@ public class TestCommandCenterDisplay {
     }
 
     /**
-     * Update label to indicate that a message was sent to the software bus
-     *
+     * Update label to indicate that a message was sent to the software bus.
      * @param message Message sent to software bus
      */
     public void handleSendMessage(Message message) {
@@ -126,13 +130,10 @@ public class TestCommandCenterDisplay {
     }
 
     /**
-     * Border Pane
-     *
+     * Getter for the Border Pane.
      * @return Pane
      */
     public BorderPane getPane() {
         return display;
     }
-
-
 }

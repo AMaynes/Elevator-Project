@@ -3,24 +3,31 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-
+/**
+ * Class that defines the DeviceMultiplexor, which coordinates communication from the Elevator
+ * Command Center to the relevant devices. Communication is accomplished via the software bus,
+ * and both the PFDs and the motor assembly devices are subject to control.
+ */
 public class DeviceMultiplexor {
 
-public interface DeviceListener {
-    void onDisplayUpdate(int carId, String text);
-    void onDoorStateChanged(int carId, String state);
-    void onCarArrived(int carId, int floor, String direction);
-    void onCallReset(int floor);
-    void onModeChanged(int carId, String mode);
-    void onImageInteraction(String imageType, int imageIndex, String interactionType, String additionalData);
-    void emitOverloadWeightClick(int buttonIndex);
+    /**
+     * DeviceListener interface for GUI integration.
+     */
+    public interface DeviceListener {
+        void onDisplayUpdate(int carId, String text);
+        void onDoorStateChanged(int carId, String state);
+        void onCarArrived(int carId, int floor, String direction);
+        void onCallReset(int floor);
+        void onModeChanged(int carId, String mode);
+        void onImageInteraction(String imageType, int imageIndex, String interactionType, String additionalData);
+        void emitOverloadWeightClick(int buttonIndex);
 
-    void onHallCall(int floor, String direction);
-    void onCabinSelect(int carId, int floor);
-    void onDoorSensor(int carId, boolean blocked);
-    void onCabinLoad(int carId, int weight);
-    void onCarPosition(int carId, int floor, String direction);
-}
+        void onHallCall(int floor, String direction);
+        void onCabinSelect(int carId, int floor);
+        void onDoorSensor(int carId, boolean blocked);
+        void onCabinLoad(int carId, int weight);
+        void onCarPosition(int carId, int floor, String direction);
+    }
 
     private DeviceListener listener;
 

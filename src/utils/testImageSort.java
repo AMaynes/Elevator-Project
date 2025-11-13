@@ -1,11 +1,13 @@
 package utils;
-
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
+/**
+ * Utility class to test the incorporation of images into the GUI.
+ */
 public class testImageSort extends Application {
     @Override
     public void start(Stage stage) {

@@ -1,14 +1,18 @@
-
+/**
+ * SOFTWARE BUS: Message Class obtained from a separate group.
+ * Defines the format of information sent across the software bus.
+ */
 public class Message {
+    // Main topic
     private int topic;
+    // Secondary topic
     private int subTopic;
-    //private String body;
+    // Body of the message
     private int body;
-
+    //private String body;
 
     /**
      * Message constructor
-     *
      * @param topic    Topic
      * @param subTopic Subtopic
      * @param body     Body
@@ -21,7 +25,6 @@ public class Message {
 
     /**
      * Topic-SubTopic-Body
-     *
      * @return String
      */
     @Override
@@ -31,7 +34,6 @@ public class Message {
 
     /**
      * Get topic of message
-     *
      * @return Topic
      */
     public int getTopic() {
@@ -40,7 +42,6 @@ public class Message {
 
     /**
      * Get subtopic of message
-     *
      * @return Subtopic
      */
     public int getSubTopic() {
@@ -49,7 +50,6 @@ public class Message {
 
     /**
      * Get body of message
-     *
      * @return Body
      */
     public int getBody() {
@@ -58,7 +58,6 @@ public class Message {
 
     /**
      * Turn string into a message object
-     *
      * @param line String
      * @return Message
      */
