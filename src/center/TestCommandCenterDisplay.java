@@ -1,7 +1,7 @@
 package center;
 
-import bus.Message;
-import bus.SoftwareBus;
+import bus.Message.Message;
+import bus.Bus.SoftwareBus;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

@@ -1,6 +1,6 @@
 package elevatorController.LowerLevel;
 
-import bus.SoftwareBus;
+import bus.Bus.SoftwareBus;
 import elevatorController.Util.FloorNDirection;
 import elevatorController.Util.State;
 

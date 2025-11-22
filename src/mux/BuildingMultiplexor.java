@@ -1,8 +1,8 @@
 package mux;
 
-import bus.Message;
-import bus.SoftwareBus;
-import bus.Topic;
+import bus.Bus.SoftwareBus;
+import bus.Bus.SoftwareBusCodes;
+import bus.Message.Message;
 import pfdAPI.Building;
 
 /**
@@ -38,9 +38,9 @@ public class BuildingMultiplexor {
 
     // Initialize the MUX
     public void initialize() { 
-        bus.subscribe(Topic.FIRE_ALARM, 0);
-        bus.subscribe(Topic.CALL_RESET, 0);
-        bus.subscribe(Topic.HALL_CALL, 0);
+        bus.subscribe(SoftwareBusCodes.fireAlarm, 0);
+        bus.subscribe(SoftwareBusCodes.resetCall, 0);
+        bus.subscribe(SoftwareBusCodes.hallCall, 0);
         System.out.println("BuildingMUX initialized and subscribed");
         startBusPoller();
         startStatePoller(); 
@@ -57,11 +57,11 @@ public class BuildingMultiplexor {
             while (true) {
 
                 Message msg;
-                msg = bus.get(Topic.FIRE_ALARM, 0);
+                msg = bus.get(SoftwareBusCodes.fireAlarm, 0);
                 if (msg != null) {
                     handleFireAlarm(msg);
                 }
-                msg = bus.get(Topic.CALL_RESET, 0);
+                msg = bus.get(SoftwareBusCodes.resetCall, 0);
                 if (msg != null) {
                     handleCallReset(msg);
                 }
@@ -101,12 +101,12 @@ public class BuildingMultiplexor {
     private void pollCallButtons() {
         for (int floor = 0; floor < bldg.callButtons.length; floor++) {
             if (bldg.callButtons[floor].isUpCallPressed() && !lastCallState[floor][0]) {
-                bus.publish(new Message(Topic.HALL_CALL, floor+1, DIR_UP));
+                bus.publish(new Message(SoftwareBusCodes.hallCall, floor + 1, DIR_UP));
                 lastCallState[floor][0] = true;
             }
 
             if (bldg.callButtons[floor].isDownCallPressed() && !lastCallState[floor][1]) {
-                bus.publish(new Message(Topic.HALL_CALL, floor+1, DIR_DOWN));
+                bus.publish(new Message(SoftwareBusCodes.hallCall, floor + 1, DIR_DOWN));
                 lastCallState[floor][1] = true;
             }
         }
@@ -116,7 +116,7 @@ public class BuildingMultiplexor {
     private void pollFireAlarm() {
         boolean state = bldg.callButtons[0].getFireAlarmStatus();
         if (state != lastFireState) {
-            bus.publish(new Message(Topic.FIRE_ALARM, 0, state ? FIRE_ON : FIRE_OFF));
+            bus.publish(new Message(SoftwareBusCodes.fireAlarm, 0, state ? FIRE_ON : FIRE_OFF));
             lastFireState = state;
         }
     }

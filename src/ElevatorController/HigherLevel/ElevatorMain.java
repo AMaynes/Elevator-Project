@@ -1,6 +1,6 @@
 package elevatorController.HigherLevel;
 
-import bus.SoftwareBus;
+import bus.Bus.SoftwareBus;
 import elevatorController.LowerLevel.*;
 
 /**

@@ -1,8 +1,8 @@
 package mux;
 
-import bus.Message;
-import bus.SoftwareBus;
-import bus.Topic;
+import bus.Bus.SoftwareBus;
+import bus.Bus.SoftwareBusCodes;
+import bus.Message.Message;
 import motion.MotionAPI;
 import motion.Util.Direction;
 import pfdAPI.*;
@@ -39,18 +39,18 @@ public class ElevatorMultiplexor {
     
     // Initialize the MUX  (placeholder example subscriptions)
     public void initialize() {
-        bus.subscribe(Topic.DOOR_CONTROL, ID);
-        bus.subscribe(Topic.DISPLAY_FLOOR, ID);
-        bus.subscribe(Topic.DISPLAY_DIRECTION, ID);
-        bus.subscribe(Topic.CAR_DISPATCH, ID);
-        bus.subscribe(Topic.MODE_SET, 0);  // Global mode changes
-        bus.subscribe(Topic.CABIN_SELECT, ID);
-        bus.subscribe(Topic.CAR_POSITION, ID);
-        bus.subscribe(Topic.DOOR_SENSOR, ID);
-        bus.subscribe(Topic.DOOR_STATUS, ID);
-        bus.subscribe(Topic.CABIN_LOAD, ID);
-        bus.subscribe(Topic.FIRE_KEY, ID);
-        bus.subscribe(Topic.CABIN_RESET, ID);
+        bus.subscribe(SoftwareBusCodes.doorControl, ID);
+        bus.subscribe(SoftwareBusCodes.displayFloor, ID);
+        bus.subscribe(SoftwareBusCodes.displayDirection, ID);
+        bus.subscribe(SoftwareBusCodes.carDispatch, ID);
+        bus.subscribe(SoftwareBusCodes.setMode, 0);  // Global mode changes
+        bus.subscribe(SoftwareBusCodes.cabinSelect, ID);
+        bus.subscribe(SoftwareBusCodes.cabinPosition, ID);
+        bus.subscribe(SoftwareBusCodes.doorSensor, ID);
+        bus.subscribe(SoftwareBusCodes.doorStatus, ID);
+        bus.subscribe(SoftwareBusCodes.cabinLoad, ID);
+        bus.subscribe(SoftwareBusCodes.fireKey, ID);
+        bus.subscribe(SoftwareBusCodes.resetFloorSelection, ID);
         System.out.println("ElevatorMUX " + ID + " initialized and subscribed");
         startBusPoller();
         startStatePoller();  
@@ -68,48 +68,48 @@ public class ElevatorMultiplexor {
             // keep polling
             while (true) {
                 Message msg;
-                msg = bus.get(Topic.DOOR_CONTROL, ID);
+                msg = bus.get(SoftwareBusCodes.doorControl, ID);
                 if (msg != null) {
                     handleDoorControl(msg);
                 }
-                msg = bus.get(Topic.DISPLAY_FLOOR, ID);
+                msg = bus.get(SoftwareBusCodes.displayFloor, ID);
                 if (msg != null) {
                     handleDisplayFloor(msg);
                 }
-                msg = bus.get(Topic.DISPLAY_DIRECTION, ID);
+                msg = bus.get(SoftwareBusCodes.displayDirection, ID);
                 if (msg != null) {
                     handleDisplayDirection(msg);
                 }
-                msg = bus.get(Topic.CAR_DISPATCH, ID);
+                msg = bus.get(SoftwareBusCodes.carDispatch, ID);
                 if (msg != null) {
                     handleCarDispatch(msg);
                 }
-                msg = bus.get(Topic.MODE_SET, 0);
+                msg = bus.get(SoftwareBusCodes.setMode, 0);
                 if (msg != null) {
                     handleModeSet(msg);
                 }
-                msg = bus.get(Topic.CABIN_SELECT, ID);
+                msg = bus.get(SoftwareBusCodes.cabinSelect, ID);
                 if (msg != null) {
                     handleCabinSelect(msg);
                 }
-                msg = bus.get(Topic.DOOR_SENSOR, ID);
+                msg = bus.get(SoftwareBusCodes.doorSensor, ID);
                 if (msg != null) {
                     handleDoorSensor(msg);
                 }
-                msg = bus.get(Topic.DOOR_STATUS, ID);
+                msg = bus.get(SoftwareBusCodes.doorStatus, ID);
                 if (msg != null) {
                     handleDoorStatus(msg);
                 }
-                msg = bus.get(Topic.CABIN_LOAD, ID);
+                msg = bus.get(SoftwareBusCodes.cabinLoad, ID);
                 if (msg != null) {
                     handleCabinLoad(msg);
                 }
-                msg = bus.get(Topic.FIRE_KEY, ID);
+                msg = bus.get(SoftwareBusCodes.fireKey, ID);
                 if (msg != null) {
                     handleFireKey(msg);
                 }
 
-                msg = bus.get(Topic.CABIN_RESET, ID);
+                msg = bus.get(SoftwareBusCodes.resetFloorSelection, ID);
                 if (msg != null) {
                     int floorNumber = msg.getBody();
                     elev.panel.resetFloorButton(floorNumber);
@@ -157,7 +157,7 @@ public class ElevatorMultiplexor {
             int v;
             if (fireKeyActive) v = 1;
             else v = 0;
-            Message fireMsg = new Message(Topic.FIRE_KEY, ID, v);
+            Message fireMsg = new Message(SoftwareBusCodes.fireKey, ID, v);
             bus.publish(fireMsg);
             lastFireKeyState = fireKeyActive;
         }
@@ -167,7 +167,7 @@ public class ElevatorMultiplexor {
     private void pollPressedFloors() {
         int targetFloor = elev.panel.getPressedFloor();
         if (targetFloor != 0 && targetFloor != lastPressedFloor) {
-            Message selectMsg = new Message(Topic.CABIN_SELECT, ID, targetFloor);
+            Message selectMsg = new Message(SoftwareBusCodes.cabinSelect, ID, targetFloor);
             bus.publish(selectMsg);
             lastPressedFloor = targetFloor;
         }
@@ -191,7 +191,7 @@ public class ElevatorMultiplexor {
             int v;
             if (isOverloaded) v = 1;
             else v = 0;
-            Message loadMsg = new Message(Topic.CABIN_LOAD, ID, v);
+            Message loadMsg = new Message(SoftwareBusCodes.cabinLoad, ID, v);
             bus.publish(loadMsg);
             lastOverloadState = isOverloaded;
         }
@@ -217,7 +217,7 @@ public class ElevatorMultiplexor {
         if (!currentDirection.equals("IDLE")) {
             elev.display.updateFloorIndicator(currentFloor, currentDirection);
             elev.panel.setDisplay(currentFloor, currentDirection);
-            bus.publish(new Message(Topic.CAR_POSITION, ID, currentFloor));
+            bus.publish(new Message(SoftwareBusCodes.cabinPosition, ID, currentFloor));
         }
 
         // Arrival logic
