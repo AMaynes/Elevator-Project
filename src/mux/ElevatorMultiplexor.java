@@ -33,7 +33,6 @@ public class ElevatorMultiplexor {
     private boolean lastFireKeyState = false;
     private boolean lastObstructedState = false;
     private boolean lastOverloadState = false;
-    private boolean pendingDispatch = false;
     private int lastPressedFloor = 0;
     private int targetFloor = 0;
 
@@ -182,11 +181,6 @@ public class ElevatorMultiplexor {
         if (isObstructed != lastObstructedState) {
             lastObstructedState = isObstructed;
         }
-        if (pendingDispatch && !isObstructed && elev.door.isFullyClosed()) {
-            System.out.println("[MUX] Doors closed & obstruction cleared — executing pending dispatch.");
-            pendingDispatch = false;
-            handleCarDispatch(new Message(Topic.CAR_DISPATCH, ID, targetFloor));
-        }
     }
 
     // Poll and publish cabin overload state changes
@@ -286,28 +280,22 @@ public class ElevatorMultiplexor {
         targetFloor = msg.getBody();
         int dir = targetFloor - currentFloor;
 
-        elev.door.close();
-        if (elev.door.isObstructed() || !elev.door.isFullyClosed()) {
-            System.out.println("[MUX] Dispatch blocked — waiting for doors to close...");
-            pendingDispatch = true;
-            return;
-        }
-        pendingDispatch = false;
+        if(elev.door.isFullyClosed()){
+            if (dir > 0) {
+                currentDirection = "UP";
+                motionAPI.set_direction(Direction.UP);
+            } else if (dir < 0) {
+                currentDirection = "DOWN";
+                motionAPI.set_direction(Direction.DOWN);
+            } else {
+                currentDirection = "IDLE";
+                motionAPI.set_direction(Direction.NULL);
+            }
 
-        if (dir > 0) {
-            currentDirection = "UP";
-            motionAPI.set_direction(Direction.UP);
-        } else if (dir < 0) {
-            currentDirection = "DOWN";
-            motionAPI.set_direction(Direction.DOWN);
-        } else {
-            currentDirection = "IDLE";
-            motionAPI.set_direction(Direction.NULL);
+            elev.display.updateFloorIndicator(currentFloor, currentDirection);
+            elev.panel.setDisplay(currentFloor, currentDirection);
+            motionAPI.start();
         }
-
-        elev.display.updateFloorIndicator(currentFloor, currentDirection);
-        elev.panel.setDisplay(currentFloor, currentDirection);
-        motionAPI.start();
     }
 
     // Handle mode set messages
