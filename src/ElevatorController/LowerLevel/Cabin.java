@@ -40,6 +40,7 @@ public class Cabin implements Runnable {
     public void run() {
         while (true) {
             stepTowardsDest();
+            //TODO: handle message
             System.out.println("");
         }
     }

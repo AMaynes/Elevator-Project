@@ -148,11 +148,11 @@ public class Buttons {
             }
         }
 
-        return null;
+        //re-add unreachable destinations
+        destinations.addAll(unreachable);
+
+        return destinations.getFirst();
     }
-    //TODO: this should return null if call buttons disabled *unless* request is
-    //using the fire key
+
     //TODO: Software bus handling?
-
-
 }
