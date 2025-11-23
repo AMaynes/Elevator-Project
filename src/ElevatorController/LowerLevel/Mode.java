@@ -4,6 +4,7 @@ import Bus.SoftwareBus;
 import CommandCenter.CommandPanel;
 import ElevatorController.Util.FloorNDirection;
 import ElevatorController.Util.State;
+import Message.Message;
 import Message.TopicCodes;
 
 /**
@@ -75,12 +76,24 @@ public class Mode {
      */
     private void setCurrentMode(){
         //Todo: Set current mode from software bus
+        Message message = softwareBus.get(TOPIC_MODE,elevatorID);
+        while (message != null){
+            int state = message.getBody();
+            switch (state){
+                case BODY_CENTRALIZED_MODE -> currentMode = State.CONTROL;
+                case BODY_FIRE_MODE -> currentMode = State.FIRE;
+                case BODY_NORMAL_MODE -> currentMode = State.NORMAL;
+            }
+            message = softwareBus.get(TOPIC_MODE,elevatorID);
+        }
     }
 
     /**
      * Call get() on softwareBus w/ appropriate topic/subtopic,
      * @return
      */
-    public FloorNDirection nextService(){return null;}
+    public FloorNDirection nextService(){
+        //TODO needs Command Center stuff
+        return null;}
 
 }
