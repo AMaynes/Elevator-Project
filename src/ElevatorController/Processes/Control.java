@@ -7,5 +7,5 @@ import ElevatorController.Util.State;
  * Using the Software Bus. The Control Room can give commands to the elevators and assumes full control over the system.
  */
 public class Control {
-    public State Control(){return State.NULL;};
+    public static State control(){return State.NULL;};
 }

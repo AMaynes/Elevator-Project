@@ -1,5 +1,6 @@
 package ElevatorController.Processes;
 
+import ElevatorController.LowerLevel.*;
 import ElevatorController.Util.State;
 
 /**
@@ -8,5 +9,17 @@ import ElevatorController.Util.State;
  * If two buttons are pressed, the most recently pressed button is the only service request.
  */
 public class Fire {
-    public State Fire(){ return State.NULL;};
+    /**
+     * Fire Process
+     * @param mode the mode lower level object
+     * @param buttons the buttons lower level object
+     * @param cabin the cabin lower level object
+     * @param doorAssembly the door assembly lower level object
+     * @param notifier the notifier lower level object
+     * @return
+     */
+    public static State fire(Mode mode, Buttons buttons, Cabin cabin,
+                             DoorAssembly doorAssembly, Notifier notifier){
+        return State.NULL;
+    }
 }

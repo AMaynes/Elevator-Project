@@ -10,5 +10,5 @@ import ElevatorController.Util.State;
  * This mode provides the typical elevator functionality: handling requests and navigating floors.
  */
 public class Normal {
-    public State normal(){ return State.NULL;}
+    public static State normal(){ return State.NULL;}
 }

@@ -114,7 +114,7 @@ public class Cabin implements Runnable {
 
     private void stopMotor() {
         motor = false;
-        //TODO: your sister
+        //TODO: connect software bus
     }
 
     private int topAlignment() {
