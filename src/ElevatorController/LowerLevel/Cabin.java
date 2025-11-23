@@ -4,6 +4,7 @@ import Bus.SoftwareBus;
 import ElevatorController.Util.ConstantsElevatorControl;
 import ElevatorController.Util.Direction;
 import ElevatorController.Util.FloorNDirection;
+import ElevatorController.Util.Timer;
 
 /**
  * The cabin provides a means for the elevator controller to send the elevator to a destination.
@@ -53,22 +54,53 @@ public class Cabin implements Runnable {
 
     // Internal methods
 
+    private Timer timeToStop;
+
+    /**
+     * Main thread method, used to step towards a target floor
+     */
     private synchronized void stepTowardsDest() {
+        //Update alignment
         topAlign = topAlignment();
         botAlign = bottomAlignment();
-        currFloor = sensorToFloor(botAlign);
-        if (motor && currFloor == currDest) {
-            stopMotor();
+        //Last sensor before stop
+        boolean almostThere;
+        if (currDirection == Direction.UP) almostThere = sensorToFloor(botAlign) == currDest;
+        else almostThere = sensorToFloor(topAlign) == currDest;
+        //Should time stop
+        if (motor && almostThere) {
+            //Time to stop!
+            if (timeToStop != null && timeToStop.timeout()) stopMotor();
+            //Determine time to stop
+            else if (timeToStop == null) timeToStop = timeStop();
         } else if (!motor){
+            //Turn motor on if needed
             if (currFloor > currDest) currDirection = Direction.DOWN;
             else currDirection = Direction.UP;
             startMotor(currDirection);
+        } else {
+            //Reset time to stop
+            timeToStop = null;
         }
     }
     private int closestFloor() {
         return -69420;
     }
 
+    /**
+     * Updates the correct time to stop the motor based on constants file
+     * @return a timer that times out when it's time to stop
+     */
+    private Timer timeStop() {
+        return new Timer(ConstantsElevatorControl.TIME_TO_STOP);
+    }
+
+
+    /**
+     * Translates sensor to floor
+     * @param sensorPos a sensor position to a floor #
+     * @return a floor number 1-20
+     */
     private int sensorToFloor(int sensorPos) {
         return sensorPos/2 + 1;
     }
