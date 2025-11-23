@@ -10,7 +10,7 @@ import Bus.SoftwareBus;
  * posting to the motor; receiving from the fully closed sensors, fully open
  * sensors, the scale, and the door obstruction sensors.
  */
-public class DoorAssembly implements Runnable {
+public class DoorAssembly {
     private boolean opened;  // TODO: do we need to store this in Door Assembly?
     private boolean closed;
     private boolean obstructed;
@@ -37,10 +37,6 @@ public class DoorAssembly implements Runnable {
         this.overCapacity = false;
         this.softwareBus = softwareBus;
         this.elevatorID = this.elevatorID;
-
-        //Start DoorAssembly Thread
-        Thread thread = new Thread(this);
-        thread.start();
     }
 
     //Todo: Write these methods
@@ -59,30 +55,34 @@ public class DoorAssembly implements Runnable {
     /**
      * @return true if obstruction sensor triggered, false otherwise
      */
-    public boolean obstructed(){return obstructed;}
+    public boolean obstructed(){
+        //TODO: get a message
+        return obstructed;
+    }
 
     /**
      * @return true if fully closed sensor triggered, false otherwise
      */
-    public boolean fullyClosed(){return fullyClosed;}
+    public boolean fullyClosed(){
+        //TODO: get a massage
+        return fullyClosed;
+    }
 
     /**
      * @return true if fully open sensor triggered, false otherwise
      */
-    public boolean fullyOpen(){return fullyOpen;}
+    public boolean fullyOpen(){
+        //TODO: get a emssage
+        return fullyOpen;
+    }
 
     /**
      * @return true if an over capacity message was received, false if an under
      *         capacity message was received, true initially
      */
-    public boolean overCapacity(){return overCapacity;}
-
-    /**
-     * Runs this operation.
-     * query SoftwareBus and set variables appropriately
-     */
-    @Override
-    public void run() {
-
+    public boolean overCapacity(){
+        //TODO: messyge;
+        return overCapacity;
     }
+
 }
