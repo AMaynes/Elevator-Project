@@ -2,6 +2,8 @@ package ElevatorController.LowerLevel;
 
 import Bus.SoftwareBus;
 import ElevatorController.Util.FloorNDirection;
+import Message.Message;
+import Message.Topic;
 import Team7MotionControl.Hardware.Elevator;
 
 /**
@@ -13,6 +15,11 @@ import Team7MotionControl.Hardware.Elevator;
 public class Notifier {
     private int elevatorID;
     private SoftwareBus softwareBus;
+
+    // Topic for car postion
+    private static final int CAR_POSITION = Topic.CAR_POSITION;
+
+    private static final int DISPLAY_DIRECTION=Topic.DISPLAY_DIRECTION;
 
     public  Notifier(int elevatorID, SoftwareBus softwareBus){
         //TODO: does notifier need to subscribe? or can it just publish messages?
@@ -32,7 +39,16 @@ public class Notifier {
      * Notify Control Center and MUX of this elevator's status
      * @param floorNDirection This elevator's floor and direction
      */
-    public void elevatorStatus(FloorNDirection floorNDirection){}
+    public void elevatorStatus(FloorNDirection floorNDirection){
+        //Tell display direction
+        int direction = floorNDirection.getDirection().getIntegerVersion();
+
+        // Tell mux what direction we're going
+        softwareBus.publish(new Message(DISPLAY_DIRECTION,elevatorID,direction));
+
+        //Tell mux where we are
+        softwareBus.publish(new Message(CAR_POSITION,elevatorID, floorNDirection.floor()));
+    }
 
     /**
      * Notify the MUX to play the capacity buzzer

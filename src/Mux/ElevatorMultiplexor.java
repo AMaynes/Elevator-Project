@@ -79,14 +79,17 @@ public class ElevatorMultiplexor {
                     handleDisplayFloor(msg);
                 }
                 msg = bus.get(Topic.DISPLAY_DIRECTION, ID);
+                //TODO: SENT BY NOTIFIER
                 if (msg != null) {
                     handleDisplayDirection(msg);
                 }
                 msg = bus.get(Topic.CAR_DISPATCH, ID);
+                //TODO: SENT BY CABIN but not correct
                 if (msg != null) {
                     handleCarDispatch(msg);
                 }
                 msg = bus.get(Topic.MODE_SET, 0);
+                //TODO: NOT IMPLEMENTED
                 if (msg != null) {
                     handleModeSet(msg);
                 }

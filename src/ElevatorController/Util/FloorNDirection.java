@@ -9,4 +9,5 @@ public record FloorNDirection(int floor, Direction direction) {
     public Direction getDirection() {
         return direction;
     }
+
 }
