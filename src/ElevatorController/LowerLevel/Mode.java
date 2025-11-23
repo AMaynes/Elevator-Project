@@ -1,6 +1,7 @@
 package ElevatorController.LowerLevel;
 
 import Bus.SoftwareBus;
+import CommandCenter.CommandPanel;
 import ElevatorController.Util.FloorNDirection;
 import ElevatorController.Util.State;
 import Message.TopicCodes;
@@ -23,13 +24,17 @@ public class Mode {
     private FloorNDirection currDestination;
 
     // Topic Constants
-    private static final int START_TOPIC = TopicCodes.SYSTEM_START.code();
-    private static final int STOP_TOPIC = TopicCodes.SYSTEM_STOP.code();
+    private static final int TOPIC_START = TopicCodes.SYSTEM_START.code();
+    private static final int TOPIC_STOP = TopicCodes.SYSTEM_STOP.code();
     //TODO: do we need to handle a SYSTEM_RESET message?
-    private static final int CENTRALIZED_TOPIC = TopicCodes.CLEAR_FIRE.code();
+    private static final int TOPIC_CENTRALIZED = TopicCodes.CLEAR_FIRE.code();
+    private static final int TOPIC_MODE = TopicCodes.MODE.code();
 
-    //TODO: make this dependent on CommandCenter/CommandPanel.java <- what??
-    private static final int B_MODE_TF  = 1110; //TODO: may not need to read the body
+    //TODO: handle these in software bus getter
+    // Body for mode changes
+    private static final int BODY_CENTRALIZED_MODE  = CommandPanel.B_MODE_CEN;
+    private static final int BODY_NORMAL_MODE = CommandPanel.B_MODE_IND;
+    private static final int BODY_FIRE_MODE = CommandPanel.B_MODE_TF;
 
     /**
      * Instantiate a Mode object
@@ -47,10 +52,11 @@ public class Mode {
         // Initially in Normal mode
         this.currentMode = State.NORMAL;
 
-        // Subscribe
-        softwareBus.subscribe(START_TOPIC, elevatorID);
-        softwareBus.subscribe(STOP_TOPIC, elevatorID);
-        softwareBus.subscribe(CENTRALIZED_TOPIC, elevatorID);
+        // Subscribe to relevant topics, subtopic is elevatorID
+        softwareBus.subscribe(TOPIC_START, elevatorID);
+        softwareBus.subscribe(TOPIC_STOP, elevatorID);
+        softwareBus.subscribe(TOPIC_CENTRALIZED, elevatorID);
+        softwareBus.subscribe(TOPIC_MODE, elevatorID);
     }
 
     /**
