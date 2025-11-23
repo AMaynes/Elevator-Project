@@ -22,7 +22,7 @@ public class MotionController {
     //The hardware representative
     private Motor motor;
     //Informs the hardware
-    private MotionSimulation motionSimulation;
+    public MotionSimulation motionSimulation;
 
     /**
      * Creates a new motionController object, creates motor, sensor map, and
@@ -89,6 +89,7 @@ public class MotionController {
      * movement from constant_speed to zero with a decay of deeleration
      */
     public void stop(){
+        System.out.println("Stopping");
         motor.stop();
     }
 

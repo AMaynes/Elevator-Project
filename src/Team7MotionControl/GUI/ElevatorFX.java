@@ -8,7 +8,7 @@ import javafx.scene.shape.Rectangle;
 public class ElevatorFX implements Observer{
 
     private Rectangle elly;
-    private double joelsConstant =460;
+
 
 
     public ElevatorFX(Rectangle elly){
