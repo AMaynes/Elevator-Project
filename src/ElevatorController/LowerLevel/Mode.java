@@ -3,6 +3,7 @@ package ElevatorController.LowerLevel;
 import Bus.SoftwareBus;
 import ElevatorController.Util.FloorNDirection;
 import ElevatorController.Util.State;
+import Message.TopicCodes;
 
 /**
  * The mode serves as a means for the Elevator Controller to be put into and track its current mode.
@@ -16,10 +17,19 @@ import ElevatorController.Util.State;
  *         3 - CONTROLLED
  */
 public class Mode {
-    private int elevatorID;
+    private final int elevatorID;
     private SoftwareBus softwareBus;
     private State currentMode;
     private FloorNDirection currDestination;
+
+    // Topic Constants
+    private static final int START_TOPIC = TopicCodes.SYSTEM_START.code();
+    private static final int STOP_TOPIC = TopicCodes.SYSTEM_STOP.code();
+    //TODO: do we need to handle a SYSTEM_RESET message?
+    private static final int CENTRALIZED_TOPIC = TopicCodes.CLEAR_FIRE.code();
+
+    //TODO: make this dependent on CommandCenter/CommandPanel.java
+    private static final int B_MODE_TF  = 1110; //TODO: may not need to read the body
 
     /**
      * Instantiate a Mode object
@@ -36,6 +46,11 @@ public class Mode {
 
         // Initially in Normal mode
         this.currentMode = State.NORMAL;
+
+        // Subscribe
+        softwareBus.subscribe(START_TOPIC, elevatorID);
+        softwareBus.subscribe(STOP_TOPIC, elevatorID);
+        softwareBus.subscribe(CENTRALIZED_TOPIC, elevatorID);
     }
 
     /**
