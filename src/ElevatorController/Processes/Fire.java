@@ -20,6 +20,34 @@ public class Fire {
      */
     public static State fire(Mode mode, Buttons buttons, Cabin cabin,
                              DoorAssembly doorAssembly, Notifier notifier){
-        return State.NULL;
+        //In fire mode, move all elevators down to floor one
+        //Mode gets fire key message
+
+        //buttons handles fire key
+        //if single calls are enable then the fire key is inserted
+        buttons.disableCalls();
+
+        //Close doors
+        while(!ProcessesUtil.closeDoors(doorAssembly)){
+            notifier.playCapacityNoise();
+        }
+        //TODO: if key inserted...do something else?
+        //Go to first floor
+        cabin.gotoFloor(1);
+
+
+        while (!cabin.arrived()){
+            System.out.println("Yeoowchhhhhh");
+        }
+        //Open all doors
+        doorAssembly.open();
+
+
+
+        State currentState=mode.getMode();
+
+        return currentState;
     }
+
+
 }

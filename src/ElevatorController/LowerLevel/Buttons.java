@@ -1,9 +1,11 @@
 package ElevatorController.LowerLevel;
 
 import Bus.SoftwareBus;
+import ElevatorController.Util.Direction;
 import ElevatorController.Util.FloorNDirection;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,6 +20,9 @@ public class Buttons {
     private int elevatorID;
     private List<FloorNDirection> destinations;
     private SoftwareBus softwareBus;
+    private int currFloor;
+    private Direction currDirection;
+    private boolean fireKey = false;
 
     /**
      * Instantiate a Buttons Object
@@ -95,5 +100,59 @@ public class Buttons {
      * @param floorNDirection record holding the floor and direction
      * @return next service direction and floor (direction non-null for call buttons, null for requests)
      */
-    public FloorNDirection nextService(FloorNDirection floorNDirection) {return null;}
+    public FloorNDirection nextService(FloorNDirection floorNDirection) {
+        currDirection = floorNDirection.direction();
+        currFloor = floorNDirection.floor();
+
+        // Calls disabled case
+        if (!callEnabled && !fireKey) return null;
+
+        if (!multipleRequests) {
+            FloorNDirection nextService = destinations.get(0);
+            destinations.clear();
+            destinations.add(nextService);
+            return nextService;
+        }
+
+        //Determine floors not on the way
+        List<FloorNDirection> unreachable = new ArrayList<>();
+        for (FloorNDirection fd : destinations) {
+            boolean belowUp =
+                    fd.floor() < currFloor && fd.direction() == Direction.UP;
+            boolean aboveDown =
+                    fd.floor() > currFloor && fd.direction() == Direction.DOWN;
+            if (belowUp || aboveDown) {
+                unreachable.add(fd);
+            }
+        }
+        //Remove unreachable floors from queue temporarily
+        for (FloorNDirection fd : unreachable) {
+            destinations.remove(fd);
+        }
+        // Determines if list is sorted increasing or decreasing
+        int inticator = 0;
+        // sort increasing
+        if (currDirection == Direction.UP) inticator = 1;
+        // sort decreasing
+        else inticator = -1;
+
+        //The humble bubble sort
+        for (int i = 0; i < destinations.size(); i++) {
+            for (int j = 0; j < destinations.size(); j++) {
+                if (i == j) continue;
+                if (destinations.get(i).floor() * inticator > destinations.get(j).floor() * inticator) {
+                    FloorNDirection temp = destinations.get(i);
+                    destinations.set(i,destinations.get(j));
+                    destinations.set(j,temp);
+                }
+            }
+        }
+
+        return null;
+    }
+    //TODO: this should return null if call buttons disabled *unless* request is
+    //using the fire key
+    //TODO: Software bus handling?
+
+
 }
