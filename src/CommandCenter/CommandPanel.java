@@ -79,9 +79,9 @@ public class CommandPanel extends GridPane {
 
 
 
-    private static final int B_MODE_CEN = 1000;
-    private static final int B_MODE_IND = 1100;
-    private static final int B_MODE_TF  = 1110;
+    public static final int B_MODE_CEN = 1000;
+    public static final int B_MODE_IND = 1100;
+    public static final int B_MODE_TF  = 1110;
 
     public CommandPanel(SoftwareBus bus) {
         this.bus = bus;
