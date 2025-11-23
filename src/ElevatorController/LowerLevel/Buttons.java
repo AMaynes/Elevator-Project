@@ -3,9 +3,9 @@ package ElevatorController.LowerLevel;
 import Bus.SoftwareBus;
 import ElevatorController.Util.Direction;
 import ElevatorController.Util.FloorNDirection;
+import Message.Topic;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,6 +24,18 @@ public class Buttons {
     private Direction currDirection;
     private boolean fireKey = false;
 
+    // Software Bus Topics
+    private final static int TOPIC_REQ_BTNS = Topic.CABIN_SELECT; // button events in the cabin
+    private final static int TOPIC_FIRE_KEY = Topic.FIRE_KEY;
+    private final static int TOPIC_CABIN_LOAD = Topic.CABIN_LOAD;
+
+    // FIRE_KEY BODY
+    private final static int BODY_F_KEY_ACTIVE   = 1; //TODO make elevator mux have this as public constant
+    private final static int BODY_F_KEY_INACTIVE = 0;
+    // CABIN_LOAD Body
+    private final static int BODY_CABIN_OVERLOADED = BODY_F_KEY_ACTIVE; //TODO: make elevator mux have this as public constant
+    private final static int BODY_CABIN_UNDERLOADED = BODY_F_KEY_INACTIVE;
+
     /**
      * Instantiate a Buttons Object
      * @param elevatorID the elevator number associated with this Buttons Object
@@ -40,6 +52,12 @@ public class Buttons {
         this.destinations = new ArrayList<>();
         this.softwareBus = softwareBus;
         this.elevatorID = elevatorID;
+
+        // Subscribing
+        softwareBus.subscribe(TOPIC_REQ_BTNS, elevatorID);
+        softwareBus.subscribe(TOPIC_FIRE_KEY, elevatorID);
+        softwareBus.subscribe(TOPIC_CABIN_LOAD, elevatorID);
+        //TODO: Call buttons,
     }
 
     /**
