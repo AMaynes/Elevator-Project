@@ -1,5 +1,6 @@
 package ElevatorController.Processes;
 
+import ElevatorController.LowerLevel.*;
 import ElevatorController.Util.State;
 
 /**
@@ -10,5 +11,17 @@ import ElevatorController.Util.State;
  * This mode provides the typical elevator functionality: handling requests and navigating floors.
  */
 public class Normal {
-    public static State normal(){ return State.NULL;}
+    /**
+     *
+     * @param mode the mode lower level object
+     * @param buttons the buttons lower level object
+     * @param cabin the cabin lower level object
+     * @param doorAssembly the door assembly lower level object
+     * @param notifier the notifier lower level object
+     * @return the mode that caused the process to end.
+     */
+    public static State normal(Mode mode, Buttons buttons, Cabin cabin,
+                               DoorAssembly doorAssembly, Notifier notifier){
+        return State.NULL;
+    }
 }
