@@ -28,7 +28,7 @@ public class Mode {
     //TODO: do we need to handle a SYSTEM_RESET message?
     private static final int CENTRALIZED_TOPIC = TopicCodes.CLEAR_FIRE.code();
 
-    //TODO: make this dependent on CommandCenter/CommandPanel.java
+    //TODO: make this dependent on CommandCenter/CommandPanel.java <- what??
     private static final int B_MODE_TF  = 1110; //TODO: may not need to read the body
 
     /**
