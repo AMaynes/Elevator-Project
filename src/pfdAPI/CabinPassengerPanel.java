@@ -180,7 +180,7 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
      */
     @Override
     public synchronized boolean isFireKeyActive() {
-        return fireKeyActive;
+        return guiControl.getIsFireKeyActive(carId);
     }
 
     /**

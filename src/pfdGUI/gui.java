@@ -61,6 +61,7 @@ public class gui extends Application {
         private ArrayList<Integer>[] pressedFloors = new ArrayList[numElevators];
         private boolean[] doorObstructions = new boolean[numElevators];
         private boolean[] cabinOverloads = new boolean[numElevators];
+        private boolean[] fireKeys = new boolean[numElevators];
         private boolean fireAlarmActive;
 
         // Getters for internal state variables
@@ -77,6 +78,11 @@ public class gui extends Application {
             return (panelIndex >= 0 && panelIndex < numElevators) ? cabinOverloads[panelIndex] : false; 
         }
         public boolean getFireAlarm() { return fireAlarmActive; }
+
+        public boolean getIsFireKeyActive(int ID){
+            int panelIndex = ID - 1;
+            return (panelIndex >= 0 && panelIndex < numElevators) ? fireKeys[panelIndex] : false;
+        }
         
 
         // Press panel button
@@ -390,6 +396,23 @@ public class gui extends Application {
 
                 panelOverlay.getChildren().add(right);
             }
+
+            Button keyButton = new Button();
+            keyButton.setPrefSize(30, 30);
+            keyButton.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
+
+            double keyX = 20;
+            double keyY = 150;
+
+            keyButton.setTranslateX(keyX);
+            keyButton.setTranslateY(keyY);
+
+            keyButton.setOnAction(event -> {
+                internalState.fireKeys[carId] = !internalState.fireKeys[carId];
+            });
+
+            panelOverlay.getChildren().add(keyButton);
+
         }
     }
 

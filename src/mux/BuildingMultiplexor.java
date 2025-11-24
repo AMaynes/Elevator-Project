@@ -25,11 +25,6 @@ public class BuildingMultiplexor {
     boolean[][] lastCallState = new boolean[bldg.totalFloors][3]; // Up/Down/Null
     private boolean lastFireState = false;
 
-
-    // Door Commands
-    int DOOR_OPEN = 1;
-    int DOOR_CLOSE = 2;
-
     int DIR_UP = 0;
     int DIR_DOWN = 1;
 
@@ -116,7 +111,7 @@ public class BuildingMultiplexor {
     private void pollFireAlarm() {
         boolean state = bldg.callButtons[0].getFireAlarmStatus();
         if (state != lastFireState) {
-            bus.publish(new Message(SoftwareBusCodes.fireAlarm, 0, state ? FIRE_ON : FIRE_OFF));
+            bus.publish(new Message(SoftwareBusCodes.fireAlarmActive, 0, state ? FIRE_ON : FIRE_OFF));
             lastFireState = state;
         }
     }

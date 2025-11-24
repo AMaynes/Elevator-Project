@@ -43,18 +43,17 @@ public class ElevatorMultiplexor {
         bus.subscribe(SoftwareBusCodes.displayFloor, ID);
         bus.subscribe(SoftwareBusCodes.displayDirection, ID);
         bus.subscribe(SoftwareBusCodes.carDispatch, ID);
-        bus.subscribe(SoftwareBusCodes.setMode, 0);  // Global mode changes
-        bus.subscribe(SoftwareBusCodes.cabinSelect, ID);
-        bus.subscribe(SoftwareBusCodes.cabinPosition, ID);
-        bus.subscribe(SoftwareBusCodes.doorSensor, ID);
-        bus.subscribe(SoftwareBusCodes.doorStatus, ID);
-        bus.subscribe(SoftwareBusCodes.cabinLoad, ID);
-        bus.subscribe(SoftwareBusCodes.fireKey, ID);
         bus.subscribe(SoftwareBusCodes.resetFloorSelection, ID);
+//        bus.subscribe(SoftwareBusCodes.setMode, 0);  // Global mode changes
+//        bus.subscribe(SoftwareBusCodes.cabinSelect, ID);
+//        bus.subscribe(SoftwareBusCodes.cabinPosition, ID);
+//        bus.subscribe(SoftwareBusCodes.doorSensor, ID);
+//        bus.subscribe(SoftwareBusCodes.doorStatus, ID);
+//        bus.subscribe(SoftwareBusCodes.cabinLoad, ID);
+//        bus.subscribe(SoftwareBusCodes.fireKey, ID);
         System.out.println("ElevatorMUX " + ID + " initialized and subscribed");
         startBusPoller();
-        startStatePoller();  
-
+        startStatePoller();
     }
 
 
@@ -84,30 +83,31 @@ public class ElevatorMultiplexor {
                 if (msg != null) {
                     handleCarDispatch(msg);
                 }
-                msg = bus.get(SoftwareBusCodes.setMode, 0);
-                if (msg != null) {
-                    handleModeSet(msg);
-                }
-                msg = bus.get(SoftwareBusCodes.cabinSelect, ID);
-                if (msg != null) {
-                    handleCabinSelect(msg);
-                }
-                msg = bus.get(SoftwareBusCodes.doorSensor, ID);
-                if (msg != null) {
-                    handleDoorSensor(msg);
-                }
-                msg = bus.get(SoftwareBusCodes.doorStatus, ID);
-                if (msg != null) {
-                    handleDoorStatus(msg);
-                }
-                msg = bus.get(SoftwareBusCodes.cabinLoad, ID);
-                if (msg != null) {
-                    handleCabinLoad(msg);
-                }
-                msg = bus.get(SoftwareBusCodes.fireKey, ID);
-                if (msg != null) {
-                    handleFireKey(msg);
-                }
+//                msg = bus.get(SoftwareBusCodes.setMode, 0);
+//                if (msg != null) {
+//                    handleModeSet(msg);
+//                }
+//                msg = bus.get(SoftwareBusCodes.cabinSelect, ID);
+//                if (msg != null) {
+//                    handleCabinSelect(msg);
+//                }
+//                msg = bus.get(SoftwareBusCodes.doorSensor, ID);
+//                if (msg != null) {
+//                    handleDoorSensor(msg);
+//                }
+//                msg = bus.get(SoftwareBusCodes.doorStatus, ID);
+//                if (msg != null) {
+//                    handleDoorStatus(msg);
+//                }
+
+//                msg = bus.get(SoftwareBusCodes.cabinLoad, ID);
+//                if (msg != null) {
+//                    handleCabinLoad(msg);
+//                }
+//                msg = bus.get(SoftwareBusCodes.fireKey, ID);
+//                if (msg != null) {
+//                    handleFireKey(msg);
+//                }
 
                 msg = bus.get(SoftwareBusCodes.resetFloorSelection, ID);
                 if (msg != null) {
@@ -176,12 +176,20 @@ public class ElevatorMultiplexor {
     // Poll and publish door obstruction state changes
     private void pollDoorObstruction() {
         boolean isObstructed = elev.door.isObstructed();
-
+        int body;
+        if(isObstructed){
+            body = 0;
+        }else{
+            body = 1;
+        }
         // Update obstruction state
         if (isObstructed != lastObstructedState) {
+            Message statusMsg = new Message(SoftwareBusCodes.doorSensor, ID, body);
+            bus.publish(statusMsg);
             lastObstructedState = isObstructed;
         }
     }
+
 
     // Poll and publish cabin overload state changes
     private void pollCabinOverload() {
@@ -246,11 +254,23 @@ public class ElevatorMultiplexor {
     // Handle door control messages
     private void handleDoorControl(Message msg) {
         int command = msg.getBody();
-        if (command == 1) {
+        Message positionMsg = null;
+        if (command == 0) {
             elev.door.open();
-        } else if (command == 2) {
+            if(elev.door.isFullyOpen()){
+                positionMsg = new Message(SoftwareBusCodes.doorStatus, ID, 0);
+            } else {
+                positionMsg = new Message(SoftwareBusCodes.doorStatus, ID, 1);
+            }
+        } else if (command == 1) {
             elev.door.close();
+            if(elev.door.isFullyClosed()){
+                positionMsg = new Message(SoftwareBusCodes.doorStatus, ID, 1);
+            } else {
+                positionMsg = new Message(SoftwareBusCodes.doorStatus, ID, 0);
+            }
         }
+        bus.publish(positionMsg);
     }
 
     // Handle display floor messages
@@ -297,43 +317,43 @@ public class ElevatorMultiplexor {
             motionAPI.start();
         }
     }
+//
+//    // Handle mode set messages
+//    private void handleModeSet(Message msg) {
+//        // TODO: This is probably not relevant to the MUX.
+//    }
 
-    // Handle mode set messages
-    private void handleModeSet(Message msg) {
-        // TODO: implement mode set logic
-    }
+//    // Handle cabin select messages
+//    private void handleCabinSelect(Message msg) {
+//        int floor = msg.getBody();
+//        elev.panel.pressFloorButton(floor);
+//    }
 
-    // Handle cabin select messages
-    private void handleCabinSelect(Message msg) {
-        int floor = msg.getBody();
-        elev.panel.pressFloorButton(floor);
-    }
+//    // Handle door sensor messages
+//    private void handleDoorSensor(Message msg) {
+//        int status = msg.getBody();
+//        System.out.println("[MUX] Door sensor status for car " + ID + " = " + status);
+//        boolean obstructed = (status == 1);
+//        elev.door.setObstruction(obstructed);
+//    }
 
-    // Handle door sensor messages
-    private void handleDoorSensor(Message msg) {
-        int status = msg.getBody(); 
-        System.out.println("[MUX] Door sensor status for car " + ID + " = " + status);
-        boolean obstructed = (status == 1);
-        elev.door.setObstruction(obstructed);    
-    }
+//    // Handle door status messages
+//    private void handleDoorStatus(Message msg) {
+//        int status = msg.getBody();
+//        if (status == 1)
+//            elev.door.open();
+//        else
+//            elev.door.close();
+//    }
 
-    // Handle door status messages
-    private void handleDoorStatus(Message msg) {    
-        int status = msg.getBody(); 
-        if (status == 1)
-            elev.door.open();
-        else
-            elev.door.close();
-    }
-
-    // Handle cabin load messages
-    private void handleCabinLoad(Message msg) {
-        int status = msg.getBody();
-        elev.panel.setOverloadWarning(status == 1);
-    }
-
-    // Handle fire key messages
-    private void handleFireKey(Message msg) {
-        elev.panel.toggleFireKey();
-    }
+//    // Handle cabin load messages
+//    private void handleCabinLoad(Message msg) {
+//        int status = msg.getBody();
+//        elev.panel.setOverloadWarning(status == 1);
+//    }
+//
+//    // Handle fire key messages
+//    private void handleFireKey(Message msg) {
+//        elev.panel.toggleFireKey();
+//    }
 }
