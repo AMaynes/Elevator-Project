@@ -81,6 +81,7 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
     /**
      * Clears all stored pressed floor events.
      * TODO: Call this in the MUX when the fire alarm is active (either by user or command).
+     *  Decide: should this also be called upon button disables or single/multiple mode switches?
      */
     @Override
     public synchronized void clearPressedFloors() {
@@ -163,17 +164,6 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
     @Override
     public synchronized void playCabinOverloadWarning() {
         System.out.println("*Buzz!* Also played in the cabin of Elevator " + carId + "!");
-    }
-
-    /**
-     * TODO: Remove.
-     * Sets the overload warning state.
-     * Used when the overload state is set externally (e.g., from the MUX).
-     */
-    public synchronized void setOverloadWarning(boolean overload) {
-        // same as chime
-        if(overload){ playCabinOverloadWarning(); }
-        guiControl.setCabinOverload(carId, overload);
     }
 
     /**

@@ -46,28 +46,6 @@ public class FloorCallButtons implements FloorCallButtonsAPI {
     }
 
     /**
-     * TODO: Remove.
-     * Simulate pressing the Up call
-     */
-    public synchronized void pressUpCall() {
-        if (hasUp) {
-            upPressed = true;
-            guiControl.setCallButton(floorNumber, "UP");
-        }
-    }
-
-    /**
-     * TODO: Remove.
-     * Simulate pressing the Down call
-     */
-    public synchronized void pressDownCall() {
-        if (hasDown) {
-            downPressed = true;
-            guiControl.setCallButton(floorNumber, "DOWN");
-        }
-    }
-
-    /**
      * Set the fire alarm status
      * @param status true if fire alarm is active, false otherwise
      */

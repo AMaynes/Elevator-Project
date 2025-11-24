@@ -17,8 +17,6 @@ public class ElevatorDoorsAssembly {
     private boolean isClosed;
     // True when an obstruction is placed
     private boolean isObstructed;
-    //TODO: Remove. It makes logical sense to have this, but not actively used.
-    // Represents whether the doors are actively opening/closing
     private boolean isMoving;
 
     // GUI Control reference

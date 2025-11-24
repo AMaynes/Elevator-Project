@@ -21,7 +21,7 @@ public class MotorFX implements Observer {
     public void update(Observable viewee) {
         if (viewee instanceof Motor) {
             Direction dir = (((Motor) viewee).get_direction());
-            //Todo: change colors to be pretty
+            //change colors to be pretty
             if (dir == Direction.UP) {
                 motor.setFill(Color.AQUA);
             } else if (dir == Direction.DOWN) {
