@@ -60,27 +60,28 @@ The GUI swaps images from `res/` to show the current state.
 - Commands for input in TCC must be in the format int-int-int. Acceptable commands:
 ```
 Topic | Meaning           |Subtopic (1 int)| Body (1 int) | Meaning of Body   | Receiving Device | Sending Device
-100	Door control	   1,2,3,4 (elevID)	 0/1	     0=open 1=close	 Elevator MUX	    DoorAssembly
-102	Car dispatch	   1,2,3,4 (elevID)	 0/1	     0=up 1=down	 Elevator MUX       Elevator
-103	Car stop	   1,2,3,4 (elevID)	 0	     stop car	         Elevator MUX       Elevator
-109	Selection reset	   1,2,3,4 (elevID)	 1-10	     Floor number	 Elevator MUX       Buttons
-110	Call reset	   1 to 10 (floor#)	 0/1	     0=up 1=down         Building MUX       Buttons
-111	Display floor	   1,2,3,4 (elevID)	 1-10	     Floor number	 Elevator MUX       Elevator
-112	Display direction  1,2,3,4 (elevID)	 0/1/2	     0=up 1=down 2=none  Elevator MUX       Elevator
-113	Calls Enabled	   0	                 0/1	     0=disabled1=enabled Building MUX       Buttons
-114	Selections Enabled 1,2,3,4 (elevID)	 0/1	     0=disabled1=enabled Elevator MUX       Buttons
-115	Selections type	   1,2,3,4 (elevID)	 0/1	     0=single1=multiple	 Elevator MUX       Buttons
-116	Play sound	   1,2,3,4 (elevID)	 0/1         0=arrival1=overload Elevator MUX       Notifier
-120	Fire Alarm	   0	                 0/1	     0=on 1=off          Building MUX       Mode
+------------------------------------------------------------------------------------------------------------------
+100	  |Door control	      |1,2,3,4 (elevID)| 0/1	      |0=open 1=close	  | Elevator MUX	 | DoorAssembly
+102	  |Car dispatch	      |1,2,3,4 (elevID)| 0/1	      |0=up 1=down	      | Elevator MUX     | Elevator
+103	  |Car stop	          |1,2,3,4 (elevID)| 0	          |stop car	          | Elevator MUX     | Elevator
+109	  |Selection reset	  |1,2,3,4 (elevID)| 1-10	      |Floor number	      | Elevator MUX     | Buttons
+110	  |Call reset	      |1 to 10 (floor#)| 0/1	      |0=up 1=down        | Building MUX     | Buttons
+111	  |Display floor	  |1,2,3,4 (elevID)| 1-10	      |Floor number	      | Elevator MUX     | Elevator
+112	  |Display direction  |1,2,3,4 (elevID)| 0/1/2	      |0=up 1=down 2=none | Elevator MUX     | Elevator
+113	  |Calls Enabled	  |0	           | 0/1	      |0=disabled1=enabled| Building MUX     | Buttons
+114	  |Selections Enabled |1,2,3,4 (elevID)| 0/1	      |0=disabled1=enabled| Elevator MUX     | Buttons
+115	  |Selections type	  |1,2,3,4 (elevID)| 0/1	      |0=single1=multiple |	Elevator MUX     | Buttons
+116	  |Play sound	      |1,2,3,4 (elevID)| 0/1          |0=arrival1=overload| Elevator MUX     | Notifier
+120	  |Fire Alarm	      |0	           | 0/1	      |0=on 1=off         | Building MUX     | Mode
 
-200	Hall call	   1 to 10 (floor#)	 0/1	     0=up 1=down     	 Buttons	    Building MUX
-201	Cabin select	   1,2,3,4 (elevID)	 1-10	     Floor number	 Buttons	    Elevator MUX
-202	Car position	   1,2,3,4 (elevID)      1-10	     Floor number	 Cabin	            Elevator MUX
-203	Door sensor	   1,2,3,4 (elevID)	 0/1	     0=obstructed1=clear Door Assembly	    Elevator MUX
-204	Door status	   1,2,3,4 (elevID)	 0/1	     0=open 1=closed     Door Assembly	    Elevator MUX
-205	Cabin load	   1,2,3,4 (elevID)	 0/1	     0=normal1=overload  Cabin              Elevator MUX
-206	Fire Key	   1,2,3,4 (elevID)	 0	     key used        	 Mode	            Elevator MUX	
-207	Car direction	   1,2,3,4 (elevID)	 0/1/2	     0=up1=down2=none    Cabin	            Elevator MUX
-208	Car movement	   1,2,3,4 (elevID)	 0/1	     0=idle 1=moving	 Cabin	            Elevator MUX
-209	Fire alarm active  0	                 0/1	     0=idle 1=pulled	 Mode	            Building MUX
+200	  |Hall call	      |1 to 10 (floor#)| 0/1	      |0=up 1=down     	  | Buttons	         | Building MUX
+201	  |Cabin select	      |1,2,3,4 (elevID)| 1-10	      |Floor number	      | Buttons	         | Elevator MUX
+202	  |Car position	      |1,2,3,4 (elevID)| 1-10	      |Floor number	      | Cabin	         | Elevator MUX
+203	  |Door sensor	      |1,2,3,4 (elevID)| 0/1	      |0=obstructed1=clear| Door Assembly	 | Elevator MUX
+204	  |Door status	      |1,2,3,4 (elevID)| 0/1	      |0=open 1=closed    | Door Assembly	 | Elevator MUX
+205	  |Cabin load	      |1,2,3,4 (elevID)| 0/1	      |0=normal1=overload | Cabin            | Elevator MUX
+206	  |Fire Key	          |1,2,3,4 (elevID)| 0	          |key used        	  | Mode	         | Elevator MUX	
+207	  |Car direction	  |1,2,3,4 (elevID)| 0/1/2	      |0=up1=down2=none   | Cabin	         | Elevator MUX
+208	  |Car movement	      |1,2,3,4 (elevID)| 0/1	      |0=idle 1=moving	  | Cabin	         | Elevator MUX
+209	  |Fire alarm active  |0	           | 0/1	      |0=idle 1=pulled	  | Mode	         | Building MUX
 ```
