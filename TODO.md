@@ -13,6 +13,7 @@ TODO:
     * Check newFloor != currentFloor in order to update the GUI.
     * Remove the arrival logic.
     * Send out messages according to Sensor readings.
+* Send out currDirection and currDirection Messages upon Motor start() and stop().
 * TESTING!
 * Integrate elevatorController code.
   * Most devices are unwritten.
