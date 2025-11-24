@@ -21,6 +21,7 @@ public class Topic {
     public static final int DISPLAY_FLOOR = 111; // bMUX & eMUX
     public static final int DISPLAY_DIRECTION = 112; // bMUX & eMUX
     public static final int FIRE_ALARM = 120; // bMUX
+    public static final int MOTOR = 121; // eMUX (not sure what number to use so 121)
 
     public static final int CALLS_ENABLED = 113;        // Building MUX
     public static final int SELECTIONS_ENABLED = 114;   // Elevator MUX (all)
@@ -36,6 +37,8 @@ public class Topic {
     public static final int CAR_POSITION = 202; // eMUX
     public static final int DOOR_SENSOR = 203; // eMUX
     public static final int DOOR_STATUS = 204; // eMUX
+    public static final int TOP_FLOOR_SENSOR = 210;//eMux (not sure what number so 210)
+    public static final int BOTTOM_FLOOR_SENSOR = 211;//eMux (not sure what number so 211)
     public static final int CABIN_LOAD = 205; // eMUX
     public static final int FIRE_KEY = 206; // eMUX
 
