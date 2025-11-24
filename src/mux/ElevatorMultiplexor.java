@@ -44,13 +44,10 @@ public class ElevatorMultiplexor {
         bus.subscribe(SoftwareBusCodes.displayDirection, ID);
         bus.subscribe(SoftwareBusCodes.carDispatch, ID);
         bus.subscribe(SoftwareBusCodes.resetFloorSelection, ID);
-//        bus.subscribe(SoftwareBusCodes.setMode, 0);  // Global mode changes
-//        bus.subscribe(SoftwareBusCodes.cabinSelect, ID);
-//        bus.subscribe(SoftwareBusCodes.cabinPosition, ID);
-//        bus.subscribe(SoftwareBusCodes.doorSensor, ID);
-//        bus.subscribe(SoftwareBusCodes.doorStatus, ID);
-//        bus.subscribe(SoftwareBusCodes.cabinLoad, ID);
-//        bus.subscribe(SoftwareBusCodes.fireKey, ID);
+
+        bus.subscribe(SoftwareBusCodes.selectionsEnable, ID);
+        bus.subscribe(SoftwareBusCodes.selectionsType, ID);
+
         System.out.println("ElevatorMUX " + ID + " initialized and subscribed");
         startBusPoller();
         startStatePoller();
@@ -83,36 +80,19 @@ public class ElevatorMultiplexor {
                 if (msg != null) {
                     handleCarDispatch(msg);
                 }
-//                msg = bus.get(SoftwareBusCodes.setMode, 0);
-//                if (msg != null) {
-//                    handleModeSet(msg);
-//                }
-//                msg = bus.get(SoftwareBusCodes.cabinSelect, ID);
-//                if (msg != null) {
-//                    handleCabinSelect(msg);
-//                }
-//                msg = bus.get(SoftwareBusCodes.doorSensor, ID);
-//                if (msg != null) {
-//                    handleDoorSensor(msg);
-//                }
-//                msg = bus.get(SoftwareBusCodes.doorStatus, ID);
-//                if (msg != null) {
-//                    handleDoorStatus(msg);
-//                }
-
-//                msg = bus.get(SoftwareBusCodes.cabinLoad, ID);
-//                if (msg != null) {
-//                    handleCabinLoad(msg);
-//                }
-//                msg = bus.get(SoftwareBusCodes.fireKey, ID);
-//                if (msg != null) {
-//                    handleFireKey(msg);
-//                }
-
                 msg = bus.get(SoftwareBusCodes.resetFloorSelection, ID);
                 if (msg != null) {
                     int floorNumber = msg.getBody();
                     elev.panel.resetFloorButton(floorNumber);
+                }
+
+                msg = bus.get(SoftwareBusCodes.selectionsEnable, ID);
+                if (msg != null) {
+                    handleSelectionEnable(msg);
+                }
+                msg = bus.get(SoftwareBusCodes.selectionsType, ID);
+                if (msg != null) {
+                    handleSelectionType(msg);
                 }
 
                 try {
@@ -317,43 +297,14 @@ public class ElevatorMultiplexor {
             motionAPI.start();
         }
     }
-//
-//    // Handle mode set messages
-//    private void handleModeSet(Message msg) {
-//        // TODO: This is probably not relevant to the MUX.
-//    }
 
-//    // Handle cabin select messages
-//    private void handleCabinSelect(Message msg) {
-//        int floor = msg.getBody();
-//        elev.panel.pressFloorButton(floor);
-//    }
+    // Handle Selection Disable/Enable Message
+    private void handleSelectionEnable(Message msg) {
+        //TODO
+    }
 
-//    // Handle door sensor messages
-//    private void handleDoorSensor(Message msg) {
-//        int status = msg.getBody();
-//        System.out.println("[MUX] Door sensor status for car " + ID + " = " + status);
-//        boolean obstructed = (status == 1);
-//        elev.door.setObstruction(obstructed);
-//    }
-
-//    // Handle door status messages
-//    private void handleDoorStatus(Message msg) {
-//        int status = msg.getBody();
-//        if (status == 1)
-//            elev.door.open();
-//        else
-//            elev.door.close();
-//    }
-
-//    // Handle cabin load messages
-//    private void handleCabinLoad(Message msg) {
-//        int status = msg.getBody();
-//        elev.panel.setOverloadWarning(status == 1);
-//    }
-//
-//    // Handle fire key messages
-//    private void handleFireKey(Message msg) {
-//        elev.panel.toggleFireKey();
-//    }
+    // Handle Selection allow single/multiple Message
+    private void handleSelectionType(Message msg) {
+        //TODO
+    }
 }

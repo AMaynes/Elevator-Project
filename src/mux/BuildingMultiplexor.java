@@ -35,7 +35,10 @@ public class BuildingMultiplexor {
     public void initialize() { 
         bus.subscribe(SoftwareBusCodes.fireAlarm, 0);
         bus.subscribe(SoftwareBusCodes.resetCall, 0);
-//        bus.subscribe(SoftwareBusCodes.hallCall, 0);
+
+        bus.subscribe(SoftwareBusCodes.playSound, 0);
+        bus.subscribe(SoftwareBusCodes.callsEnable, 0);
+
         System.out.println("BuildingMUX initialized and subscribed");
         startBusPoller();
         startStatePoller(); 
@@ -59,6 +62,15 @@ public class BuildingMultiplexor {
                 msg = bus.get(SoftwareBusCodes.resetCall, 0);
                 if (msg != null) {
                     handleCallReset(msg);
+                }
+
+                msg = bus.get(SoftwareBusCodes.callsEnable, 0);
+                if (msg != null) {
+                    handleCallEnable(msg);
+                }
+                msg = bus.get(SoftwareBusCodes.playSound, 0);
+                if (msg != null) {
+                    handlePlaySound(msg);
                 }
 
                 try {
@@ -142,5 +154,15 @@ public class BuildingMultiplexor {
             bldg.callButtons[floor].resetCallButton("DOWN");
             lastCallState[floor][1] = false;
         }
+    }
+
+    // Handle Call Enable/Disable Message
+    public void handleCallEnable(Message msg){
+        //TODO
+    }
+
+    // Handle play arrival/overload Message
+    public void handlePlaySound(Message msg){
+        //TODO
     }
 }
