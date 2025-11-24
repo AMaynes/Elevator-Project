@@ -17,7 +17,7 @@ public final class SoftwareBusCodes {
     // Device relevant control
     public static final int doorControl = 100;
     public static final int carDispatch = 102;
-    public static final int setMode = 103;
+    public static final int carStop = 103; //TODO
     public static final int resetFloorSelection = 109;
     public static final int resetCall = 110;
     public static final int displayFloor = 111;
@@ -38,7 +38,7 @@ public final class SoftwareBusCodes {
     public static final int doorStatus = 204;
     public static final int cabinLoad = 205;
     public static final int fireKey = 206;
-    public static final int currDirection = 207; //TODO
+    public static final int currDirection = 207; //TODO: Useless maybe?
     public static final int currFloor = 208; //TODO
     public static final int fireAlarmActive = 209;
 

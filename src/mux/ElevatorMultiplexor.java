@@ -45,6 +45,7 @@ public class ElevatorMultiplexor {
         bus.subscribe(SoftwareBusCodes.carDispatch, ID);
         bus.subscribe(SoftwareBusCodes.resetFloorSelection, ID);
 
+        bus.subscribe(SoftwareBusCodes.carStop, ID);
         bus.subscribe(SoftwareBusCodes.selectionsEnable, ID);
         bus.subscribe(SoftwareBusCodes.selectionsType, ID);
 
@@ -86,6 +87,10 @@ public class ElevatorMultiplexor {
                     elev.panel.resetFloorButton(floorNumber);
                 }
 
+                msg = bus.get(SoftwareBusCodes.carStop, ID);
+                if (msg != null) {
+                    handleCarStop(msg);
+                }
                 msg = bus.get(SoftwareBusCodes.selectionsEnable, ID);
                 if (msg != null) {
                     handleSelectionEnable(msg);
@@ -202,11 +207,14 @@ public class ElevatorMultiplexor {
         currentFloor = newFloor;
 
         // Only update GUI when actually MOVING
+        //TODO: && newFloor != currentFloor ?
         if (!currentDirection.equals("IDLE")) {
             elev.display.updateFloorIndicator(currentFloor, currentDirection);
             elev.panel.setDisplay(currentFloor, currentDirection);
             bus.publish(new Message(SoftwareBusCodes.cabinPosition, ID, currentFloor));
         }
+
+        //TODO: Remove this. Nice for the purposes of the Demo, though.
 
         // Arrival logic
         if (targetFloor > 0 && currentFloor == targetFloor) {
@@ -276,6 +284,8 @@ public class ElevatorMultiplexor {
     }
 
     // Handle car dispatch messages
+    //TODO: Fix so that it just starts the elevator in the direction indicated by body
+    //TODO: 0 = up, 1 = down
     private void handleCarDispatch(Message msg) {
         targetFloor = msg.getBody();
         int dir = targetFloor - currentFloor;
@@ -296,6 +306,11 @@ public class ElevatorMultiplexor {
             elev.panel.setDisplay(currentFloor, currentDirection);
             motionAPI.start();
         }
+    }
+
+    // Handle Car Stop Message
+    private void handleCarStop(Message msg){
+        //TODO
     }
 
     // Handle Selection Disable/Enable Message
