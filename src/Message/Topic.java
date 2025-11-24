@@ -6,7 +6,7 @@ package Message;
  */
 public class Topic {
     /**
-     * Empty constructor.
+     * Empty constructor. <- for why?? -_-
      */
     public Topic() {
     }

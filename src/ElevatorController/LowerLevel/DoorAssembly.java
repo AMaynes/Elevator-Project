@@ -1,6 +1,7 @@
 package ElevatorController.LowerLevel;
 
 import Bus.SoftwareBus;
+import Message.*;
 
 /**
  * The door assembly is a virtualization of the physical interfaces which
@@ -20,14 +21,24 @@ public class DoorAssembly {
     private int elevatorID;
     private SoftwareBus softwareBus;
 
+    //Constants for body codes
+    private final int openCode = 1;
+    private final int closeCode = 2;
+    private final int obstructedCode = 0;
+    private final int notObstructedCode = 1;
+    private final int fullyClosedCode = 2;
+    private final int notFullyClosedCode = 3;
+    private final int fullyOpenCode = 4;
+    private final int notFullyOpenCode = 5;
+    private final int overCapacityCode = 0;
+    private final int notOverCapacityCode = 1;
+
     /**
      * Instantiate a DoorAssembly object, and run its thread
      * @param elevatorID For software bus messages
      * @param softwareBus The means of communication
      */
     public DoorAssembly(int elevatorID, SoftwareBus  softwareBus) {
-        //TODO may need to take in int for elevator number for software bus subscription
-        //TODO call subscribe on softwareBus w/ relevant topic/subtopic
 
         this.opened = true;
         this.closed = false;
@@ -37,26 +48,40 @@ public class DoorAssembly {
         this.overCapacity = false;
         this.softwareBus = softwareBus;
         this.elevatorID = this.elevatorID;
+
+        //Todo: (DOOR_STATUS or DOOR_SENSOR????????)
+        softwareBus.subscribe(Topic.DOOR_SENSOR, elevatorID);
+        softwareBus.subscribe(Topic.CABIN_LOAD, elevatorID);
     }
 
-    //Todo: Write these methods
     /**
      * Send message to softwareBus to open the doors (which sends the message
      * to the MUX)
      */
-    public void open(){}
+    public void open(){
+        // correct body for current mux
+        softwareBus.publish(new Message(Topic.DOOR_CONTROL, elevatorID, openCode));
+    }
 
     /**
      * Send message to softwareBus to close the doors (which sends the message
      * to the MUX)
      */
-    public void close(){}
+    public void close(){
+        // correcct body for current mux 11/23/2025
+        softwareBus.publish(new Message(Topic.DOOR_CONTROL, elevatorID, closeCode));
+    }
 
     /**
      * @return true if obstruction sensor triggered, false otherwise
      */
     public boolean obstructed(){
-        //TODO: get a message
+        //Todo: ok so I assume this will return a message that says 0 for not obstructed and 1 if obstructed (DOOR_STATUS or DOOR_SENSOR????????)
+        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, Topic.DOOR_SENSOR);
+        if (message != null ) {
+            if (message.getBody() == obstructedCode) obstructed = true;
+            if (message.getBody() == notObstructedCode) obstructed = false;
+        }
         return obstructed;
     }
 
@@ -64,7 +89,12 @@ public class DoorAssembly {
      * @return true if fully closed sensor triggered, false otherwise
      */
     public boolean fullyClosed(){
-        //TODO: get a massage
+        // Todo: assuming 3 for fully closed and 4 for not fully closed (DOOR_STATUS or DOOR_SENSOR????????)
+        Message message =  MessageHelper.pullAllMessages(softwareBus, elevatorID, Topic.DOOR_SENSOR);
+        if (message != null ) {
+            if (message.getBody() == fullyClosedCode) fullyClosed = true;
+            if (message.getBody() == notFullyClosedCode) fullyClosed = false;
+        }
         return fullyClosed;
     }
 
@@ -72,7 +102,12 @@ public class DoorAssembly {
      * @return true if fully open sensor triggered, false otherwise
      */
     public boolean fullyOpen(){
-        //TODO: get a emssage
+        // Todo: assuming 5 for fully closed and 6 for not fully closed (DOOR_STATUS or DOOR_SENSOR????????)
+        Message message =  MessageHelper.pullAllMessages(softwareBus, elevatorID, Topic.DOOR_SENSOR);
+        if (message != null ) {
+            if (message.getBody() == fullyOpenCode) fullyOpen = true;
+            if (message.getBody() == notFullyOpenCode) fullyOpen = false;
+        }
         return fullyOpen;
     }
 
@@ -81,7 +116,12 @@ public class DoorAssembly {
      *         capacity message was received, true initially
      */
     public boolean overCapacity(){
-        //TODO: messyge;
+        //Todo: assuming 0 for over capacity and 1 for not over capacity
+        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, Topic.CABIN_LOAD);
+        if (message != null ) {
+            if (message.getBody() == overCapacityCode) overCapacity = true;
+            if (message.getBody() == notOverCapacityCode) overCapacity = false;
+        }
         return overCapacity;
     }
 
