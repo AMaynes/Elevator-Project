@@ -48,6 +48,7 @@ public class ElevatorMultiplexor {
         bus.subscribe(SoftwareBusCodes.carStop, ID);
         bus.subscribe(SoftwareBusCodes.selectionsEnable, ID);
         bus.subscribe(SoftwareBusCodes.selectionsType, ID);
+        bus.subscribe(SoftwareBusCodes.playSound, ID);
 
         System.out.println("ElevatorMUX " + ID + " initialized and subscribed");
         startBusPoller();
@@ -98,6 +99,10 @@ public class ElevatorMultiplexor {
                 msg = bus.get(SoftwareBusCodes.selectionsType, ID);
                 if (msg != null) {
                     handleSelectionType(msg);
+                }
+                msg = bus.get(SoftwareBusCodes.playSound, 0);
+                if (msg != null) {
+                    handlePlaySound(msg);
                 }
 
                 try {
@@ -321,5 +326,15 @@ public class ElevatorMultiplexor {
     // Handle Selection allow single/multiple Message
     private void handleSelectionType(Message msg) {
         //TODO
+    }
+
+    // Handle play arrival/overload Message
+    public void handlePlaySound(Message msg){
+        int type = msg.getBody();
+        if (type == 0) {
+            elev.display.playArrivalChime();
+        } else {
+            elev.display.playOverLoadWarning();
+        }
     }
 }
