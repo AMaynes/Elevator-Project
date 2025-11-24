@@ -36,8 +36,7 @@ public class ElevatorMultiplexor {
     private int lastPressedFloor = 0;
     private int targetFloor = 0;
 
-    
-    // Initialize the MUX  (placeholder example subscriptions)
+    // Initialize the MUX
     public void initialize() {
         bus.subscribe(SoftwareBusCodes.doorControl, ID);
         bus.subscribe(SoftwareBusCodes.displayFloor, ID);
@@ -220,7 +219,6 @@ public class ElevatorMultiplexor {
         }
 
         //TODO: Remove this. Nice for the purposes of the Demo, though.
-
         // Arrival logic
         if (targetFloor > 0 && currentFloor == targetFloor) {
             motionAPI.stop();
@@ -290,7 +288,7 @@ public class ElevatorMultiplexor {
 
     // Handle car dispatch messages
     //TODO: Fix so that it just starts the elevator in the direction indicated by body
-    //TODO: 0 = up, 1 = down
+    // 0 = up, 1 = down
     private void handleCarDispatch(Message msg) {
         targetFloor = msg.getBody();
         int dir = targetFloor - currentFloor;

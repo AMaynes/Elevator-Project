@@ -97,6 +97,11 @@ public class ElevatorFloorDisplay {
         });
     }
 
+    /**
+     * Returns whether the Cabin is overloaded.
+     * Why is this in the display specifically? IDK!
+     * @return true when Overload is selected in GUI, otherwise false
+     */
     public boolean isOverloaded(){
         return guiControl.getIsCabinOverloaded(carId);
     }

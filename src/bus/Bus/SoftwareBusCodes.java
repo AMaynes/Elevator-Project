@@ -23,10 +23,10 @@ public final class SoftwareBusCodes {
     public static final int displayFloor = 111;
     public static final int displayDirection = 112;
 
-    public static final int callsEnable = 113; //TODO
-    public static final int selectionsEnable = 114; //TODO
-    public static final int selectionsType = 115; //TODO
-    public static final int playSound = 116; //TODO
+    public static final int callsEnable = 113;
+    public static final int selectionsEnable = 114;
+    public static final int selectionsType = 115;
+    public static final int playSound = 116;
 
     public static final int fireAlarm = 120;
 
@@ -39,7 +39,7 @@ public final class SoftwareBusCodes {
     public static final int cabinLoad = 205;
     public static final int fireKey = 206;
     public static final int currDirection = 207; //TODO: Useless maybe?
-    public static final int currFloor = 208; //TODO
+    public static final int currMovement = 208; //TODO
     public static final int fireAlarmActive = 209;
 
     // Control devices

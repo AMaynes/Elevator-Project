@@ -24,7 +24,6 @@ public class Elevator {
      * Constructs an Elevator.
      * @param carId the ID of the elevator (1-4)
      * @param totalFloors the number of floors in the building (=10)
-     * @param mux the ElevatorMultiplexor instance
      */
     public Elevator(int carId, int totalFloors) {
         gui g = gui.getInstance();

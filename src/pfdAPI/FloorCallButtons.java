@@ -46,6 +46,7 @@ public class FloorCallButtons implements FloorCallButtonsAPI {
     }
 
     /**
+     * TODO: Remove.
      * Simulate pressing the Up call
      */
     public synchronized void pressUpCall() {
@@ -56,6 +57,7 @@ public class FloorCallButtons implements FloorCallButtonsAPI {
     }
 
     /**
+     * TODO: Remove.
      * Simulate pressing the Down call
      */
     public synchronized void pressDownCall() {
@@ -96,7 +98,7 @@ public class FloorCallButtons implements FloorCallButtonsAPI {
 
     /**
      * Reset the specified call indicator ("Up" or "Down") after service.
-     * Both must be reset upon emergency mode activation.
+     * Both must be reset upon fire mode activation.
      * @param direction the button to be reset
      */
     @Override
@@ -108,6 +110,11 @@ public class FloorCallButtons implements FloorCallButtonsAPI {
         }
     }
 
+    /**
+     * Set EVERY button panel to disabled or enabled.
+     * Applies to the entire building, despite being 1 panel. So only called on 1!
+     * @param enabled, 0 = disabled 1 = enabled
+     */
     public synchronized void setButtonsEnabled(int enabled){
         if(enabled == 1){
             guiControl.setCallButtonsDisabled(false);

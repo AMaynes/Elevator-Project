@@ -88,6 +88,7 @@ public class gui extends Application {
             return (panelIndex >= 0 && panelIndex < numElevators) ? fireKeys[panelIndex] : false;
         }
 
+        // Setters for internal state variables
         public void setCallButtonsDisabled(boolean disabled) {
             callButtonsDisabled = disabled;
         }

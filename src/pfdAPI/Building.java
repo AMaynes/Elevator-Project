@@ -2,6 +2,10 @@ package pfdAPI;
 
 import pfdGUI.gui;
 
+/**
+ * Class that defines the Building, with 10 floors, 10 floor call buttons,
+ * and a fire alarm (inside call button objects).
+ */
 public class Building {
 
     // The building's elevator call buttons on each floor
