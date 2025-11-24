@@ -35,7 +35,7 @@ public class BuildingMultiplexor {
     public void initialize() { 
         bus.subscribe(SoftwareBusCodes.fireAlarm, 0);
         bus.subscribe(SoftwareBusCodes.resetCall, 0);
-        bus.subscribe(SoftwareBusCodes.hallCall, 0);
+//        bus.subscribe(SoftwareBusCodes.hallCall, 0);
         System.out.println("BuildingMUX initialized and subscribed");
         startBusPoller();
         startStatePoller(); 
