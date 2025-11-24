@@ -63,6 +63,10 @@ public class gui extends Application {
         private boolean[] cabinOverloads = new boolean[numElevators];
         private boolean[] fireKeys = new boolean[numElevators];
         private boolean fireAlarmActive;
+        private boolean callButtonsDisabled = false;
+        private boolean[] panelButtonsDisabled = new boolean[numElevators];
+        private boolean[] singleSelection = new boolean[numElevators];
+        private int lastSelected = 0;
 
         // Getters for internal state variables
         public ArrayList<Integer> getPressedFloors(int ID) { 
@@ -83,7 +87,21 @@ public class gui extends Application {
             int panelIndex = ID - 1;
             return (panelIndex >= 0 && panelIndex < numElevators) ? fireKeys[panelIndex] : false;
         }
-        
+
+        public void setCallButtonsDisabled(boolean disabled) {
+            callButtonsDisabled = disabled;
+        }
+
+        public void setPanelButtonsDisabled(int ID, boolean disabled) {
+            int panelIndex = ID - 1;
+            panelButtonsDisabled[panelIndex] = disabled;
+        }
+
+        public void setSingleSelection(int ID, boolean single) {
+            int panelIndex = ID - 1;
+            lastSelected = 0;
+            singleSelection[panelIndex] = single;
+        }
 
         // Press panel button
         public void pressPanelButton(int ID, int floorNumber) {
@@ -107,6 +125,9 @@ public class gui extends Application {
                         lbl.setStyle("-fx-text-fill: black;");
                         pressedFloors[ID-1].remove(Integer.valueOf(floorNumber));
                     }
+                }
+                if(floorNumber == lastSelected){
+                    lastSelected = 0;
                 }
             });
         }
@@ -365,10 +386,15 @@ public class gui extends Application {
                 final int leftFloorNumber = i;
                 left.setOnMouseClicked(event -> {
                     Platform.runLater(() -> {
-                        if (elevatorMuxes != null && carId < elevatorMuxes.length && elevatorMuxes[carId] != null) {
-                            elevatorMuxes[carId].getElevator().panel.pressFloorButton(leftFloorNumber);
+                        if(!internalState.panelButtonsDisabled[carId]) {
+                            if(!internalState.singleSelection[carId] || internalState.lastSelected == 0) {
+                                if (elevatorMuxes != null && carId < elevatorMuxes.length && elevatorMuxes[carId] != null) {
+                                    elevatorMuxes[carId].getElevator().panel.pressFloorButton(leftFloorNumber);
+                                    internalState.lastSelected = leftFloorNumber;
+                                }
+                                left.setStyle("-fx-text-fill: #ffffffff;");
+                            }
                         }
-                        left.setStyle("-fx-text-fill: #ffffffff;");
                     });
                 });
 
@@ -387,10 +413,15 @@ public class gui extends Application {
                 final int rightFloorNumber = i + 1;
                 right.setOnMouseClicked(event -> {
                     Platform.runLater(() -> {
-                        if (elevatorMuxes != null && carId < elevatorMuxes.length && elevatorMuxes[carId] != null) {
-                            elevatorMuxes[carId].getElevator().panel.pressFloorButton(rightFloorNumber);
+                        if(!internalState.panelButtonsDisabled[carId]) {
+                            if(!internalState.singleSelection[carId] || internalState.lastSelected == 0) {
+                                if (elevatorMuxes != null && carId < elevatorMuxes.length && elevatorMuxes[carId] != null) {
+                                    elevatorMuxes[carId].getElevator().panel.pressFloorButton(rightFloorNumber);
+                                    internalState.lastSelected = rightFloorNumber;
+                                }
+                                right.setStyle("-fx-text-fill: #ffffffff;");
+                            }
                         }
-                        right.setStyle("-fx-text-fill: #ffffffff;");
                     });
                 });
 
@@ -540,38 +571,38 @@ public class gui extends Application {
 
             // Bound the click region with quick maths
             elevCallButtonsImg.setOnMouseClicked(event -> {
-                double clickX = event.getX();
-                double clickY = event.getY();
-                double width = elevCallButtonsImg.getBoundsInLocal().getWidth();
-                double height = elevCallButtonsImg.getBoundsInLocal().getHeight();
+                if(!internalState.callButtonsDisabled) {
+                    double clickX = event.getX();
+                    double clickY = event.getY();
+                    double width = elevCallButtonsImg.getBoundsInLocal().getWidth();
+                    double height = elevCallButtonsImg.getBoundsInLocal().getHeight();
 
-                // Approximate centers of the upper and lower buttons
-                double centerX = width / 2;
-                double centerY = height / 2;
-                double offsetY = 20;  // how far each button center is from middle
-                double radius = 15;   // clickable radius
+                    // Approximate centers of the upper and lower buttons
+                    double centerX = width / 2;
+                    double centerY = height / 2;
+                    double offsetY = 20;  // how far each button center is from middle
+                    double radius = 15;   // clickable radius
 
-                // Calculate distances from click point to each button center
-                double distToUp = Math.hypot(clickX - centerX, clickY - (centerY - offsetY));
-                double distToDown = Math.hypot(clickX - centerX, clickY - (centerY + offsetY));
+                    // Calculate distances from click point to each button center
+                    double distToUp = Math.hypot(clickX - centerX, clickY - (centerY - offsetY));
+                    double distToDown = Math.hypot(clickX - centerX, clickY - (centerY + offsetY));
 
-                if (distToUp <= radius) {
-                    // Upper button clicked
-                    Platform.runLater(() -> {
-                        callButtons[buttonIndex].direction = "UP";
-                        elevCallButtonsImg.setImage(loader.imageList.get(15));
-                    });
-                } 
-                else if (distToDown <= radius) {
-                    // Lower button clicked
-                    Platform.runLater(() -> {
-                        callButtons[buttonIndex].direction = "DOWN";
-                        elevCallButtonsImg.setImage(loader.imageList.get(14));
-                    });
-                } 
-                else {
-                    // Clicked outside both button circles — ignore
-                    System.out.println("Clicked outside call buttons");
+                    if (distToUp <= radius) {
+                        // Upper button clicked
+                        Platform.runLater(() -> {
+                            callButtons[buttonIndex].direction = "UP";
+                            elevCallButtonsImg.setImage(loader.imageList.get(15));
+                        });
+                    } else if (distToDown <= radius) {
+                        // Lower button clicked
+                        Platform.runLater(() -> {
+                            callButtons[buttonIndex].direction = "DOWN";
+                            elevCallButtonsImg.setImage(loader.imageList.get(14));
+                        });
+                    } else {
+                        // Clicked outside both button circles — ignore
+                        System.out.println("Clicked outside call buttons");
+                    }
                 }
             });
         }

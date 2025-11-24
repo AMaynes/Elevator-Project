@@ -320,12 +320,14 @@ public class ElevatorMultiplexor {
 
     // Handle Selection Disable/Enable Message
     private void handleSelectionEnable(Message msg) {
-        //TODO
+        int body = msg.getBody();
+        elev.panel.setButtonsDisabled(body);
     }
 
     // Handle Selection allow single/multiple Message
     private void handleSelectionType(Message msg) {
-        //TODO
+        int body = msg.getBody();
+        elev.panel.setButtonsSingle(body);
     }
 
     // Handle play arrival/overload Message

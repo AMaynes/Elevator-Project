@@ -92,6 +92,22 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
         guiControl.resetPanel(carId);
     }
 
+    public synchronized void setButtonsDisabled(int disabled){
+        if(disabled == 0){
+            guiControl.setPanelButtonsDisabled(carId,  true);
+        }else {
+            guiControl.setPanelButtonsDisabled(carId,  false);
+        }
+    }
+
+    public synchronized void setButtonsSingle(int single){
+        if(single == 0){
+            guiControl.setSingleSelection(carId, true);
+        }else{
+            guiControl.setSingleSelection(carId, false);
+        }
+    }
+
     /**
      * Resets a specific floor button's indicator. Resets occur after the travel
      * request has been serviced.

@@ -107,4 +107,12 @@ public class FloorCallButtons implements FloorCallButtonsAPI {
             guiControl.resetCallButton(floorNumber);
         }
     }
+
+    public synchronized void setButtonsEnabled(int enabled){
+        if(enabled == 1){
+            guiControl.setCallButtonsDisabled(false);
+        }else{
+            guiControl.setCallButtonsDisabled(true);
+        }
+    }
 }

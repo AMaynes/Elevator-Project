@@ -152,6 +152,7 @@ public class BuildingMultiplexor {
 
     // Handle Call Enable/Disable Message
     public void handleCallEnable(Message msg){
-        //TODO
+        int body = msg.getBody();
+        bldg.callButtons[1].setButtonsEnabled(body);
     }
 }
