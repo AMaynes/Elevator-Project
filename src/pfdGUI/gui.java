@@ -261,11 +261,22 @@ public class gui extends Application {
         }
 
         // Reset the floor call button state
-        public void resetCallButton(int floorNumber) {
+        public void resetCallButton(int floorNumber, String direction) {
             int buttonIndex = floorNumber - 1;  // Convert floor number (1-10) to array index (0-9)
             if (buttonIndex >= 0 && buttonIndex < numFloors) {
                 Platform.runLater(() -> {
-                    callButtons[buttonIndex].elevCallButtonsImg.setImage(loader.imageList.get(13));
+                    if(callButtons[buttonIndex].direction.equals("BOTH")) {
+                        if(direction.equalsIgnoreCase("UP")) {
+                            callButtons[buttonIndex].setDirection("DOWN");
+                            callButtons[buttonIndex].elevCallButtonsImg.setImage(loader.imageList.get(14));
+                        } else {
+                            callButtons[buttonIndex].setDirection("UP");
+                            callButtons[buttonIndex].elevCallButtonsImg.setImage(loader.imageList.get(15));
+                        }
+                    } else {
+                        callButtons[buttonIndex].setDirection("IDLE");
+                        callButtons[buttonIndex].elevCallButtonsImg.setImage(loader.imageList.get(13));
+                    }
                 });
             }
         }
@@ -289,6 +300,9 @@ public class gui extends Application {
                 return false;
             }
             String currentDirection = callButtons[buttonIndex].direction;
+            if(currentDirection.equalsIgnoreCase("BOTH")) {
+                return true;
+            }
             return currentDirection.equalsIgnoreCase(direction);
         }
     }
@@ -568,7 +582,7 @@ public class gui extends Application {
             elevCallButtonsImg.setPreserveRatio(true);
             elevCallButtonsImg.setFitWidth(100);
             elevCallButtonsImg.setFitHeight(100);
-            elevCallButtonsImg.setImage(loader.imageList.get(13)); // 13-15 indices are call buttons
+            elevCallButtonsImg.setImage(loader.imageList.get(13)); // 13-16 indices are call buttons
 
             // Bound the click region with quick maths
             elevCallButtonsImg.setOnMouseClicked(event -> {
@@ -591,14 +605,28 @@ public class gui extends Application {
                     if (distToUp <= radius) {
                         // Upper button clicked
                         Platform.runLater(() -> {
-                            callButtons[buttonIndex].direction = "UP";
-                            elevCallButtonsImg.setImage(loader.imageList.get(15));
+                            if(buttonIndex != 9) {
+                                if (callButtons[buttonIndex].direction.equals("DOWN")) {
+                                    callButtons[buttonIndex].direction = "BOTH";
+                                    elevCallButtonsImg.setImage(loader.imageList.get(16));
+                                } else if (!callButtons[buttonIndex].direction.equals("BOTH")) {
+                                    callButtons[buttonIndex].direction = "UP";
+                                    elevCallButtonsImg.setImage(loader.imageList.get(15));
+                                }
+                            }
                         });
                     } else if (distToDown <= radius) {
                         // Lower button clicked
                         Platform.runLater(() -> {
-                            callButtons[buttonIndex].direction = "DOWN";
-                            elevCallButtonsImg.setImage(loader.imageList.get(14));
+                            if(buttonIndex != 0) {
+                                if (callButtons[buttonIndex].direction.equals("UP")) {
+                                    callButtons[buttonIndex].direction = "BOTH";
+                                    elevCallButtonsImg.setImage(loader.imageList.get(16));
+                                } else if (!callButtons[buttonIndex].direction.equals("BOTH")) {
+                                    callButtons[buttonIndex].direction = "DOWN";
+                                    elevCallButtonsImg.setImage(loader.imageList.get(14));
+                                }
+                            }
                         });
                     } else {
                         // Clicked outside both button circles — ignore
@@ -606,6 +634,10 @@ public class gui extends Application {
                     }
                 }
             });
+        }
+
+        public void setDirection(String direction) {
+            this.direction = direction;
         }
     }
 
