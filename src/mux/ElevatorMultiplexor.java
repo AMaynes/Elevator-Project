@@ -178,7 +178,7 @@ public class ElevatorMultiplexor {
 
     // Poll and publish cabin overload state changes
     private void pollCabinOverload() {
-        boolean isOverloaded = false;
+        boolean isOverloaded = elev.display.isOverloaded();
         if (isOverloaded != lastOverloadState) {
             // Emit CABIN_LOAD message (Topic 205) only on state change
             int v;

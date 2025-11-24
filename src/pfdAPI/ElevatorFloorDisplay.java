@@ -59,4 +59,8 @@ public class ElevatorFloorDisplay {
         // simulating the buzzing noise
         System.out.println("*Buzz! Warning: Overload detected at floor" + currentFloor);
     }
+
+    public boolean isOverloaded(){
+        return guiControl.getIsCabinOverloaded(carId);
+    }
 }
