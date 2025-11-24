@@ -53,16 +53,7 @@ public class Cabin implements Runnable {
     public void run() {
         //Todo: papa bird, mama bird! Check if the alignment logic is right please please
         while (true) {
-            if(currDest != botAlign + 1) startMotor(currDirection);
             stepTowardsDest();
-            if (currDirection == Direction.UP) {
-                if (currDest == botAlign && topAlign == botAlign + 1)
-                    stopMotor();
-            } else if (currDirection == Direction.DOWN) {
-                if (currDest == topAlign && botAlign == topAlign - 1)
-                    stopMotor();
-            }
-
             System.out.println(""); // <- why?
         }
     }
