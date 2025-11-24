@@ -11,40 +11,76 @@ be part of a much larger project.
 ## File structure
 ```
 Elevator-Project/
-├─ .dist/
-├─ .git/
+├─ docs/
+├─ res/
+│  ├─ sounds/ (.mp3)
+│  └─ image_files (.png)
+├─ src/
+│ 	├─ bus/
+│ 	    ├─ Bus/
+│ 		│   └─ SoftwareBusCodes.java
+│ 		└─ Message/
+│ 	├─ center/
+│ 	    ├─ TestCommandCenterDisplay.java
+│ 		└─ TestCommandCenterMain.java    # Command center that takes in user Messages
+│ 	├─ motion/
+│ 	    └─ MotionAPI.java
+│ 	├─ mux/
+│ 	    ├─ BuildingMultiplexor.java
+│ 		└─ ElevatorMultiplexor.java
+│ 	├─ pfdAPI/
+│ 	    ├─ Building.java
+│       ├─ CabinPassengerPanel.java
+│       ├─ CabinPassengerPanelAPI.java
+│       ├─ Elevator.java
+│       ├─ ElevatorDoorsAssembly.java
+│       ├─ ElevatorFloorDisplay.java
+│ 		└─ FloorCallButtons.java
+│ 	├─ pfdGUI/
+│ 		└─ gui.java    # JavaFX GUI with listeners in the api backend files
+│ 	├─ utils/
+│ 		├─ imageLoader.java
+│ 		└─ testImageSort.java
+│ 	└─ Main.java
 ├─ .gitignore
 ├─ README.md
-├─ docs/
-├─ out/
-├─ res/
-│  ├─ image_files (.png)
-├─ runnables/
-│  ├─ runPfd.java        # simulation demo file
-│  └─ testApi.java       # additional test to just test the api function calls
-└─ src/
-	├─ CabinPassengerPanel.java
-	├─ CabinPassengerPanelAPI.java
-	├─ ElevatorDoorsAssembly.java
-	├─ ElevatorFloorDisplay.java
-	├─ FloorCallButtons.java
-	├─ gui.java            # JavaFX GUI with listeners in the api backend files
-	└─ utils/
-		├─ imageLoader.java
-		└─ testImageSort.java
+├─ TODO.md
 ```
 
 ## How to run the demo
 - Compile all java files
-- Run the file runPfd.java
+- Run the file TestCommandCenterMain.java
+- Run the file gui.java
 
-`runPfd.java` starts the GUI and then simulates calls like pressing floor buttons and opening/closing doors. The GUI swaps images from `res/` to show the current state.
+`gui.java` starts the GUI and then simulates calls like pressing floor buttons and opening/closing doors. 
+The GUI swaps images from `res/` to show the current state.
 
 ## Notes
-- Reworked the MUX to be cleaner still WIP
+- In order to play sounds, MARK res/ AS RESOURCE FOLDER.
+- Commands for input in TCC must be in the format int-int-int. Acceptable commands:
+```
+Topic | Meaning           |Subtopic (1 int)| Body (1 int) | Meaning of Body   | Receiving Device | Sending Device
+100	Door control	   1,2,3,4 (elevID)	 0/1	     0=open 1=close	 Elevator MUX	    DoorAssembly
+102	Car dispatch	   1,2,3,4 (elevID)	 0/1	     0=up 1=down	 Elevator MUX       Elevator
+103	Car stop	   1,2,3,4 (elevID)	 0	     stop car	         Elevator MUX       Elevator
+109	Selection reset	   1,2,3,4 (elevID)	 1-10	     Floor number	 Elevator MUX       Buttons
+110	Call reset	   1 to 10 (floor#)	 0/1	     0=up 1=down         Building MUX       Buttons
+111	Display floor	   1,2,3,4 (elevID)	 1-10	     Floor number	 Elevator MUX       Elevator
+112	Display direction  1,2,3,4 (elevID)	 0/1/2	     0=up 1=down 2=none  Elevator MUX       Elevator
+113	Calls Enabled	   0	                 0/1	     0=disabled1=enabled Building MUX       Buttons
+114	Selections Enabled 1,2,3,4 (elevID)	 0/1	     0=disabled1=enabled Elevator MUX       Buttons
+115	Selections type	   1,2,3,4 (elevID)	 0/1	     0=single1=multiple	 Elevator MUX       Buttons
+116	Play sound	   1,2,3,4 (elevID)	 0/1         0=arrival1=overload Elevator MUX       Notifier
+120	Fire Alarm	   0	                 0/1	     0=on 1=off          Building MUX       Mode
 
-## TODO Still
-- Need to finish new MUX -> API -> GUI implementations
-- Need to test external command integrations once official topics are integrated
-- Need to test motion sim once integrated
-- Need sound implementations
+200	Hall call	   1 to 10 (floor#)	 0/1	     0=up 1=down     	 Buttons	    Building MUX
+201	Cabin select	   1,2,3,4 (elevID)	 1-10	     Floor number	 Buttons	    Elevator MUX
+202	Car position	   1,2,3,4 (elevID)      1-10	     Floor number	 Cabin	            Elevator MUX
+203	Door sensor	   1,2,3,4 (elevID)	 0/1	     0=obstructed1=clear Door Assembly	    Elevator MUX
+204	Door status	   1,2,3,4 (elevID)	 0/1	     0=open 1=closed     Door Assembly	    Elevator MUX
+205	Cabin load	   1,2,3,4 (elevID)	 0/1	     0=normal1=overload  Cabin              Elevator MUX
+206	Fire Key	   1,2,3,4 (elevID)	 0	     key used        	 Mode	            Elevator MUX	
+207	Car direction	   1,2,3,4 (elevID)	 0/1/2	     0=up1=down2=none    Cabin	            Elevator MUX
+208	Car movement	   1,2,3,4 (elevID)	 0/1	     0=idle 1=moving	 Cabin	            Elevator MUX
+209	Fire alarm active  0	                 0/1	     0=idle 1=pulled	 Mode	            Building MUX
+```
