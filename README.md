@@ -57,7 +57,7 @@ The GUI swaps images from `res/` to show the current state.
 
 ## Notes
 - In order to play sounds, MARK res/ AS RESOURCE FOLDER.
-- Commands for input in TCC must be in the format int-int-int. Acceptable commands:
+- Commands for input in TCC must be in the format int-int-int, corresponding to topic-subtopic-body. Acceptable commands:
 ```
 Topic | Meaning           |Subtopic (1 int)| Body (1 int) | Meaning of Body   | Receiving Device | Sending Device
 ------------------------------------------------------------------------------------------------------------------
