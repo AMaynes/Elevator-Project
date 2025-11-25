@@ -35,8 +35,8 @@ public class ElevatorMultiplexor {
     private boolean lastOverloadState = false;
     private int lastPressedFloor = 0;
     private int targetFloor = 0;
-    private Integer lastTopSensorRead = null;
-    private Integer lastBottomSensorRead = null;
+    private Integer lastTopSensorRead = motionAPI.top_alignment();
+    private Integer lastBottomSensorRead = motionAPI.bottom_alignment();
 
     // Initialize the MUX
     public void initialize() {
@@ -135,7 +135,7 @@ public class ElevatorMultiplexor {
                 pollCarPosition();
                 
                 try {
-                    Thread.sleep(1000); 
+                    Thread.sleep(500); 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -209,19 +209,14 @@ public class ElevatorMultiplexor {
         boolean botChanged = (bottomSensor != null && !bottomSensor.equals(lastBottomSensorRead));
 
         // Return if no state change has occured
-        if (!topChanged && !botChanged) {
-            lastTopSensorRead = topSensor;
-            lastBottomSensorRead = bottomSensor;
-            return;
-        }
+        if (!topChanged && !botChanged) return;
 
         // Publish sensor data if has changed
         if (topChanged) bus.publish(new Message(SoftwareBusCodes.topSensor, ID, topSensor));
         if (botChanged) bus.publish(new Message(SoftwareBusCodes.bottomSensor, ID, bottomSensor));
 
         // Calculate new floor
-        Integer changedIndex = topChanged ? topSensor : bottomSensor;
-        int newFloor = (changedIndex / 2) + 1; // +1 for indexing
+        int newFloor = (bottomSensor / 2) + 1; // +1 for indexing
         if (newFloor < 1 || newFloor > elev.totalFloors) { // Invalid floor
             lastTopSensorRead = topSensor;
             lastBottomSensorRead = bottomSensor;
@@ -234,6 +229,7 @@ public class ElevatorMultiplexor {
             if (newFloor > currentFloor) currentDirection = "UP";
             else currentDirection = "DOWN";
             currentFloor = newFloor;
+            System.out.println("No sensor state change detected. TOP: " + topChanged + " BOTTOM: " + botChanged);
             System.out.println("ElevatorMUX " + ID + ": Arrived at floor " + currentFloor + " going " + currentDirection);
 
             // Update GUI and publish position
@@ -326,7 +322,8 @@ public class ElevatorMultiplexor {
     // Handle Car Stop Message
     private void handleCarStop(Message msg){
         motionAPI.stop();
-        currentDirection = "IDLE";
+        elev.display.updateFloorIndicator(currentFloor, "IDLE");
+        elev.panel.setDisplay(currentFloor, "IDLE");
         motionAPI.set_direction(Direction.NULL);
         bus.publish(new Message(SoftwareBusCodes.currDirection, ID, 2));
         bus.publish(new Message(SoftwareBusCodes.currMovement, ID, 0));
