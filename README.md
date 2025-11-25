@@ -80,10 +80,10 @@ Topic | Meaning           |Subtopic (1 int)| Body (1 int) | Meaning of Body   | 
 203	  |Door sensor	      |1,2,3,4 (elevID)| 0/1	      |0=obstructed1=clear| Door Assembly	 | Elevator MUX
 204	  |Door status	      |1,2,3,4 (elevID)| 0/1	      |0=open 1=closed    | Door Assembly	 | Elevator MUX
 205	  |Cabin load	      |1,2,3,4 (elevID)| 0/1	      |0=normal1=overload | Cabin            | Elevator MUX
-206	  |Fire Key	          |1,2,3,4 (elevID)| 0/1	      |0=inactive1=active| Mode	         | Elevator MUX	
+206	  |Fire Key	          |1,2,3,4 (elevID)| 0/1	      |0=inactive1=active | Mode	         | Elevator MUX	
 207	  |Car direction	  |1,2,3,4 (elevID)| 0/1/2	      |0=up1=down2=none   | Cabin	         | Elevator MUX
 208	  |Car movement	      |1,2,3,4 (elevID)| 0/1	      |0=idle 1=moving	  | Cabin	         | Elevator MUX
 209	  |Fire alarm active  |0	           | 0/1	      |0=idle 1=pulled	  | Mode	         | Building MUX
 210	  |Top Sensor trig.   |1,2,3,4 (elevID)| 0-19 odd	  |Sensor ID	      | Cabin	         | Elevator MUX
-209	  |Bottom Sensor trig.|1,2,3,4 (elevID)| 0-19 even	  |Sensor ID	  | Cabin	         | Elevator MUX
+209	  |Bottom Sensor trig.|1,2,3,4 (elevID)| 0-19 even	  |Sensor ID	    | Cabin	         | Elevator MUX
 ```
