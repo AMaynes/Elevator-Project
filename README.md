@@ -72,7 +72,7 @@ Topic | Meaning           |Subtopic (1 int)| Body (1 int) | Meaning of Body   | 
 114	  |Selections Enabled |1,2,3,4 (elevID)| 0/1	      |0=disabled1=enabled| Elevator MUX     | Buttons
 115	  |Selections type	  |1,2,3,4 (elevID)| 0/1	      |0=single1=multiple |	Elevator MUX     | Buttons
 116	  |Play sound	      |1,2,3,4 (elevID)| 0/1          |0=arrival1=overload| Elevator MUX     | Notifier
-120	  |Fire Alarm	      |0	           | 0/1	      |0=on 1=off         | Building MUX     | Mode
+120	  |Fire Alarm	      |0	           | 0/1	      |0=off 1=on         | Building MUX     | Mode
 
 200	  |Hall call	      |1 to 10 (floor#)| 0/1	      |0=up 1=down     	  | Buttons	         | Building MUX
 201	  |Cabin select	      |1,2,3,4 (elevID)| 1-10	      |Floor number	      | Buttons	         | Elevator MUX

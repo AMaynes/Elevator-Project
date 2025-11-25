@@ -663,19 +663,9 @@ public class gui extends Application {
 
                 Platform.runLater(() -> {
                     if (isActive) {
-                        for (int i = 0; i < numElevators; i++) {
-                            if (elevatorMuxes[i] != null && elevatorMuxes[i].getElevator().panel.isFireKeyActive()) {
-                                elevatorMuxes[i].getElevator().panel.toggleFireKey();
-                            }
-                        }
                         internalState.fireAlarmActive = false;
                         fireAlarmImg.setImage(loader.imageList.get(11));
                     } else {
-                        for (int i = 0; i < numElevators; i++) {
-                            if (elevatorMuxes[i] != null && !elevatorMuxes[i].getElevator().panel.isFireKeyActive()) {
-                                elevatorMuxes[i].getElevator().panel.toggleFireKey();
-                            }
-                        }
                         internalState.fireAlarmActive = true;
                         fireAlarmImg.setImage(loader.imageList.get(12));
                     }
