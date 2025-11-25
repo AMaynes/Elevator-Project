@@ -229,7 +229,6 @@ public class ElevatorMultiplexor {
             if (newFloor > currentFloor) currentDirection = "UP";
             else currentDirection = "DOWN";
             currentFloor = newFloor;
-            System.out.println("No sensor state change detected. TOP: " + topChanged + " BOTTOM: " + botChanged);
             System.out.println("ElevatorMUX " + ID + ": Arrived at floor " + currentFloor + " going " + currentDirection);
 
             // Update GUI and publish position

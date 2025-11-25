@@ -30,4 +30,5 @@ Luxury Updates:
 - Implemented GUI resizing based on users screen resolution. Note: adjusting the scale does not work well with the label positions, but hopefully will work with varying screen resolutions still.
 - Wrote handleStopCar function
 - Implemented fireAlarm handling in the elevator MUX because it was the easiest way to clear button selections during fire modes as a TODO requested be done.
+- Note: There is a bug wher you need to stop the elevator twice for some reason for it to fully take. Might be linked to the ambiguous duplicate bus command printing. Not sure though.
 ---

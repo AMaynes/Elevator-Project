@@ -40,9 +40,9 @@ public final class SoftwareBusCodes {
     public static final int fireKey = 206;
     public static final int currDirection = 207;
     public static final int currMovement = 208;
-    public static final int topSensor = 209;
-    public static final int bottomSensor = 210;
-    public static final int fireAlarmActive = 211;
+    public static final int fireAlarmActive = 209;
+    public static final int topSensor = 210;
+    public static final int bottomSensor = 211;
 
     // Control devices
     public static final int buttons = 300;
