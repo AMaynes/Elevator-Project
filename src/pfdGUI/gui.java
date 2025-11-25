@@ -480,7 +480,7 @@ public class gui extends Application {
 
         private void makeDoor(){
             elevDoorsImg.setPreserveRatio(true);
-            elevDoorsImg.setFitWidth(400);
+            elevDoorsImg.setFitWidth(300);
             elevDoorsImg.setImage(loader.imageList.get(6)); 
             
             internalState.doorObstructions[carId] = false;
