@@ -85,5 +85,5 @@ Topic | Meaning           |Subtopic (1 int)| Body (1 int) | Meaning of Body   | 
 208	  |Car movement	      |1,2,3,4 (elevID)| 0/1	      |0=idle 1=moving	  | Cabin	         | Elevator MUX
 209	  |Fire alarm active  |0	           | 0/1	      |0=idle 1=pulled	  | Mode	         | Building MUX
 210	  |Top Sensor trig.   |1,2,3,4 (elevID)| 0-19 odd	  |Sensor ID	      | Cabin	         | Elevator MUX
-209	  |Bottom Sensor trig.|1,2,3,4 (elevID)| 0-19 even	  |Sensor ID	       | Cabin	         | Elevator MUX
+209	  |Bottom Sensor trig.|1,2,3,4 (elevID)| 0-19 even	  |Sensor ID	      | Cabin	         | Elevator MUX
 ```
