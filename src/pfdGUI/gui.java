@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -311,6 +312,9 @@ public class gui extends Application {
      * JavaFX Application & UI
      */
 
+
+    private double scale = 0.8;
+
     @Override
     public void start(Stage primaryStage) {
 
@@ -325,10 +329,16 @@ public class gui extends Application {
         // Create floor displays & call buttons
         for (int i = 0; i < numFloors; i++) {
             callButtons[i] = new CallButton(i);
-            vbox.getChildren().addAll(callButtons[i].callButtonOverlay);
+            Label floorLabel = new Label("Floor " + (i + 1));
+            floorLabel.setFont(Font.font("Times New Roman", FontWeight.BOLD, 16));
+            floorLabel.setStyle("-fx-text-fill: black;");
+            vbox.getChildren().addAll(floorLabel, callButtons[i].callButtonOverlay);
         }
+        Label floorLabel = new Label("Fire Alarm");
+        floorLabel.setFont(Font.font("Times New Roman", FontWeight.BOLD, 16));
+        floorLabel.setStyle("-fx-text-fill: black;");
         fireAlarm = new FireAlarm();
-        vbox.getChildren().add(fireAlarm.fireAlarmOverlay);
+        vbox.getChildren().addAll(floorLabel, fireAlarm.fireAlarmOverlay);
         scrollPane.setContent(vbox);
         hbox.getChildren().add(scrollPane);
 
@@ -346,8 +356,11 @@ public class gui extends Application {
             hbox.getChildren().add(v);
             v.setAlignment(Pos.CENTER);
         }
-
-        Scene scene = new Scene(hbox, 1700, 800, Color.web("#c0bfbbff"));
+        
+        double width = Screen.getPrimary().getBounds().getWidth() * (scale - 0.1);
+        double height = Screen.getPrimary().getBounds().getHeight() * (scale - 0.2);
+        
+        Scene scene = new Scene(hbox, width, height, Color.web("#c0bfbbff"));
         primaryStage.setTitle("Elevator Passenger Devices");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -364,8 +377,9 @@ public class gui extends Application {
         public  ImageView elevPanelImg = new ImageView();
         public StackPane panelOverlay = new StackPane(elevPanelImg);
         public Label digitalLabel;
-        private double scaleFactor = 1;
-        private int yTranslation = -30; // adjust as needed for non 1:1 scales
+        private double scaleFactor = scale + 0.1;
+        private int yTranslation = -53; // adjust as needed for non 1:1 scales
+        private int offset = 20;
         private int carId;
 
         private Panel(int index){ 
@@ -375,27 +389,23 @@ public class gui extends Application {
 
         private void makePanel(){
             elevPanelImg.setPreserveRatio(true);
-            elevPanelImg.setFitWidth(250 * scaleFactor);
+            elevPanelImg.setFitWidth(300 * scaleFactor);
             elevPanelImg.setImage(loader.imageList.get(0)); // 0-2 indices are cabin panels
 
             // Digital Display label
             digitalLabel = new Label("1");
             digitalLabel.setStyle("-fx-text-fill: white;");
             digitalLabel.setFont(Font.font("Verdana", FontWeight.BOLD, 32));
-            digitalLabel.setTranslateY(-125);
+            digitalLabel.setTranslateY(-145*scaleFactor);
             panelOverlay.getChildren().add(digitalLabel);
 
             // Button overlays
             for (int i = 1; i < 10; i += 2) {
                 Label left = new Label(String.valueOf(i));
                 left.setStyle("-fx-text-fill: black;");
-                left.setFont(Font.font("Verdana", 16  * scaleFactor));
-                left.setTranslateX(-20 * scaleFactor);
-                if(scaleFactor != 1) {
-                    left.setTranslateY(yTranslation + (17 * i) * scaleFactor); // adjust for scaling
-                } else {
-                    left.setTranslateY(-52 + (17 * i) * scaleFactor);
-                }
+                left.setFont(Font.font("Verdana", FontWeight.BOLD, 16  * scaleFactor));
+                left.setTranslateX(-23 * scaleFactor);
+                left.setTranslateY(yTranslation + (offset * i) * scaleFactor);
 
                 // Capture final reference for lambda
                 final int leftFloorNumber = i;
@@ -417,13 +427,9 @@ public class gui extends Application {
 
                 Label right = new Label(String.valueOf(i + 1));
                 right.setStyle("-fx-text-fill: black;");
-                right.setFont(Font.font("Verdana", 16  * scaleFactor));
-                right.setTranslateX(20  * scaleFactor);
-                if(scaleFactor != 1) {
-                    right.setTranslateY(yTranslation + (17 * i) * scaleFactor); // adjust for scaling
-                } else {
-                    right.setTranslateY(-52 + (17 * i) * scaleFactor);
-                }
+                right.setFont(Font.font("Verdana", FontWeight.BOLD, 16  * scaleFactor));
+                right.setTranslateX(24  * scaleFactor);
+                right.setTranslateY(yTranslation + (offset * i) * scaleFactor);
 
                 final int rightFloorNumber = i + 1;
                 right.setOnMouseClicked(event -> {

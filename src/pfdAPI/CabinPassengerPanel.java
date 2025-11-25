@@ -80,7 +80,6 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
 
     /**
      * Clears all stored pressed floor events.
-     * TODO: Call this in the MUX when the fire alarm is active (either by user or command).
      *  Decide: should this also be called upon button disables or single/multiple mode switches?
      */
     @Override
