@@ -3,9 +3,10 @@ package ElevatorController.LowerLevel;
 import Bus.SoftwareBus;
 import ElevatorController.Util.Direction;
 import ElevatorController.Util.FloorNDirection;
-import Message.Topic;
+import Message.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -14,6 +15,8 @@ import java.util.List;
  * buttons on each level. These button events are being received via the software bus.
  * The buttons object does not post any messages to the Software Bus.
  */
+
+// OK I need to call someone to talk about the buttons functionality. It might be worth waiting until sunday
 public class Buttons {
     private boolean callEnabled;
     private boolean multipleRequests;
@@ -28,7 +31,8 @@ public class Buttons {
     private final static int TOPIC_REQ_BTNS = Topic.CABIN_SELECT; // button events in the cabin
     private final static int TOPIC_FIRE_KEY = Topic.FIRE_KEY;
     private final static int TOPIC_CABIN_LOAD = Topic.CABIN_LOAD;
-
+    private final static int CALL_RESET = Topic.CALL_RESET;
+    private final static int HALL_CALL = Topic.HALL_CALL;
     // FIRE_KEY BODY
     private final static int BODY_F_KEY_ACTIVE   = 1; //TODO make elevator mux have this as public constant
     private final static int BODY_F_KEY_INACTIVE = 0;
@@ -43,8 +47,6 @@ public class Buttons {
      * @param softwareBus the means of communication
      */
     public Buttons(int elevatorID, SoftwareBus softwareBus) {
-        //TODO call subscribe on softwareBus w/ relevant topic/subtopic
-
         // Assuming normal mode settings initially
         this.callEnabled = true;
         this.multipleRequests = true;
@@ -55,9 +57,10 @@ public class Buttons {
 
         // Subscribing
         softwareBus.subscribe(TOPIC_REQ_BTNS, elevatorID);
-        softwareBus.subscribe(TOPIC_FIRE_KEY, elevatorID);
-        softwareBus.subscribe(TOPIC_CABIN_LOAD, elevatorID);
-        //TODO: Call buttons,
+        softwareBus.subscribe(HALL_CALL, TOPIC_CABIN_LOAD);
+
+        //Go to line 200 for explanation
+        startThread();
     }
 
     /**
@@ -66,7 +69,19 @@ public class Buttons {
      * Remove that floor from destinations
      * @param floorNDirection The call button and direction which is no longer relevant
      */
-    public void callReset(FloorNDirection floorNDirection) {}
+    public void callReset(FloorNDirection floorNDirection) {
+        //Todo: these should be the right Topic codes now
+        // I am going to assume this is for the call button on the floor
+        if(!destinations.contains(floorNDirection)) return;
+        switch(floorNDirection.direction()){
+            case Direction.UP -> softwareBus.publish(new Message(CALL_RESET, floorNDirection.floor(), 0));
+            case Direction.DOWN -> softwareBus.publish(new Message(CALL_RESET, floorNDirection.floor(), 1));
+            // if direction is not up or down handle with grace!
+            default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
+
+        }
+        destinations.remove(floorNDirection);
+    }
 
     /**
      * Call publish on softwareBus with a message that the call button on the given floor, and given direction can be
@@ -74,7 +89,12 @@ public class Buttons {
      * Remove that floor from destinations
      * @param floor the floor request button that is no longer relevant
      */
-    public void requestReset(int floor) {}
+    public void requestReset(int floor) {
+        // I am going to assume these ar ethe buttons inside the cabin
+        if(!destinations.contains(floor)) return;
+        // Todo: Publish message
+
+    }
 
     /**
      * In normal mode, level call buttons are enabled
@@ -86,9 +106,7 @@ public class Buttons {
     /**
      * In fire mode, and controlled mode call buttons are disabled
      */
-    public void disableCalls(){
-        this.callEnabled = false;
-    }
+    public void disableCalls(){this.callEnabled = false;}
 
     /**
      * In Normal mode, all request buttons are enabled
@@ -154,7 +172,7 @@ public class Buttons {
         // sort decreasing
         else inticator = -1;
 
-        //The humble bubble sort
+        //The humble bubble sort glorious!
         for (int i = 0; i < destinations.size(); i++) {
             for (int j = 0; j < destinations.size(); j++) {
                 if (i == j) continue;
@@ -170,6 +188,32 @@ public class Buttons {
         destinations.addAll(unreachable);
 
         return destinations.getFirst();
+    }
+
+    // Guys trust me trust me
+    // I think we need a thread to update destinations
+    // I am adding a thread to pull messages for now we can change later
+    // If we don't have this thread we would need to add a public method to allow the
+    // processes to busy check. There's no other way to update the destinations
+    Runnable run = new Runnable() {
+        @Override
+        public void run() {
+            Message message = MessageHelper.pullAllMessages(softwareBus, TOPIC_REQ_BTNS, elevatorID);
+            int floor = message.getBody();
+            FloorNDirection fnd;
+            //Todo: we need to handle if the floor is the same for now I am going to assume UP
+            if(currFloor < floor || currFloor == floor){
+                fnd = new FloorNDirection(floor, Direction.DOWN);
+            } else {
+                fnd = new FloorNDirection(floor, Direction.UP);
+            }
+            destinations.add(fnd);
+        }
+    };
+
+    private void startThread(){
+        Thread t = new Thread(run);
+        t.start();
     }
 
     //TODO: Software bus handling?
