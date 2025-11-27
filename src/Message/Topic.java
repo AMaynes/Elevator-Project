@@ -3,6 +3,8 @@ package Message;
 /**
  * SOFTWARE BUS: Topic Class obtained from a separate group.
  * Defines the type of information sent across the software bus.
+ *
+ *
  */
 public class Topic {
     /**
@@ -13,9 +15,11 @@ public class Topic {
 
     //100s: Controller -> PFD commands
 
+    //Todo: fix formatting, naming and usages
+
     public static final int DOOR_CONTROL = 100; // eMUX
     public static final int CAR_DISPATCH = 102; // eMUX
-    public static final int MODE_SET = 103; // bMUX & eMUX
+    public static final int CAR_STOP = 103; // bMUX & eMUX
     public static final int CABIN_RESET = 109; // bMUX & eMUX
     public static final int CALL_RESET = 110; // bMUX
     public static final int DISPLAY_FLOOR = 111; // bMUX & eMUX
@@ -37,10 +41,14 @@ public class Topic {
     public static final int CAR_POSITION = 202; // eMUX
     public static final int DOOR_SENSOR = 203; // eMUX
     public static final int DOOR_STATUS = 204; // eMUX
-    public static final int TOP_FLOOR_SENSOR = 210;//eMux (not sure what number so 210)
-    public static final int BOTTOM_FLOOR_SENSOR = 211;//eMux (not sure what number so 211)
     public static final int CABIN_LOAD = 205; // eMUX
     public static final int FIRE_KEY = 206; // eMUX
+    public static final int CAR_DIRECTION = 207;
+    public static final int CAR_MOVEMENT = 208;
+    public  static final int FIRE_ALARM_ACTIVE = 209;
+    public static final int TOP_SENSOR_TRIGGERED = 210;//eMux (not sure what number so 210)
+    public static final int BOTTOM_SENSOR_TRIGGERED = 211;//eMux (not sure what number so 211)
+
 
     // List of topics
     public static final int systemStop = 1;

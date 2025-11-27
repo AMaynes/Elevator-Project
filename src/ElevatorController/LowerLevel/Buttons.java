@@ -33,6 +33,7 @@ public class Buttons {
     private final static int TOPIC_CABIN_LOAD = Topic.CABIN_LOAD;
     private final static int CALL_RESET = Topic.CALL_RESET;
     private final static int HALL_CALL = Topic.HALL_CALL;
+    private final static int CABIN_SELECT = Topic.CABIN_SELECT;
     // FIRE_KEY BODY
     private final static int BODY_F_KEY_ACTIVE   = 1; //TODO make elevator mux have this as public constant
     private final static int BODY_F_KEY_INACTIVE = 0;
@@ -172,7 +173,7 @@ public class Buttons {
         // sort decreasing
         else inticator = -1;
 
-        //The humble bubble sort glorious!
+        //The humble bubble sort glorious! <- so hot! wowowowow!!
         for (int i = 0; i < destinations.size(); i++) {
             for (int j = 0; j < destinations.size(); j++) {
                 if (i == j) continue;
@@ -198,19 +199,35 @@ public class Buttons {
     Runnable run = new Runnable() {
         @Override
         public void run() {
-            //! Not sure how we're supposed to handle cabin select or why we would even handle it here
-            Message message = MessageHelper.pullAllMessages(softwareBus, TOPIC_REQ_BTNS, elevatorID);
-            int floor = message.getBody();
-            FloorNDirection fnd;
-            //Todo: we need to handle if the floor is the same for now I am going to assume UP
-            if(currFloor < floor || currFloor == floor){
-                fnd = new FloorNDirection(floor, Direction.DOWN);
-            } else {
-                fnd = new FloorNDirection(floor, Direction.UP);
-            }
-            destinations.add(fnd);
+            handleHallCall();
+            handleCabinSelect();
         }
     };
+
+    private void handleCabinSelect() {
+        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, CABIN_SELECT);
+        int floor = message.getBody();
+        FloorNDirection fd;
+        if (floor < currFloor){
+            fd = new FloorNDirection(floor, Direction.DOWN);
+        } else {
+            fd = new FloorNDirection(floor, Direction.UP);
+        }
+        destinations.add(fd);
+    }
+
+    private void handleHallCall() {
+        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, HALL_CALL);
+        int floor = message.getSubTopic();
+        int dir = message.getBody();
+        FloorNDirection fd;
+        switch(dir){
+            case 0 ->  fd = new FloorNDirection(floor, Direction.UP);
+            case 1 ->  fd = new FloorNDirection(floor, Direction.DOWN);
+            default -> throw new IllegalStateException("Unexpected value: " + dir);
+        }
+        destinations.add(fd);
+    }
 
     private void startThread(){
         Thread t = new Thread(run);

@@ -25,9 +25,12 @@ public class Cabin implements Runnable {
     private SoftwareBus softwareBus;
 
     // Constants for cabin topic
-    private static final int MOTOR = Topic.MOTOR;
-    private static final int TOP_FLOOR_SENSOR = Topic.TOP_FLOOR_SENSOR;
-    private static final int BOTTOM_FLOOR_SENSOR = Topic.BOTTOM_FLOOR_SENSOR;
+    private static final int CAR_STOP = Topic.CAR_STOP;
+    private static final int CAR_DISPATCH = Topic.CAR_DISPATCH;
+    private static final int TOP_FLOOR_SENSOR = Topic.TOP_SENSOR_TRIGGERED;
+    private static final int BOTTOM_FLOOR_SENSOR = Topic.BOTTOM_SENSOR_TRIGGERED;
+    private static final int CAR_POSITION = Topic.CAR_POSITION;
+    private static final int CAR_DIRECTION = Topic.CAR_DIRECTION;
 
     //Constants for cabin bodies
     private static final int STOP_MOTOR = 0;
@@ -72,7 +75,18 @@ public class Cabin implements Runnable {
     /**
      * @return the floor and direction of the elevator
      */
-    public FloorNDirection currentStatus(){return new FloorNDirection(currFloor,currDirection);}
+    public FloorNDirection currentStatus(){
+        // Todo: ok we handle motor moving in house and dont have a method to check if the motor is moving??
+        Message floorMessage = MessageHelper.pullAllMessages(softwareBus, elevatorID, CAR_POSITION);
+        Message directionMessage = MessageHelper.pullAllMessages(softwareBus, elevatorID, CAR_DIRECTION);
+        currFloor = floorMessage.getBody();
+        int annoyingAF = directionMessage.getBody();
+        switch (annoyingAF){
+            case 0 -> currDirection = Direction.UP;
+            case 1 -> currDirection = Direction.DOWN;
+            case 2 -> currDirection = Direction.STOPPED;
+        }
+        return new FloorNDirection(currFloor,currDirection);}
 
     /**
      * @return true if the elevator has arrived at its destination
@@ -149,12 +163,12 @@ public class Cabin implements Runnable {
             case DOWN -> dir = 1;
             case STOPPED -> dir = -1;
         }
-        softwareBus.publish(new Message(MOTOR, elevatorID, dir));
+        softwareBus.publish(new Message(CAR_DISPATCH, elevatorID, dir));
     }
 
     private void stopMotor() {
         motor = false;
-        softwareBus.publish(new Message(MOTOR, elevatorID, STOP_MOTOR));
+        softwareBus.publish(new Message(CAR_STOP, elevatorID, STOP_MOTOR));
     }
 
     private void topAlignment() {
