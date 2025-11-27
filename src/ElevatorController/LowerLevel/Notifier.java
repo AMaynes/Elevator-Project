@@ -4,7 +4,6 @@ import Bus.SoftwareBus;
 import ElevatorController.Util.FloorNDirection;
 import Message.Message;
 import Message.Topic;
-import Team7MotionControl.Hardware.Elevator;
 
 /**
  * The notifier object is used to communicate all necessary visual and audio
@@ -16,11 +15,21 @@ public class Notifier {
     private int elevatorID;
     private SoftwareBus softwareBus;
 
-    // Topic for car postion
-    private static final int CAR_POSITION = Topic.CAR_POSITION;
+    // Topic for updating car position
+    private static final int TOPIC_DISPLAY_FLOOR = Topic.displayFloor;
+    private static final int TOPIC_DISPLAY_DIREC = Topic.displayDirection;
 
-    private static final int DISPLAY_DIRECTION=Topic.DISPLAY_DIRECTION;
+    // Topics for playing sounds
+    private static final int TOPIC_SPEAKER = Topic.playSound;
 
+    // TODO: Currently no stop buzzer in MUX, do we keep sending buzzer
+    //  notifications? Is there a way of turning it off?
+
+    /**
+     * Construct a notifier
+     * @param elevatorID the elevator associated with this notifier
+     * @param softwareBus the software bus associated with this notifier
+     */
     public  Notifier(int elevatorID, SoftwareBus softwareBus){
         //TODO: does notifier need to subscribe? or can it just publish messages?
         //TODO call subscribe on softwareBus w/ relevant topic/subtopic
@@ -44,10 +53,10 @@ public class Notifier {
         int direction = floorNDirection.getDirection().getIntegerVersion();
 
         // Tell mux what direction we're going
-        softwareBus.publish(new Message(DISPLAY_DIRECTION,elevatorID,direction));
+        softwareBus.publish(new Message(TOPIC_DISPLAY_DIREC,elevatorID,direction));
 
         //Tell mux where we are
-        softwareBus.publish(new Message(CAR_POSITION,elevatorID, floorNDirection.floor()));
+        softwareBus.publish(new Message(TOPIC_DISPLAY_FLOOR,elevatorID, floorNDirection.floor()));
     }
 
     /**
