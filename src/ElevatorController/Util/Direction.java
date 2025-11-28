@@ -1,7 +1,13 @@
 package ElevatorController.Util;
 
+import Message.Topic;
+
 public enum Direction {
-    UP(0), DOWN(1), STOPPED(-1);
+    UP(Topic.up),
+    DOWN(Topic.down),
+    STOPPED(Topic.none);
+
+    // Directions associated with numbers from MUX's body handling
     private int integerVersion;
 
     public int getIntegerVersion() {
