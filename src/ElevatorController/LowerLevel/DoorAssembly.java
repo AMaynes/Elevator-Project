@@ -1,6 +1,7 @@
 package ElevatorController.LowerLevel;
 
 import Bus.SoftwareBus;
+import Message.*;
 
 /**
  * The door assembly is a virtualization of the physical interfaces which
@@ -20,14 +21,29 @@ public class DoorAssembly {
     private int elevatorID;
     private SoftwareBus softwareBus;
 
+    // Constants for topic codes
+    private static final int DOOR_CONTROL = Topic.DOOR_CONTROL;
+    private static final int DOOR_SENSOR = Topic.DOOR_SENSOR;
+    private static final int CABIN_LOAD = Topic.CABIN_LOAD;
+
+    //Constants for body codes
+    private static final int OPEN_CODE = 1;
+    private static final int CLOSE_CODE = 2;
+    private static final int OBSTRUCTED_CODE = 0;
+    private static final int NOT_OBSTRUCTED_CODE = 1;
+    private static final int FULLY_CLOSED_CODE = 2;
+    private static final int NOT_FULLY_CLOSED_CODE = 3;
+    private static final int FULLY_OPEN_CODE = 4;
+    private static final int NOT_FULLY_OPEN_CODE = 5;
+    private static final int OVER_CAPACITY_CODE = 0;
+    private static final int NOT_OVER_CAPACITY_CODE = 1;
+
     /**
      * Instantiate a DoorAssembly object, and run its thread
      * @param elevatorID For software bus messages
      * @param softwareBus The means of communication
      */
     public DoorAssembly(int elevatorID, SoftwareBus  softwareBus) {
-        //TODO may need to take in int for elevator number for software bus subscription
-        //TODO call subscribe on softwareBus w/ relevant topic/subtopic
 
         this.opened = true;
         this.closed = false;
@@ -37,26 +53,40 @@ public class DoorAssembly {
         this.overCapacity = false;
         this.softwareBus = softwareBus;
         this.elevatorID = this.elevatorID;
+
+        //Todo: (DOOR_STATUS or DOOR_SENSOR????????)
+        softwareBus.subscribe(DOOR_SENSOR, elevatorID);
+        softwareBus.subscribe(CABIN_LOAD, elevatorID);
     }
 
-    //Todo: Write these methods
     /**
      * Send message to softwareBus to open the doors (which sends the message
      * to the MUX)
      */
-    public void open(){}
+    public void open(){
+        // correct body for current mux
+        softwareBus.publish(new Message(DOOR_CONTROL, elevatorID, OPEN_CODE));
+    }
 
     /**
      * Send message to softwareBus to close the doors (which sends the message
      * to the MUX)
      */
-    public void close(){}
+    public void close(){
+        // correcct body for current mux 11/23/2025
+        softwareBus.publish(new Message(DOOR_CONTROL, elevatorID, CLOSE_CODE));
+    }
 
     /**
      * @return true if obstruction sensor triggered, false otherwise
      */
     public boolean obstructed(){
-        //TODO: get a message
+        //Todo: ok so I assume this will return a message that says 0 for not obstructed and 1 if obstructed (DOOR_STATUS or DOOR_SENSOR????????)
+        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, DOOR_SENSOR);
+        if (message != null ) {
+            if (message.getBody() == OBSTRUCTED_CODE) obstructed = true;
+            if (message.getBody() == NOT_OBSTRUCTED_CODE) obstructed = false;
+        }
         return obstructed;
     }
 
@@ -64,7 +94,12 @@ public class DoorAssembly {
      * @return true if fully closed sensor triggered, false otherwise
      */
     public boolean fullyClosed(){
-        //TODO: get a massage
+        // Todo: assuming 3 for fully closed and 4 for not fully closed (DOOR_STATUS or DOOR_SENSOR????????)
+        Message message =  MessageHelper.pullAllMessages(softwareBus, elevatorID, DOOR_SENSOR);
+        if (message != null ) {
+            if (message.getBody() == FULLY_CLOSED_CODE) fullyClosed = true;
+            if (message.getBody() == NOT_FULLY_CLOSED_CODE) fullyClosed = false;
+        }
         return fullyClosed;
     }
 
@@ -72,7 +107,12 @@ public class DoorAssembly {
      * @return true if fully open sensor triggered, false otherwise
      */
     public boolean fullyOpen(){
-        //TODO: get a emssage
+        // Todo: assuming 5 for fully closed and 6 for not fully closed (DOOR_STATUS or DOOR_SENSOR????????)
+        Message message =  MessageHelper.pullAllMessages(softwareBus, elevatorID, DOOR_SENSOR);
+        if (message != null ) {
+            if (message.getBody() == FULLY_OPEN_CODE) fullyOpen = true;
+            if (message.getBody() == NOT_FULLY_OPEN_CODE) fullyOpen = false;
+        }
         return fullyOpen;
     }
 
@@ -81,7 +121,12 @@ public class DoorAssembly {
      *         capacity message was received, true initially
      */
     public boolean overCapacity(){
-        //TODO: messyge;
+        //Todo: assuming 0 for over capacity and 1 for not over capacity
+        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, CABIN_LOAD);
+        if (message != null ) {
+            if (message.getBody() == OVER_CAPACITY_CODE) overCapacity = true;
+            if (message.getBody() == NOT_OVER_CAPACITY_CODE) overCapacity = false;
+        }
         return overCapacity;
     }
 

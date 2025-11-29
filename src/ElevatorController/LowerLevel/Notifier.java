@@ -4,6 +4,7 @@ import Bus.SoftwareBus;
 import ElevatorController.Util.FloorNDirection;
 import Message.Message;
 import Message.Topic;
+import Team7MotionControl.Hardware.Elevator;
 
 /**
  * The notifier object is used to communicate all necessary visual and audio
@@ -11,28 +12,22 @@ import Message.Topic;
  * floor display (up/down arrows and LEDs for displaying the floor number). The
  * notifier object does not receive any messages from the Software Bus.
  */
+
+//Todo: what am I supposed to do with overloaded here?
+    // Seems like the MUX should be telling us overloaded?
 public class Notifier {
     private int elevatorID;
     private SoftwareBus softwareBus;
 
-    // Topic for updating car position
-    private static final int TOPIC_DISPLAY_FLOOR = Topic.displayFloor;
-    private static final int TOPIC_DISPLAY_DIREC = Topic.displayDirection;
+    // Topic for car postion
+    private static final int CAR_POSITION = Topic.CAR_POSITION;
+    private static final int DISPLAY_DIRECTION=Topic.DISPLAY_DIRECTION;
+    private static final int PLAY_SOUND = Topic.PLAY_SOUND;
+    //bodies
+    private static final int ARRIVAL = 0;
+    private static final int OVERLOAD = 1;
 
-    // Topics for playing sounds
-    private static final int TOPIC_SPEAKER = Topic.playSound;
-
-    // TODO: Currently no stop buzzer in MUX, do we keep sending buzzer
-    //  notifications? Is there a way of turning it off?
-
-    /**
-     * Construct a notifier
-     * @param elevatorID the elevator associated with this notifier
-     * @param softwareBus the software bus associated with this notifier
-     */
     public  Notifier(int elevatorID, SoftwareBus softwareBus){
-        //TODO: does notifier need to subscribe? or can it just publish messages?
-        //TODO call subscribe on softwareBus w/ relevant topic/subtopic
         this.elevatorID = elevatorID;
         this.softwareBus = softwareBus;
     }
@@ -42,7 +37,9 @@ public class Notifier {
      * chime)
      * @param floorNDirection This elevator's current floor and direction
      */
-    public void arrivedAtFloor(FloorNDirection floorNDirection){}
+    public void arrivedAtFloor(FloorNDirection floorNDirection){
+        softwareBus.publish(new Message(PLAY_SOUND, elevatorID, ARRIVAL));
+    }
 
     /**
      * Notify Control Center and MUX of this elevator's status
@@ -53,20 +50,26 @@ public class Notifier {
         int direction = floorNDirection.getDirection().getIntegerVersion();
 
         // Tell mux what direction we're going
-        softwareBus.publish(new Message(TOPIC_DISPLAY_DIREC,elevatorID,direction));
+        softwareBus.publish(new Message(DISPLAY_DIRECTION,elevatorID,direction));
 
         //Tell mux where we are
-        softwareBus.publish(new Message(TOPIC_DISPLAY_FLOOR,elevatorID, floorNDirection.floor()));
+        softwareBus.publish(new Message(CAR_POSITION,elevatorID, floorNDirection.floor()));
     }
 
     /**
      * Notify the MUX to play the capacity buzzer
      */
-    public void playCapacityNoise(){}
+    public void playCapacityNoise(){
+        // Todo: I p sure the mux needs to be ready to receive this command.
+        //  Don't see anything for it in the Photo Val sent me.
+    }
 
     /**
      * Notify the MUX to stop playing the capacity buzzer
      */
-    public void stopCapacityNoise(){}
+    public void stopCapacityNoise(){
+        // Todo: I p sure the mux needs to be ready to receive this command.
+        //  Don't see anything for it in the Photo Val sent me.
+    }
 
 }
