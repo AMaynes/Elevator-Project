@@ -22,9 +22,9 @@ public class DoorAssembly {
     private SoftwareBus softwareBus;
 
     // Constants for topic codes
-    private static final int DOOR_CONTROL = Topic.DOOR_CONTROL;
-    private static final int DOOR_SENSOR = Topic.DOOR_SENSOR;
-    private static final int CABIN_LOAD = Topic.CABIN_LOAD;
+    private static final int TOPIC_DOOR_CONTROL = Topic.doorControl;
+    private static final int DOOR_SENSOR = Topic.doorSensor;
+    private static final int CABIN_LOAD = Topic.cabinLoad;
 
     //Constants for body codes
     private static final int OPEN_CODE = 1;
@@ -65,7 +65,7 @@ public class DoorAssembly {
      */
     public void open(){
         // correct body for current mux
-        softwareBus.publish(new Message(DOOR_CONTROL, elevatorID, OPEN_CODE));
+        softwareBus.publish(new Message(TOPIC_DOOR_CONTROL, elevatorID, OPEN_CODE));
     }
 
     /**
@@ -74,7 +74,7 @@ public class DoorAssembly {
      */
     public void close(){
         // correcct body for current mux 11/23/2025
-        softwareBus.publish(new Message(DOOR_CONTROL, elevatorID, CLOSE_CODE));
+        softwareBus.publish(new Message(TOPIC_DOOR_CONTROL, elevatorID, CLOSE_CODE));
     }
 
     /**

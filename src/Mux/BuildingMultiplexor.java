@@ -40,6 +40,7 @@ public class BuildingMultiplexor {
     private boolean lastFireState = false;
     private int elevatorRecieving = 0;
 
+    // Some constants for distributing call buttons
     private final static int NUM_ELELVATORS = 4;
 
     int DIR_UP = 0;
@@ -119,16 +120,18 @@ public class BuildingMultiplexor {
     private void pollCallButtons() {
         for (int floor = 0; floor < bldg.callButtons.length; floor++) {
             if (bldg.callButtons[floor].isUpCallPressed() && !lastCallState[floor][0]) {
-
-                bus.publish(new Message(Topic.hallCall, elevatorRecieving + 1,floor + 1 + 10 * DIR_UP));
+                // publish up call
+                bus.publish(new Message(Topic.hallCall, elevatorRecieving + 1,floor + 1 + Topic.upOffset));
                 lastCallState[floor][0] = true;
             }
 
             if (bldg.callButtons[floor].isDownCallPressed() && !lastCallState[floor][1]) {
-                bus.publish(new Message(Topic.hallCall, elevatorRecieving + 1, floor + 1 + 10 * DIR_DOWN));
+                // publish down call
+                bus.publish(new Message(Topic.hallCall, elevatorRecieving + 1, floor + 1 + Topic.downOffset));
                 lastCallState[floor][1] = true;
             }
         }
+        // Dumb elevator scheduler: send call to next elevator
         elevatorRecieving += 1;
         elevatorRecieving %= NUM_ELELVATORS;
     }

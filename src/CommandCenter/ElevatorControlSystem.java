@@ -18,12 +18,31 @@ public class ElevatorControlSystem extends Application {
     private ElevatorPanel[] elevators;
     private CommandPanel commandPanel;
 
+
+   public ElevatorControlSystem(){
+       busServer = new SoftwareBus(true);
+       ccClient = new SoftwareBus(false);
+       commandPanel = new CommandPanel(busServer);   //Changed by team 6,7
+       elevators = new ElevatorPanel[4];
+       for (int i = 0; i < 4; i++) {
+           elevators[i] = new ElevatorPanel(i + 1, ccClient); //Changed by team 6,7
+
+       }
+
+   }
+
+    /**
+     * This has been changed to just use java fx, any logic surrounding the
+     * software bust or starting logic has been moved to the constructor
+     * @param primaryStage the primary stage for this application, onto which
+     * the application scene can be set.
+     * Applications may create other stages, if needed, but they will not be
+     * primary stages.
+     */
+
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Command Center");
-
-        busServer = new SoftwareBus(true);
-        ccClient = new SoftwareBus(false);
 
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #333333;");
@@ -37,14 +56,12 @@ public class ElevatorControlSystem extends Application {
         elevatorContainer.setAlignment(Pos.TOP_CENTER);
         elevatorContainer.setPadding(new Insets(10));
 
-        elevators = new ElevatorPanel[4];
         for (int i = 0; i < 4; i++) {
-            elevators[i] = new ElevatorPanel(i + 1);
             elevatorContainer.getChildren().add(elevators[i]);
         }
         root.setCenter(elevatorContainer);
 
-        commandPanel = new CommandPanel(ccClient);
+
         root.setRight(commandPanel);
 
         Scene scene = new Scene(root, 1200, 720);

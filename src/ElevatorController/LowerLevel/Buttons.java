@@ -6,7 +6,6 @@ import ElevatorController.Util.FloorNDirection;
 import Message.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -28,18 +27,19 @@ public class Buttons {
     private boolean fireKey = false;
 
     // Software Bus Topics
-    private final static int TOPIC_REQ_BTNS = Topic.CABIN_SELECT; // button events in the cabin
-    private final static int TOPIC_FIRE_KEY = Topic.FIRE_KEY;
-    private final static int TOPIC_CABIN_LOAD = Topic.CABIN_LOAD;
-    private final static int CALL_RESET = Topic.CALL_RESET;
-    private final static int HALL_CALL = Topic.HALL_CALL;
-    private final static int CABIN_SELECT = Topic.CABIN_SELECT;
+    private final static int TOPIC_HALL_CALL = Topic.hallCall; // buttons in the halls
+    private final static int TOPIC_CABIN_SELECT = Topic.cabinSelect; // button events in the cabin
+    private final static int TOPIC_FIRE_KEY = Topic.fireKey;
+    private final static int TOPIC_CABIN_LOAD = Topic.cabinLoad;
+    private final static int TOPIC_RESET_CALL = Topic.resetCall;
+    private final static int RESET_FLOOR_SELECTION = Topic.resetFloorSelection;
+
     // FIRE_KEY BODY
-    private final static int BODY_F_KEY_ACTIVE   = 1; //TODO make elevator mux have this as public constant
-    private final static int BODY_F_KEY_INACTIVE = 0;
+    private final static int BODY_F_KEY_ACTIVE   = Topic.active; //TODO make elevator mux have this as public constant
+    private final static int BODY_F_KEY_INACTIVE = Topic.inactive;
     // CABIN_LOAD Body
-    private final static int BODY_CABIN_OVERLOADED = BODY_F_KEY_ACTIVE; //TODO: make elevator mux have this as public constant
-    private final static int BODY_CABIN_UNDERLOADED = BODY_F_KEY_INACTIVE;
+    private final static int BODY_CABIN_OVERLOADED = Topic.overloaded; //TODO: make elevator mux have this as public constant
+    private final static int BODY_CABIN_UNDERLOADED = Topic.normal;
 
     /**
      * Instantiate a Buttons Object
@@ -57,8 +57,8 @@ public class Buttons {
         this.elevatorID = elevatorID;
 
         // Subscribing
-        softwareBus.subscribe(TOPIC_REQ_BTNS, elevatorID);
-        softwareBus.subscribe(HALL_CALL, TOPIC_CABIN_LOAD);
+        softwareBus.subscribe(TOPIC_CABIN_SELECT, elevatorID);
+        softwareBus.subscribe(TOPIC_HALL_CALL, TOPIC_CABIN_LOAD);
 
         //Go to line 200 for explanation
         startThread();
@@ -71,14 +71,19 @@ public class Buttons {
      * @param floorNDirection The call button and direction which is no longer relevant
      */
     public void callReset(FloorNDirection floorNDirection) {
-        //Todo: these should be the right Topic codes now
-        // I am going to assume this is for the call button on the floor
-
         if (floorNDirection == null) return;
         if(!destinations.contains(floorNDirection)) return;
+
+        //Cabin Button Reset
+        if (floorNDirection.direction() == null) {
+            softwareBus.publish(new Message(RESET_FLOOR_SELECTION, elevatorID, floorNDirection.floor()));
+            destinations.remove(floorNDirection);
+            return;
+        }
+        //Floor Button Reset
         switch(floorNDirection.direction()){
-            case UP -> softwareBus.publish(new Message(CALL_RESET, floorNDirection.floor(), 0));
-            case DOWN -> softwareBus.publish(new Message(CALL_RESET, floorNDirection.floor(), 1));
+            case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, floorNDirection.floor(), 0));
+            case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, floorNDirection.floor(), 1));
             // if direction is not up or down handle with grace!
             default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
 
@@ -96,7 +101,7 @@ public class Buttons {
         // I am going to assume these ar the buttons inside the cabin
         // we may want to consider keeping track of what buttons are on with an array of booleans
         // this could reduce clutter so we only call publish if the array contains true at the index of the floor
-        softwareBus.publish(new Message(CALL_RESET, elevatorID, floor));
+        softwareBus.publish(new Message(TOPIC_RESET_CALL, elevatorID, floor));
     }
 
     /**
@@ -218,7 +223,7 @@ public class Buttons {
     };
 
     private void handleCabinSelect() {
-        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, CABIN_SELECT);
+        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_CABIN_SELECT);
         int floor = message.getBody();
         FloorNDirection fd;
         if (floor < currFloor){
@@ -230,7 +235,7 @@ public class Buttons {
     }
 
     private void handleHallCall() {
-        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, HALL_CALL);
+        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_HALL_CALL);
         int floor = message.getSubTopic();
         int dir = message.getBody();
         FloorNDirection fd;

@@ -82,6 +82,7 @@ public class CommandPanel extends GridPane {
         // OLD:
         // bus.subscribe(SoftwareBusCodes.elevatorMode, 0);
         // NEW: subscribe to the topics we actually poll (stop/start/clearFire/setMode)
+        //TODO: THIS IS STEALING ALL THEIR MESSAGES
         bus.subscribe(SoftwareBusCodes.systemStop,  SoftwareBusCodes.allElevators);
         bus.subscribe(SoftwareBusCodes.systemStart, SoftwareBusCodes.allElevators);
         bus.subscribe(SoftwareBusCodes.clearFire,   SoftwareBusCodes.allElevators);
