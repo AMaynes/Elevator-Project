@@ -39,7 +39,7 @@ public class Fire {
         FloorNDirection fireKeyService = null;
 
         //Listen to requests if fire key is inserted, otherwise go to first floor
-        while (cabin.getTargetFloor() != 1 && !cabin.arrived()) {
+        while (cabin.getTargetFloor() != 1 && !cabin.arrived() && mode.getMode() == State.FIRE) {
             //Get any services enabled by fire key
             if (fireKeyService == null) fireKeyService = buttons.nextService(cabin.currentStatus());
             //Process services enabled by fire key

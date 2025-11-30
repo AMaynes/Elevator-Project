@@ -3,6 +3,9 @@ package ElevatorController.HigherLevel;
 import Bus.SoftwareBus;
 import ElevatorController.LowerLevel.*;
 
+import static ElevatorController.Processes.ElevatorController.elevatorController;
+import static ElevatorController.Processes.ElevatorController.onOff;
+
 /**
  * Main is a lightweight object, which instantiates Elevator Controller, Mode,
  * Buttons, Cabin, Door Assembly and Notifier.
@@ -18,9 +21,7 @@ public class ElevatorMain {
     private DoorAssembly doorAssembly;
     private Notifier notifier;
     private Mode mode;
-    private Fire fire;
-    private Normal normal;
-    private Control control;
+
 
     public ElevatorMain(int elevatorID, SoftwareBus softwareBus){
         buttons = new Buttons(elevatorID, softwareBus);
@@ -28,9 +29,8 @@ public class ElevatorMain {
         doorAssembly = new DoorAssembly(elevatorID, softwareBus);
         notifier = new Notifier(elevatorID, softwareBus);
         mode = new Mode(elevatorID, softwareBus);
-        fire = new Fire(mode,buttons,cabin,doorAssembly,notifier);
-        normal = new Normal(mode,buttons,cabin,doorAssembly,notifier);
-        control = new Control(mode,buttons,cabin,doorAssembly,notifier);
+        onOff = true;
+        elevatorController(mode,buttons,cabin,doorAssembly,notifier);
 
     }
 }
