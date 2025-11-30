@@ -113,4 +113,7 @@ public class Topic {
 
     public static final int normal = 0;
     public static final int overloaded = 1;
+
+    public final static int downOffset = 0; // for down call button body:  1 - 10
+    public final static int upOffset = 100; // for up call button body: 101 - 110
 }
