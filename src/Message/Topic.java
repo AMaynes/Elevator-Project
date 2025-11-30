@@ -19,7 +19,7 @@ public class Topic {
 
     public static final int DOOR_CONTROL = 100; // eMUX
     public static final int CAR_DISPATCH = 102; // eMUX
-    public static final int CAR_STOP = 103; // bMUX & eMUX
+    public static final int MODE_SET= 103; // bMUX & eMUX
     public static final int CABIN_RESET = 109; // bMUX & eMUX
     public static final int CALL_RESET = 110; // bMUX
     public static final int DISPLAY_FLOOR = 111; // bMUX & eMUX
