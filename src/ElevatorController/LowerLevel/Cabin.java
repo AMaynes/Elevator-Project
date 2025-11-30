@@ -1,7 +1,6 @@
 package ElevatorController.LowerLevel;
 
 import Bus.SoftwareBus;
-import Bus.SoftwareBusCodes;
 import ElevatorController.Util.ConstantsElevatorControl;
 import ElevatorController.Util.Direction;
 import ElevatorController.Util.FloorNDirection;
@@ -26,12 +25,12 @@ public class Cabin implements Runnable {
     private SoftwareBus softwareBus;
 
     // Constants for cabin topic
-    private static final int CAR_STOP = Topic.carStop;
-    private static final int CAR_DISPATCH = Topic.carDispatch;
-    private static final int TOP_FLOOR_SENSOR = Topic.TOP_SENSOR_TRIGGERED;
-    private static final int BOTTOM_FLOOR_SENSOR = Topic.BOTTOM_SENSOR_TRIGGERED;
-    private static final int CAR_POSITION = Topic.CAR_POSITION;
-    private static final int CAR_DIRECTION = Topic.CAR_DIRECTION;
+    private static final int TOPIC_CAR_STOP = Topic.carStop;
+    private static final int TOPIC_CAR_DISPATCH = Topic.carDispatch;
+    private static final int TOPIC_TOP_FLOOR_SENSOR = Topic.topSensor;
+    private static final int TOPIC_BOTTOM_SENSOR = Topic.bottomSensor;
+    private static final int TOPIC_CABIN_POSITION = Topic.cabinPosition;
+    private static final int TOPIC_CURR_DIRECTION = Topic.currDirection;
 
     //Constants for cabin bodies
     private static final int STOP_MOTOR = 0;
@@ -78,8 +77,8 @@ public class Cabin implements Runnable {
      */
     public FloorNDirection currentStatus(){
         // Todo: ok we handle motor moving in house and dont have a method to check if the motor is moving??
-        Message floorMessage = MessageHelper.pullAllMessages(softwareBus, elevatorID, CAR_POSITION);
-        Message directionMessage = MessageHelper.pullAllMessages(softwareBus, elevatorID, CAR_DIRECTION);
+        Message floorMessage = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_CABIN_POSITION);
+        Message directionMessage = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_CURR_DIRECTION);
         currFloor = floorMessage.getBody();
         int annoyingAF = directionMessage.getBody();
         switch (annoyingAF){
@@ -164,20 +163,20 @@ public class Cabin implements Runnable {
             case DOWN -> dir = 1;
             case STOPPED -> dir = -1;
         }
-        softwareBus.publish(new Message(CAR_DISPATCH, elevatorID, dir));
+        softwareBus.publish(new Message(TOPIC_CAR_DISPATCH, elevatorID, dir));
     }
 
     private void stopMotor() {
         motor = false;
-        softwareBus.publish(new Message(CAR_STOP, elevatorID, STOP_MOTOR));
+        softwareBus.publish(new Message(TOPIC_CAR_STOP, elevatorID, STOP_MOTOR));
     }
 
     private void topAlignment() {
-       Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOP_FLOOR_SENSOR);
+       Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_TOP_FLOOR_SENSOR);
        if (message != null) topAlign = message.getBody();
     }
     private void bottomAlignment() {
-        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, BOTTOM_FLOOR_SENSOR);
+        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_BOTTOM_SENSOR);
         if (message != null) botAlign = message.getBody();
     }
 

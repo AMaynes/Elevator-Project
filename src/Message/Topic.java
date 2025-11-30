@@ -13,43 +13,6 @@ public class Topic {
     public Topic() {
     }
 
-    //100s: Controller -> PFD commands
-
-    //Todo: fix formatting, naming and usages
-
-    public static final int DOOR_CONTROL = 100; // eMUX
-    public static final int CAR_DISPATCH = 102; // eMUX
-    public static final int MODE_SET= 103; // bMUX & eMUX
-    public static final int CABIN_RESET = 109; // bMUX & eMUX
-    public static final int CALL_RESET = 110; // bMUX
-    public static final int DISPLAY_FLOOR = 111; // bMUX & eMUX
-    public static final int DISPLAY_DIRECTION = 112; // bMUX & eMUX
-    public static final int FIRE_ALARM = 120; // bMUX
-    public static final int MOTOR = 121; // eMUX (not sure what number to use so 121)
-
-    public static final int CALLS_ENABLED = 113;        // Building MUX
-    public static final int SELECTIONS_ENABLED = 114;   // Elevator MUX (all)
-    public static final int SELECTIONS_TYPE = 115;      // Elevator MUX (all)
-    public static final int PLAY_SOUND = 116;           // Building MUX
-
-
-
-    //200s: PFD -> Controller events
-
-    public static final int HALL_CALL = 200; // bMUX
-    public static final int CABIN_SELECT = 201; // eMUX
-    public static final int CAR_POSITION = 202; // eMUX
-    public static final int DOOR_SENSOR = 203; // eMUX
-    public static final int DOOR_STATUS = 204; // eMUX
-    public static final int CABIN_LOAD = 205; // eMUX
-    public static final int FIRE_KEY = 206; // eMUX
-    public static final int CAR_DIRECTION = 207;
-    public static final int CAR_MOVEMENT = 208;
-    public  static final int FIRE_ALARM_ACTIVE = 209;
-    public static final int TOP_SENSOR_TRIGGERED = 210;//eMux (not sure what number so 210)
-    public static final int BOTTOM_SENSOR_TRIGGERED = 211;//eMux (not sure what number so 211)
-
-
     // List of topics
     public static final int systemStop = 1;
     public static final int systemStart = 2;
@@ -144,6 +107,9 @@ public class Topic {
 
     public static final int obstructed = 0;
     public static final int clear = 1;
+
+    public final static int inactive = 0;
+    public final static int active = 1;
 
     public static final int normal = 0;
     public static final int overloaded = 1;
