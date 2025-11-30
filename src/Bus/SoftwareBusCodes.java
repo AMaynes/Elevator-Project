@@ -52,18 +52,10 @@ public class SoftwareBusCodes {
 
 
     // Elevator Controller to Command Center
-    public static final int atFloor = 400;
-    public static final int fireMode = 401;
-    public static final int elevatorStatus = 402;
-    public static final int doorStatusCC = 403;
-    public static final int doorSensorCC = 404;
-
-    // Control devices
-    public static final int buttons = 300;
-    public static final int cabin = 301;
-    public static final int doorAssembly = 302;
-    public static final int mode = 303;
-    public static final int notifier = 304;
+    public static final int fireMode = 400;
+    public static final int elevatorStatus = 401;
+    public static final int doorStatusCC = 402;
+    public static final int doorSensorCC = 403;
 
     // List of Subtopics
     public static final int allElevators = 0;
