@@ -45,6 +45,8 @@ public class ElevatorMultiplexor {
     private boolean lastOverloadState = false;
     private int lastPressedFloor = 0;
     private int targetFloor = 0;
+    private Integer lastTopSensorRead = motionAPI.top_alignment();
+    private Integer lastBottomSensorRead = motionAPI.bottom_alignment();
 
     // Initialize the MUX
     public void initialize() {
@@ -58,6 +60,7 @@ public class ElevatorMultiplexor {
         bus.subscribe(Topic.selectionsEnable, ID);
         bus.subscribe(Topic.selectionsType, ID);
         bus.subscribe(Topic.playSound, ID);
+        bus.subscribe(Topic.fireAlarm, 0);
 
         System.out.println("ElevatorMUX " + ID + " initialized and subscribed");
         startBusPoller();
@@ -96,7 +99,6 @@ public class ElevatorMultiplexor {
                     int floorNumber = msg.getBody();
                     elev.panel.resetFloorButton(floorNumber);
                 }
-
                 msg = bus.get(Topic.carStop, ID);
                 if (msg != null) {
                     handleCarStop(msg);
@@ -112,6 +114,10 @@ public class ElevatorMultiplexor {
                 msg = bus.get(Topic.playSound, 0);
                 if (msg != null) {
                     handlePlaySound(msg);
+                }
+                msg = bus.get(Topic.fireAlarm, 0);
+                if (msg != null) {
+                    handleFireAlarm(msg);
                 }
 
                 try {
@@ -139,7 +145,7 @@ public class ElevatorMultiplexor {
                 pollCarPosition();
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -206,42 +212,46 @@ public class ElevatorMultiplexor {
 
     // Poll car position
     private void pollCarPosition() {
-        Integer sensor = motionAPI.bottom_alignment();
-        if (sensor == null) return;
+        Integer topSensor = motionAPI.top_alignment();
+        Integer bottomSensor = motionAPI.bottom_alignment();
 
-        int newFloor = (sensor / 2) + 1;
-        if (newFloor < 1 || newFloor > elev.totalFloors) return;
+        boolean topChanged = (topSensor != null && !topSensor.equals(lastTopSensorRead));
+        boolean botChanged = (bottomSensor != null && !bottomSensor.equals(lastBottomSensorRead));
 
-        // Only update direction when moving between floors
+        // Return if no state change has occured
+        if (!topChanged && !botChanged) return;
+
+        // Publish sensor data if has changed
+        if (topChanged) bus.publish(new Message(Topic.topSensor, ID, topSensor));
+        if (botChanged) bus.publish(new Message(Topic.bottomSensor, ID, bottomSensor));
+
+        // Calculate new floor
+        int newFloor = (bottomSensor / 2) + 1; // +1 for indexing
+        if (newFloor < 1 || newFloor > elev.totalFloors) { // Invalid floor
+            lastTopSensorRead = topSensor;
+            lastBottomSensorRead = bottomSensor;
+            System.out.println("ElevatorMUX " + ID + ": Invalid floor detected: " + newFloor);
+            return;
+        }
+
+        // Only update when actually moving floors
         if (newFloor != currentFloor) {
             if (newFloor > currentFloor) currentDirection = "UP";
             else currentDirection = "DOWN";
-        }
+            currentFloor = newFloor;
+            System.out.println("ElevatorMUX " + ID + ": Arrived at floor " + currentFloor + " going " + currentDirection);
 
-        currentFloor = newFloor;
-
-        // Only update GUI when actually MOVING
-        //TODO: && newFloor != currentFloor ?
-        if (!currentDirection.equals("IDLE")) {
+            // Update GUI and publish position
             elev.display.updateFloorIndicator(currentFloor, currentDirection);
             elev.panel.setDisplay(currentFloor, currentDirection);
             bus.publish(new Message(Topic.cabinPosition, ID, currentFloor));
         }
 
-        //TODO: Remove this. Nice for the purposes of the Demo, though.
-        // Arrival logic
-        if (targetFloor > 0 && currentFloor == targetFloor) {
-            motionAPI.stop();
-            currentDirection = "IDLE";
-
-            elev.display.updateFloorIndicator(currentFloor, "IDLE");
-            elev.panel.setDisplay(currentFloor, "IDLE");
-
-            elev.door.open();
-            elev.panel.resetFloorButton(currentFloor);
-            targetFloor = 0;
-        }
+        // Update last sensor reads
+        lastTopSensorRead = topSensor;
+        lastBottomSensorRead = bottomSensor;
     }
+
 
     // Getter for Elevator
     public Elevator getElevator() {
@@ -297,23 +307,20 @@ public class ElevatorMultiplexor {
     }
 
     // Handle car dispatch messages
-    //TODO: Fix so that it just starts the elevator in the direction indicated by body
-    // 0 = up, 1 = down
     private void handleCarDispatch(Message msg) {
-        targetFloor = msg.getBody();
-        int dir = targetFloor - currentFloor;
+        int dir = msg.getBody();
 
         if(elev.door.isFullyClosed()){
-            if (dir > 0) {
+            if (dir == 0) {
                 currentDirection = "UP";
                 motionAPI.set_direction(Direction.UP);
-            } else if (dir < 0) {
+                bus.publish(new Message(Topic.currDirection, ID, 0));
+            } else if (dir == 1) {
                 currentDirection = "DOWN";
                 motionAPI.set_direction(Direction.DOWN);
-            } else {
-                currentDirection = "IDLE";
-                motionAPI.set_direction(Direction.NULL);
+                bus.publish(new Message(Topic.currDirection, ID, 1));
             }
+            bus.publish(new Message(Topic.currMovement, ID, 1));
 
             elev.display.updateFloorIndicator(currentFloor, currentDirection);
             elev.panel.setDisplay(currentFloor, currentDirection);
@@ -323,7 +330,12 @@ public class ElevatorMultiplexor {
 
     // Handle Car Stop Message
     private void handleCarStop(Message msg){
-        //TODO
+        motionAPI.stop();
+        elev.display.updateFloorIndicator(currentFloor, "IDLE");
+        elev.panel.setDisplay(currentFloor, "IDLE");
+        motionAPI.set_direction(Direction.NULL);
+        bus.publish(new Message(Topic.currDirection, ID, 2));
+        bus.publish(new Message(Topic.currMovement, ID, 0));
     }
 
     // Handle Selection Disable/Enable Message
@@ -345,6 +357,14 @@ public class ElevatorMultiplexor {
             elev.display.playArrivalChime();
         } else {
             elev.display.playOverLoadWarning();
+        }
+    }
+
+    // Handle Fire Alarm Message
+    public void handleFireAlarm(Message msg) {
+        int modeCode = msg.getBody();
+        if (modeCode == 1) {
+            elev.panel.clearPressedFloors();
         }
     }
 }
