@@ -9,12 +9,19 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import PFDGUI.gui;
 
+//NOTE, below are Mux's original import statements
+//package pfdAPI;
+//
+//import java.util.ArrayList;
+//import java.util.List;
+//import pfdGUI.gui;
+
 /**
  * Device inside of elevators that allows for user-interaction. Allows cabin riders to
  * select destination floors, view the elevator's current floor and direction, and
  * interact with the fire key.
  * API:
- *      public List<Integer> getPressedFloors()
+ *      public int getPressedFloor()
  *      public void clearPressedFloors()
  *      public void resetFloorButton(int floorNumber)
  *      public void setDisplay(int currentFloor, String direction)
@@ -59,6 +66,7 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
 
     /**
      * Function for simulating pressing a floor button.
+     * FOR GUI SIMULATION PURPOSES
      * @param floorNumber The floor being requested
      */
     public synchronized void pressFloorButton(int floorNumber) {
@@ -70,9 +78,9 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
     }
 
     /**
-     * Returns all pressed floor numbers since the last poll.
+     * Returns the most recent pressed floor number since the last poll.
      * Requests made by the riders must be serviced when not in emergency mode.
-     * @return copy of ArrayList<Integer> pressedFloorsQueue
+     * @return top int floor of the pressedFloorsQueue
      */
     @Override
     public synchronized int getPressedFloor() {
@@ -83,13 +91,42 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
     }
 
     /**
-     * Clears all stored pressed floor events. Called upon the suspension of
-     * regular activities (emergency mode).
+     * Clears all stored pressed floor events.
+     * TODO: Call this in the MUX when the fire alarm is active (either by user or command).
+     *  Decide: should this also be called upon button disables or single/multiple mode switches?
      */
     @Override
     public synchronized void clearPressedFloors() {
         pressedFloorsQueue.clear();
         guiControl.resetPanel(carId);
+    }
+
+    /**
+     * Disables/Enables the floor selection buttons.
+     * DOES NOT RESET ANY BUTTONS AUTOMATICALLY.
+     * @param disabled, 0 = disable 1 = enable
+     */
+    public synchronized void setButtonsDisabled(int disabled){
+        if(disabled == 0){
+            guiControl.setPanelButtonsDisabled(carId,  true);
+        }else {
+            guiControl.setPanelButtonsDisabled(carId,  false);
+        }
+    }
+
+    /**
+     * Sets the selection mode on the floor selection buttons to
+     * single/multiple. Upon setting the mode to single, always
+     * allows 1 more selection, even if some buttons are already active.
+     * DOES NOT RESET ANY BUTTONS AUTOMATICALLY.
+     * @param single, 0 = single mode 1 = multiple mode
+     */
+    public synchronized void setButtonsSingle(int single){
+        if(single == 0){
+            guiControl.setSingleSelection(carId, true);
+        }else{
+            guiControl.setSingleSelection(carId, false);
+        }
     }
 
     /**
@@ -124,63 +161,32 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
 
     /**
      * Plays the arrival chime sound. Called when travel requests have been successfully serviced.
+     * NOTE: Never used. API remains for logical purposes, but useless in the actual GUI.
      */
     @Override
     public void playCabinArrivalChime() {
-        int floor;
-        synchronized (this) {
-            floor = currentFloor;
-        }
-
-        System.out.println("*Ding!* Elevator arrived at floor " + floor);
-
-        Platform.runLater(() -> {
-            try {
-                URL sound = getClass().getResource("/sounds/ding.mp3");
-                if (sound == null) {
-                    System.err.println("Sound file not found.");
-                    return;
-                }
-
-                Media media = new Media(sound.toExternalForm());
-                MediaPlayer player = new MediaPlayer(media);
-                player.play();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        guiControl.resetPanelButton(carId, currentFloor);
+        System.out.println("*Ding!* Also played in the cabin of Elevator " + carId + "!");
     }
 
     /**
      * Plays the overload warning buzz. Called when the GUI option for overload is selected.
      * In this state, the elevator cannot move and the doors will remain open.
+     * NOTE: Never used. API remains for logical purposes, but useless in the actual GUI.
      */
     @Override
     public synchronized void playCabinOverloadWarning() {
-        // same as chime
-        System.out.println("*Buzz!* Overload detected — please reduce cabin weight.");
+        System.out.println("*Buzz!* Also played in the cabin of Elevator " + carId + "!");
     }
 
     /**
-     * Sets the overload warning state.
-     * Used when the overload state is set externally (e.g., from the MUX).
-     */
-    public synchronized void setOverloadWarning(boolean overload) {
-        // same as chime
-        if(overload){ playCabinOverloadWarning(); }
-        guiControl.setCabinOverload(carId, overload);
-    }
-
-    /**
-     * Reads the fire key state. Must be read in order to check for the current
-     * emergency status.
+     * Reads the fire key state. When the fire key is active, the elevator panel
+     * should be set to single selection mode. When inactive, the panel is
+     * disabled during fire mode.
      * @return boolean fireKeyActive
      */
     @Override
     public synchronized boolean isFireKeyActive() {
-        return fireKeyActive;
+        return guiControl.getIsFireKeyActive(carId);
     }
 
     /**

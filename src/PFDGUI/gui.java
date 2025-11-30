@@ -17,7 +17,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
-import utils.imageLoader;
+import Util.imageLoader;
 
 /** MUX calls api, api modifies the gui. MUX needs to also poll the internal state.
  * Simple JavaFX GUI that listens to model classes via a nested listener
@@ -50,34 +50,59 @@ public class gui extends Application {
      * GUI Control & State Query Interface
      */
 
-     public class GUIControl {
+    public class GUIControl {
         public GUIControl() {
             for (int i = 0; i < numElevators; i++) {
                 pressedFloors[i] = new ArrayList<>();
             }
         }
-        
+
         // Internal State Variables
         private ArrayList<Integer>[] pressedFloors = new ArrayList[numElevators];
         private boolean[] doorObstructions = new boolean[numElevators];
         private boolean[] cabinOverloads = new boolean[numElevators];
+        private boolean[] fireKeys = new boolean[numElevators];
         private boolean fireAlarmActive;
+        private boolean callButtonsDisabled = false;
+        private boolean[] panelButtonsDisabled = new boolean[numElevators];
+        private boolean[] singleSelection = new boolean[numElevators];
+        private int lastSelected = 0;
 
         // Getters for internal state variables
-        public ArrayList<Integer> getPressedFloors(int ID) { 
-            int panelIndex = ID - 1; 
-            return (panelIndex >= 0 && panelIndex < numElevators) ? pressedFloors[panelIndex] : new ArrayList<>(); 
+        public ArrayList<Integer> getPressedFloors(int ID) {
+            int panelIndex = ID - 1;
+            return (panelIndex >= 0 && panelIndex < numElevators) ? pressedFloors[panelIndex] : new ArrayList<>();
         }
-        public boolean getIsDoorObstructed(int ID) { 
-            int panelIndex = ID - 1; 
-            return (panelIndex >= 0 && panelIndex < numElevators) ? doorObstructions[panelIndex] : false; 
+        public boolean getIsDoorObstructed(int ID) {
+            int panelIndex = ID - 1;
+            return (panelIndex >= 0 && panelIndex < numElevators) ? doorObstructions[panelIndex] : false;
         }
-        public boolean getIsCabinOverloaded(int ID) { 
-            int panelIndex = ID - 1; 
-            return (panelIndex >= 0 && panelIndex < numElevators) ? cabinOverloads[panelIndex] : false; 
+        public boolean getIsCabinOverloaded(int ID) {
+            int panelIndex = ID - 1;
+            return (panelIndex >= 0 && panelIndex < numElevators) ? cabinOverloads[panelIndex] : false;
         }
         public boolean getFireAlarm() { return fireAlarmActive; }
-        
+
+        public boolean getIsFireKeyActive(int ID){
+            int panelIndex = ID - 1;
+            return (panelIndex >= 0 && panelIndex < numElevators) ? fireKeys[panelIndex] : false;
+        }
+
+        // Setters for internal state variables
+        public void setCallButtonsDisabled(boolean disabled) {
+            callButtonsDisabled = disabled;
+        }
+
+        public void setPanelButtonsDisabled(int ID, boolean disabled) {
+            int panelIndex = ID - 1;
+            panelButtonsDisabled[panelIndex] = disabled;
+        }
+
+        public void setSingleSelection(int ID, boolean single) {
+            int panelIndex = ID - 1;
+            lastSelected = 0;
+            singleSelection[panelIndex] = single;
+        }
 
         // Press panel button
         public void pressPanelButton(int ID, int floorNumber) {
@@ -102,6 +127,9 @@ public class gui extends Application {
                         pressedFloors[ID-1].remove(Integer.valueOf(floorNumber));
                     }
                 }
+                if(floorNumber == lastSelected){
+                    lastSelected = 0;
+                }
             });
         }
 
@@ -123,10 +151,10 @@ public class gui extends Application {
             Platform.runLater(() -> {
                 doorObstructions[ID-1] = isObstructed;
                 ImageView doorImg = doors[ID-1].elevDoorsImg;
-                
+
                 // Update image based on current door state + new obstruction state
-                if (loader.imageList.get(6).equals(doorImg.getImage()) || 
-                    loader.imageList.get(7).equals(doorImg.getImage())) {
+                if (loader.imageList.get(6).equals(doorImg.getImage()) ||
+                        loader.imageList.get(7).equals(doorImg.getImage())) {
                     // Door is open - update open state
                     doorImg.setImage(isObstructed ? loader.imageList.get(7) : loader.imageList.get(6));
                 }
@@ -141,29 +169,29 @@ public class gui extends Application {
                 if (open) {
                     // Opening doors, show midway transition then fully open
                     if (doorObstructions[ID-1]) {
-                        doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(5)); 
+                        doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(5));
                     } else {
-                        doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(4)); 
+                        doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(4));
                     }
-                    
+
                     new Thread(() -> {
                         try { Thread.sleep(2000); } catch (InterruptedException e) { e.printStackTrace(); }
                         Platform.runLater(() -> {
                             if (doorObstructions[ID-1]) {
-                                doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(7)); 
+                                doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(7));
                             } else {
-                                doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(6)); 
+                                doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(6));
                             }
                         });
                     }).start();
                 } else {
                     // Closing doors, show midway transition
                     if (doorObstructions[ID-1]) {
-                        doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(5)); 
+                        doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(5));
                     } else {
-                        doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(4)); 
+                        doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(4));
                     }
-                    
+
                     new Thread(() -> {
                         try { Thread.sleep(2000); } catch (InterruptedException e) { e.printStackTrace(); }
                         Platform.runLater(() -> {
@@ -171,13 +199,13 @@ public class gui extends Application {
                                 // reopen doors, Obstruction detected
                                 System.out.println("Obstruction detected - reopening doors for elevator " + ID);
                                 if (doorObstructions[ID-1]) {
-                                    doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(7)); 
+                                    doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(7));
                                 } else {
-                                    doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(6)); 
+                                    doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(6));
                                 }
                             } else {
                                 // No obstruction, close fully
-                                doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(3)); 
+                                doors[ID-1].elevDoorsImg.setImage(loader.imageList.get(3));
                             }
                         });
                     }).start();
@@ -233,11 +261,22 @@ public class gui extends Application {
         }
 
         // Reset the floor call button state
-        public void resetCallButton(int floorNumber) {
+        public void resetCallButton(int floorNumber, String direction) {
             int buttonIndex = floorNumber - 1;  // Convert floor number (1-10) to array index (0-9)
             if (buttonIndex >= 0 && buttonIndex < numFloors) {
                 Platform.runLater(() -> {
-                    callButtons[buttonIndex].elevCallButtonsImg.setImage(loader.imageList.get(13));
+                    if(callButtons[buttonIndex].direction.equals("BOTH")) {
+                        if(direction.equalsIgnoreCase("UP")) {
+                            callButtons[buttonIndex].setDirection("DOWN");
+                            callButtons[buttonIndex].elevCallButtonsImg.setImage(loader.imageList.get(14));
+                        } else {
+                            callButtons[buttonIndex].setDirection("UP");
+                            callButtons[buttonIndex].elevCallButtonsImg.setImage(loader.imageList.get(15));
+                        }
+                    } else {
+                        callButtons[buttonIndex].setDirection("IDLE");
+                        callButtons[buttonIndex].elevCallButtonsImg.setImage(loader.imageList.get(13));
+                    }
                 });
             }
         }
@@ -261,6 +300,9 @@ public class gui extends Application {
                 return false;
             }
             String currentDirection = callButtons[buttonIndex].direction;
+            if(currentDirection.equalsIgnoreCase("BOTH")) {
+                return true;
+            }
             return currentDirection.equalsIgnoreCase(direction);
         }
     }
@@ -298,8 +340,8 @@ public class gui extends Application {
             displays[i] = new Display(i);
             weighScales[i] = new WeighScale(i);
 
-            v.getChildren().addAll(panels[i].panelOverlay, displays[i].displayOverlay, 
-            doors[i].doorOverlay, weighScales[i].weightTriggerButton);
+            v.getChildren().addAll(panels[i].panelOverlay, displays[i].displayOverlay,
+                    doors[i].doorOverlay, weighScales[i].weightTriggerButton);
 
             hbox.getChildren().add(v);
             v.setAlignment(Pos.CENTER);
@@ -309,7 +351,7 @@ public class gui extends Application {
         primaryStage.setTitle("Elevator Passenger Devices");
         primaryStage.setScene(scene);
         primaryStage.show();
-        
+
         // Initialize multiplexors AFTER GUI is fully set up
         new Mux.BuildingMultiplexor();
         for (int i = 0; i < numElevators; i++) {
@@ -326,9 +368,9 @@ public class gui extends Application {
         private int yTranslation = -30; // adjust as needed for non 1:1 scales
         private int carId;
 
-        private Panel(int index){ 
+        private Panel(int index){
             this.carId = index;
-            makePanel(); 
+            makePanel();
         }
 
         private void makePanel(){
@@ -359,10 +401,15 @@ public class gui extends Application {
                 final int leftFloorNumber = i;
                 left.setOnMouseClicked(event -> {
                     Platform.runLater(() -> {
-                        if (elevatorMuxes != null && carId < elevatorMuxes.length && elevatorMuxes[carId] != null) {
-                            elevatorMuxes[carId].getElevator().panel.pressFloorButton(leftFloorNumber);
+                        if(!internalState.panelButtonsDisabled[carId]) {
+                            if(!internalState.singleSelection[carId] || internalState.lastSelected == 0) {
+                                if (elevatorMuxes != null && carId < elevatorMuxes.length && elevatorMuxes[carId] != null) {
+                                    elevatorMuxes[carId].getElevator().panel.pressFloorButton(leftFloorNumber);
+                                    internalState.lastSelected = leftFloorNumber;
+                                }
+                                left.setStyle("-fx-text-fill: #ffffffff;");
+                            }
                         }
-                        left.setStyle("-fx-text-fill: #ffffffff;");
                     });
                 });
 
@@ -381,15 +428,37 @@ public class gui extends Application {
                 final int rightFloorNumber = i + 1;
                 right.setOnMouseClicked(event -> {
                     Platform.runLater(() -> {
-                        if (elevatorMuxes != null && carId < elevatorMuxes.length && elevatorMuxes[carId] != null) {
-                            elevatorMuxes[carId].getElevator().panel.pressFloorButton(rightFloorNumber);
+                        if(!internalState.panelButtonsDisabled[carId]) {
+                            if(!internalState.singleSelection[carId] || internalState.lastSelected == 0) {
+                                if (elevatorMuxes != null && carId < elevatorMuxes.length && elevatorMuxes[carId] != null) {
+                                    elevatorMuxes[carId].getElevator().panel.pressFloorButton(rightFloorNumber);
+                                    internalState.lastSelected = rightFloorNumber;
+                                }
+                                right.setStyle("-fx-text-fill: #ffffffff;");
+                            }
                         }
-                        right.setStyle("-fx-text-fill: #ffffffff;");
                     });
                 });
 
                 panelOverlay.getChildren().add(right);
             }
+
+            Button keyButton = new Button();
+            keyButton.setPrefSize(30, 30);
+            keyButton.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
+
+            double keyX = 20;
+            double keyY = 150;
+
+            keyButton.setTranslateX(keyX);
+            keyButton.setTranslateY(keyY);
+
+            keyButton.setOnAction(event -> {
+                internalState.fireKeys[carId] = !internalState.fireKeys[carId];
+            });
+
+            panelOverlay.getChildren().add(keyButton);
+
         }
     }
 
@@ -398,30 +467,30 @@ public class gui extends Application {
         public StackPane doorOverlay = new StackPane(elevDoorsImg);
         private int carId;
 
-        private Door(int index){ 
+        private Door(int index){
             this.carId = index;
-            makeDoor(); 
+            makeDoor();
         }
 
         private void makeDoor(){
             elevDoorsImg.setPreserveRatio(true);
             elevDoorsImg.setFitWidth(400);
-            elevDoorsImg.setImage(loader.imageList.get(6)); 
-            
+            elevDoorsImg.setImage(loader.imageList.get(6));
+
             internalState.doorObstructions[carId] = false;
 
             elevDoorsImg.setOnMouseClicked(event -> {
                 if(loader.imageList.get(6).equals(elevDoorsImg.getImage())) {
                     Platform.runLater(() -> {
                         internalState.doorObstructions[carId] = true;
-                        elevDoorsImg.setImage(loader.imageList.get(7)); 
+                        elevDoorsImg.setImage(loader.imageList.get(7));
                     });
                     return;
-                } 
+                }
                 else if(loader.imageList.get(7).equals(elevDoorsImg.getImage())) {
                     Platform.runLater(() -> {
                         internalState.doorObstructions[carId] = false;
-                        elevDoorsImg.setImage(loader.imageList.get(6)); 
+                        elevDoorsImg.setImage(loader.imageList.get(6));
                     });
                     return;
                 }
@@ -435,9 +504,9 @@ public class gui extends Application {
         public Label digitalLabel;
         private int displayIndex;
 
-        private Display(int index){ 
+        private Display(int index){
             this.displayIndex = index;
-            makeDisplay(); 
+            makeDisplay();
         }
 
         private void makeDisplay(){
@@ -465,8 +534,8 @@ public class gui extends Application {
         public Button weightTriggerButton = new Button("Overload");
         private int buttonIndex;
 
-        public WeighScale(int index){ 
-            this.buttonIndex = index; 
+        public WeighScale(int index){
+            this.buttonIndex = index;
             makeTrigger();
         }
 
@@ -477,7 +546,7 @@ public class gui extends Application {
             weightTriggerButton.setFont(Font.font("Times New Roman", FontWeight.BOLD, 22));
 
             weightTriggerButton.setOnMouseClicked(event -> {
-                
+
                 // Notify the multiplexor of the overload weight click
                 Platform.runLater(() -> {
                     String style = weightTriggerButton.getStyle();
@@ -486,7 +555,7 @@ public class gui extends Application {
                     if (isOverloaded) {
                         // Toggle to NORMAL
                         weightTriggerButton.setStyle("-fx-background-color: #bdbdbdff; -fx-text-fill: black;");
-                        internalState.cabinOverloads[buttonIndex] = false;                     
+                        internalState.cabinOverloads[buttonIndex] = false;
                     } else {
                         // Toggle to OVERLOAD
                         weightTriggerButton.setStyle("-fx-background-color: #684b4bff; -fx-text-fill: black;");
@@ -503,54 +572,72 @@ public class gui extends Application {
         private int buttonIndex;
         private String direction;
 
-        private CallButton(int index){ 
+        private CallButton(int index){
             this.buttonIndex = index;
             this.direction = "IDLE";
-            makeCallButton(); 
+            makeCallButton();
         }
 
         private void makeCallButton(){
             elevCallButtonsImg.setPreserveRatio(true);
             elevCallButtonsImg.setFitWidth(100);
             elevCallButtonsImg.setFitHeight(100);
-            elevCallButtonsImg.setImage(loader.imageList.get(13)); // 13-15 indices are call buttons
+            elevCallButtonsImg.setImage(loader.imageList.get(13)); // 13-16 indices are call buttons
 
             // Bound the click region with quick maths
             elevCallButtonsImg.setOnMouseClicked(event -> {
-                double clickX = event.getX();
-                double clickY = event.getY();
-                double width = elevCallButtonsImg.getBoundsInLocal().getWidth();
-                double height = elevCallButtonsImg.getBoundsInLocal().getHeight();
+                if(!internalState.callButtonsDisabled) {
+                    double clickX = event.getX();
+                    double clickY = event.getY();
+                    double width = elevCallButtonsImg.getBoundsInLocal().getWidth();
+                    double height = elevCallButtonsImg.getBoundsInLocal().getHeight();
 
-                // Approximate centers of the upper and lower buttons
-                double centerX = width / 2;
-                double centerY = height / 2;
-                double offsetY = 20;  // how far each button center is from middle
-                double radius = 15;   // clickable radius
+                    // Approximate centers of the upper and lower buttons
+                    double centerX = width / 2;
+                    double centerY = height / 2;
+                    double offsetY = 20;  // how far each button center is from middle
+                    double radius = 15;   // clickable radius
 
-                // Calculate distances from click point to each button center
-                double distToUp = Math.hypot(clickX - centerX, clickY - (centerY - offsetY));
-                double distToDown = Math.hypot(clickX - centerX, clickY - (centerY + offsetY));
+                    // Calculate distances from click point to each button center
+                    double distToUp = Math.hypot(clickX - centerX, clickY - (centerY - offsetY));
+                    double distToDown = Math.hypot(clickX - centerX, clickY - (centerY + offsetY));
 
-                if (distToUp <= radius) {
-                    // Upper button clicked
-                    Platform.runLater(() -> {
-                        callButtons[buttonIndex].direction = "UP";
-                        elevCallButtonsImg.setImage(loader.imageList.get(15));
-                    });
-                } 
-                else if (distToDown <= radius) {
-                    // Lower button clicked
-                    Platform.runLater(() -> {
-                        callButtons[buttonIndex].direction = "DOWN";
-                        elevCallButtonsImg.setImage(loader.imageList.get(14));
-                    });
-                } 
-                else {
-                    // Clicked outside both button circles — ignore
-                    System.out.println("Clicked outside call buttons");
+                    if (distToUp <= radius) {
+                        // Upper button clicked
+                        Platform.runLater(() -> {
+                            if(buttonIndex != 9) {
+                                if (callButtons[buttonIndex].direction.equals("DOWN")) {
+                                    callButtons[buttonIndex].direction = "BOTH";
+                                    elevCallButtonsImg.setImage(loader.imageList.get(16));
+                                } else if (!callButtons[buttonIndex].direction.equals("BOTH")) {
+                                    callButtons[buttonIndex].direction = "UP";
+                                    elevCallButtonsImg.setImage(loader.imageList.get(15));
+                                }
+                            }
+                        });
+                    } else if (distToDown <= radius) {
+                        // Lower button clicked
+                        Platform.runLater(() -> {
+                            if(buttonIndex != 0) {
+                                if (callButtons[buttonIndex].direction.equals("UP")) {
+                                    callButtons[buttonIndex].direction = "BOTH";
+                                    elevCallButtonsImg.setImage(loader.imageList.get(16));
+                                } else if (!callButtons[buttonIndex].direction.equals("BOTH")) {
+                                    callButtons[buttonIndex].direction = "DOWN";
+                                    elevCallButtonsImg.setImage(loader.imageList.get(14));
+                                }
+                            }
+                        });
+                    } else {
+                        // Clicked outside both button circles — ignore
+                        System.out.println("Clicked outside call buttons");
+                    }
                 }
             });
+        }
+
+        public void setDirection(String direction) {
+            this.direction = direction;
         }
     }
 
@@ -592,9 +679,9 @@ public class gui extends Application {
     }
 
     /**************************************************
-    * Main Application Entry Point
-    ****************************************
-    */
+     * Main Application Entry Point
+     ****************************************
+     */
 
     public static void main(String[] args) {
         launch(args);

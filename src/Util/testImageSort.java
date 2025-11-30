@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 public class testImageSort extends Application {
     @Override
     public void start(Stage stage) {
-        utils.imageLoader loader = new utils.imageLoader();
+        Util.imageLoader loader = new Util.imageLoader();
         loader.loadImages();
 
         FlowPane root = new FlowPane();

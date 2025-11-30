@@ -2,6 +2,11 @@ package PFDAPI;
 
 import PFDGUI.gui;
 
+// Below are Team10's import statements
+//package pfdAPI;
+//
+//import pfdGUI.gui;
+
 /**
  * Class that defines the functionality of the Elevator doors. Represents
  * the pair of doors that open to a specific elevator on each floor.
@@ -17,7 +22,6 @@ public class ElevatorDoorsAssembly {
     private boolean isClosed;
     // True when an obstruction is placed
     private boolean isObstructed;
-    // Represents whether the doors are actively opening/closing
     private boolean isMoving;
 
     // GUI Control reference
@@ -41,25 +45,17 @@ public class ElevatorDoorsAssembly {
      * Commands the door assembly to open.
      * If an obstruction is detected, opening is halted automatically.
      */
-    public synchronized void open() {
-        // Do NOT start a new open if moving or obstructed
-        if (isMoving) {
-            System.out.println("[Doors] Cannot open - door is currently moving.");
-            return;
-        }
-        if (isObstructed) {
-            System.out.println("[Doors] Cannot open - obstruction detected.");
-            return;
-        }
-
+    public synchronized void open(){
         if (!isOpen) {
             isMoving = true;
             System.out.println("[Doors] Opening...");
-            simulateDelay(500);
+            simulateDelay(2000);
             isOpen = true;
-            guiControl.changeDoorState(carId, true); // true = open
+            guiControl.changeDoorState(carId, isOpen);
             isMoving = false;
+            isClosed = false;
             System.out.println("[Doors] Fully open.");
+
         }
     }
 
@@ -69,33 +65,23 @@ public class ElevatorDoorsAssembly {
      * If obstruction occurs during closing, doors reopen automatically.
      */
     public synchronized void close() {
-        if (isObstructed) {
-            System.out.println("[Doors] Obstruction detected reopening.");
-            isOpen = true;
-            open();
-            return;
-        }
-
+        isObstructed();
         if (isOpen) {
             isMoving = true;
-            isClosed = false;
             System.out.println("[Doors] Closing...");
+            simulateDelay(2000);
+            isOpen = false;
+            isClosed = true;
+            guiControl.changeDoorState(carId, isOpen);
 
-            simulateDelay(200);    // small delay before animation
-            guiControl.changeDoorState(carId, false);
-
-            // Now wait for the GUI to finish closing (2 seconds)
-            new Thread(() -> {
-                try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
-                synchronized (this) {
-                    if (!isObstructed) {
-                        isOpen = false;
-                        isClosed = true;
-                        System.out.println("[Doors] Fully closed.");
-                    }
-                    isMoving = false;
-                }
-            }).start();
+            if(isObstructed){
+                isOpen = true;
+                isClosed = false;
+                System.out.println("[Doors] Obstruction detected. Reopened.");
+            } else {
+                System.out.println("[Doors] Fully closed.");
+            }
+            isMoving = false;
         }
     }
 
@@ -149,3 +135,4 @@ public class ElevatorDoorsAssembly {
 
 
 }
+
