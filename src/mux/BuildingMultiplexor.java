@@ -10,6 +10,9 @@ import pfdAPI.Building;
 import pfdAPI.FloorCallButtons;
 
 import java.net.URL;
+import java.util.Arrays;
+
+import static java.lang.Math.abs;
 
 /**
  * Class that defines the BuildingMultiplexor, which coordinates communication from the Elevator
@@ -30,6 +33,7 @@ public class BuildingMultiplexor {
     private final Building bldg = new Building(10);;
     boolean[][] lastCallState = new boolean[bldg.totalFloors][3]; // Up/Down/Null
     private boolean lastFireState = false;
+    int[] elevatorPos = new int[4];
 
     int DIR_UP = 0;
     int DIR_DOWN = 1;
@@ -41,8 +45,13 @@ public class BuildingMultiplexor {
     public void initialize() { 
         bus.subscribe(SoftwareBusCodes.fireAlarm, 0);
         bus.subscribe(SoftwareBusCodes.resetCall, 0);
-
         bus.subscribe(SoftwareBusCodes.callsEnable, 0);
+
+        bus.subscribe(SoftwareBusCodes.cabinPosition, 1);
+        bus.subscribe(SoftwareBusCodes.cabinPosition, 2);
+        bus.subscribe(SoftwareBusCodes.cabinPosition, 3);
+        bus.subscribe(SoftwareBusCodes.cabinPosition, 4);
+        Arrays.fill(elevatorPos, 1);
 
         System.out.println("BuildingMUX initialized and subscribed");
         startBusPoller();
@@ -72,6 +81,22 @@ public class BuildingMultiplexor {
                 msg = bus.get(SoftwareBusCodes.callsEnable, 0);
                 if (msg != null) {
                     handleCallEnable(msg);
+                }
+                msg = bus.get(SoftwareBusCodes.cabinPosition, 1);
+                if (msg != null) {
+                    handleElevatorPos(msg);
+                }
+                msg = bus.get(SoftwareBusCodes.cabinPosition, 2);
+                if (msg != null) {
+                    handleElevatorPos(msg);
+                }
+                msg = bus.get(SoftwareBusCodes.cabinPosition, 3);
+                if (msg != null) {
+                    handleElevatorPos(msg);
+                }
+                msg = bus.get(SoftwareBusCodes.cabinPosition, 4);
+                if (msg != null) {
+                    handleElevatorPos(msg);
                 }
                 try {
                     Thread.sleep(50);
@@ -107,13 +132,16 @@ public class BuildingMultiplexor {
     // Poll all call buttons
     private void pollCallButtons() {
         for (int floor = 0; floor < bldg.callButtons.length; floor++) {
+            int elevator = bestElevator(floor);
             if (bldg.callButtons[floor].isUpCallPressed() && !lastCallState[floor][0]) {
-                bus.publish(new Message(SoftwareBusCodes.hallCall, floor + 1, DIR_UP));
+                System.out.println("Closest elev is " + (elevator+1) + ", floor is " + (floor+1));
+                bus.publish(new Message(SoftwareBusCodes.hallCall, elevator + 1, floor + 1 + 100));
                 lastCallState[floor][0] = true;
             }
 
             if (bldg.callButtons[floor].isDownCallPressed() && !lastCallState[floor][1]) {
-                bus.publish(new Message(SoftwareBusCodes.hallCall, floor + 1, DIR_DOWN));
+                System.out.println("Closest elev is " + (elevator+1) + ", floor is " + (floor+1));
+                bus.publish(new Message(SoftwareBusCodes.hallCall, elevator + 1, floor + 1));
                 lastCallState[floor][1] = true;
             }
         }
@@ -167,9 +195,33 @@ public class BuildingMultiplexor {
     // Handle Call Enable/Disable Message
     public void handleCallEnable(Message msg){
         int body = msg.getBody();
+        fireAlarmResets(false);
         bldg.callButtons[1].setButtonsEnabled(body);
     }
 
+    // Poll all elevator position (for call button servicing)
+    private void handleElevatorPos(Message msg){
+        int elevator = msg.getSubTopic()-1;
+        int floor =  msg.getBody();
+        elevatorPos[elevator] = floor;
+    }
+
+    /**
+     * Util
+     */
+
+    // Choose the closet elevator to give the hall call to
+    private int bestElevator(int floor){
+        int choose = 0;
+        int bestDistance = 1000;
+        for(int i = 0; i < 4; i++){
+            if(bestDistance > abs(elevatorPos[i]-floor)){
+                bestDistance = abs(elevatorPos[i]-floor);
+                choose = i;
+            }
+        }
+        return choose;
+    }
 
     private void fireAlarmResets(boolean sendMsg){
         for(FloorCallButtons buttons : bldg.callButtons){

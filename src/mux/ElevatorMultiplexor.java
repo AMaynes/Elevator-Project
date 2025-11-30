@@ -299,7 +299,6 @@ public class ElevatorMultiplexor {
     // Handle car dispatch messages
     private void handleCarDispatch(Message msg) {
         int dir = msg.getBody();
-
         if(elev.door.isFullyClosed()){
             if (dir == 0) {
                 currentDirection = "UP";
@@ -331,6 +330,9 @@ public class ElevatorMultiplexor {
     // Handle Selection Disable/Enable Message
     private void handleSelectionEnable(Message msg) {
         int body = msg.getBody();
+        if(body == 0) {
+            elev.panel.clearPressedFloors();
+        }
         elev.panel.setButtonsDisabled(body);
     }
 

@@ -74,7 +74,7 @@ Topic | Meaning           |Subtopic (1 int)| Body (1 int) | Meaning of Body   | 
 116	  |Play sound	      |1,2,3,4 (elevID)| 0/1          |0=arrival1=overload| Elevator MUX     | Notifier
 120	  |Fire Alarm	      |0	           | 0/1	      |0=off 1=on         | Building MUX     | Mode
 
-200	  |Hall call	      |1 to 10 (floor#)| 0/1	      |0=up 1=down     	  | Buttons	         | Building MUX
+200	  |Hall call	      |1,2,3,4 (elevID)| 101-110,1-10 |>100=up <100=down  | Buttons	         | Building MUX
 201	  |Cabin select	      |1,2,3,4 (elevID)| 1-10	      |Floor number	      | Buttons	         | Elevator MUX
 202	  |Car position	      |1,2,3,4 (elevID)| 1-10	      |Floor number	      | Cabin	         | Elevator MUX
 203	  |Door sensor	      |1,2,3,4 (elevID)| 0/1	      |0=obstructed1=clear| Door Assembly	 | Elevator MUX
