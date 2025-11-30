@@ -1,14 +1,64 @@
 package ElevatorController.Processes;
 
 import ElevatorController.LowerLevel.DoorAssembly;
+import ElevatorController.LowerLevel.Notifier;
+import ElevatorController.Util.ConstantsElevatorControl;
 import ElevatorController.Util.Timer;
 
 import static ElevatorController.Util.ConstantsElevatorControl.DOOR_CLOSE_TIMEOUT;
 
 public class ProcessesUtil {
 
+    /**
+     * Holds the door open for specified time
+     */
+    public static void DoorsOpenWait() {
+        try {
+            Thread.sleep(ConstantsElevatorControl.DOOR_OPEN_TIME);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-    public static boolean closeDoors(DoorAssembly doorAssembly){
+    /**
+     * Attempt to open the doors
+     * @param doorAssembly the doors to open
+     * @return true if doors open successfully. Should always return successful
+     * if timeout is not too little
+     */
+    public static boolean tryDoorOpen(DoorAssembly doorAssembly) {
+        doorAssembly.open();
+        Timer timer =new Timer(DOOR_CLOSE_TIMEOUT);
+        while (!doorAssembly.fullyOpen()) {
+            if (timer.timeout()) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Hang thread until doors close fully. Plays over-capacity noise if they take too long
+     * @param doorAssembly the doors to close
+     * @param notifier the notifier to play capacity noise
+     * @return true if the doors closed without over capacity noise
+     */
+    public static boolean doorClose(DoorAssembly doorAssembly, Notifier notifier) {
+        boolean success;
+        success = ProcessesUtil.tryDoorClose(doorAssembly);
+        if (success) return true;
+        while(!success){
+            notifier.playCapacityNoise();
+            success = ProcessesUtil.tryDoorClose(doorAssembly);
+        }
+        notifier.stopCapacityNoise();
+        return false;
+    }
+
+    /**
+     * Attempts to close the doors but opens if there's an obstruction
+     * @param doorAssembly the doors to close
+     * @return true if doors successfully close before timeout
+     */
+    public static boolean tryDoorClose(DoorAssembly doorAssembly){
         Timer timer =new Timer(DOOR_CLOSE_TIMEOUT);
 
         while(!doorAssembly.fullyClosed()){

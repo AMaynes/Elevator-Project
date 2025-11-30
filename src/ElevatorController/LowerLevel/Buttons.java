@@ -75,8 +75,8 @@ public class Buttons {
         // I am going to assume this is for the call button on the floor
         if(!destinations.contains(floorNDirection)) return;
         switch(floorNDirection.direction()){
-            case Direction.UP -> softwareBus.publish(new Message(CALL_RESET, floorNDirection.floor(), 0));
-            case Direction.DOWN -> softwareBus.publish(new Message(CALL_RESET, floorNDirection.floor(), 1));
+            case UP -> softwareBus.publish(new Message(CALL_RESET, floorNDirection.floor(), 0));
+            case DOWN -> softwareBus.publish(new Message(CALL_RESET, floorNDirection.floor(), 1));
             // if direction is not up or down handle with grace!
             default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
 
@@ -153,11 +153,13 @@ public class Buttons {
 
         //Determine floors not on the way
         List<FloorNDirection> unreachable = new ArrayList<>();
+        int currServiceFloor = destinations.get(0).getFloor();
+
         for (FloorNDirection fd : destinations) {
             boolean belowUp =
-                    fd.floor() < currFloor && fd.direction() == Direction.UP;
+                    fd.floor() < currServiceFloor && fd.direction() == Direction.UP;
             boolean aboveDown =
-                    fd.floor() > currFloor && fd.direction() == Direction.DOWN;
+                    fd.floor() > currServiceFloor && fd.direction() == Direction.DOWN;
             if (belowUp || aboveDown) {
                 unreachable.add(fd);
             }
@@ -171,7 +173,10 @@ public class Buttons {
         // sort increasing
         if (currDirection == Direction.UP) inticator = 1;
         // sort decreasing
-        else inticator = -1;
+        else if (currDirection == Direction.DOWN) inticator = -1;
+
+        //If not moving, go to the most recently called floor
+        if (inticator == 0) return destinations.getFirst();
 
         //The humble bubble sort glorious! <- so hot! wowowowow!!
         for (int i = 0; i < destinations.size(); i++) {

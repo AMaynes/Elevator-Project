@@ -1,6 +1,8 @@
 package ElevatorController.Processes;
 
 import ElevatorController.LowerLevel.*;
+import ElevatorController.Util.ConstantsElevatorControl;
+import ElevatorController.Util.FloorNDirection;
 import ElevatorController.Util.State;
 
 /**
@@ -28,25 +30,24 @@ public class Fire {
         buttons.disableCalls();
 
         //Close doors
-        while(!ProcessesUtil.closeDoors(doorAssembly)){
-            notifier.playCapacityNoise();
+        ProcessesUtil.doorClose(doorAssembly,notifier);
+
+        FloorNDirection fireKeyService = null;
+
+        //Listen to requests if fire key is inserted, otherwise go to first floor
+        while (cabin.getTargetFloor() != 1 && !cabin.arrived()) {
+            if (fireKeyService == null) fireKeyService = buttons.nextService(cabin.currentStatus());
+            if (fireKeyService != null) cabin.gotoFloor(fireKeyService.floor());
+            else if (cabin.getTargetFloor() != 1) cabin.gotoFloor(1);
+            if (cabin.arrived()) {
+                doorAssembly.open();
+                while (!ProcessesUtil.tryDoorOpen(doorAssembly)) ;
+                ProcessesUtil.DoorsOpenWait();
+                ProcessesUtil.doorClose(doorAssembly, notifier);
+            }
         }
-        //TODO: if key inserted...do something else?
-        //Go to first floor
-        cabin.gotoFloor(1);
 
-
-        while (!cabin.arrived()){
-            System.out.println("Yeoowchhhhhh");
-        }
-        //Open all doors
-        doorAssembly.open();
-
-
-
-        State currentState=mode.getMode();
-
-        return currentState;
+        return mode.getMode();
     }
 
 

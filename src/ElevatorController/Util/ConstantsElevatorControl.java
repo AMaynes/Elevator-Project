@@ -6,6 +6,7 @@ import static Team7MotionControl.Util.Constants.ACCELERATION_TIME;
 public class ConstantsElevatorControl {
     public static final long TIME_TO_STOP = 0;
     public static final long DOOR_CLOSE_TIMEOUT=10000;
+    public static final long DOOR_OPEN_TIME = 5000;
 
     // Message Topics
     public static final int BUTTON = 300;
