@@ -38,6 +38,9 @@ public class BuildingMultiplexor {
     private final Building bldg = new Building(10);;
     boolean[][] lastCallState = new boolean[bldg.totalFloors][3]; // Up/Down/Null
     private boolean lastFireState = false;
+    private int elevatorRecieving = 0;
+
+    private final static int NUM_ELELVATORS = 4;
 
     int DIR_UP = 0;
     int DIR_DOWN = 1;
@@ -116,15 +119,18 @@ public class BuildingMultiplexor {
     private void pollCallButtons() {
         for (int floor = 0; floor < bldg.callButtons.length; floor++) {
             if (bldg.callButtons[floor].isUpCallPressed() && !lastCallState[floor][0]) {
-                bus.publish(new Message(Topic.hallCall, floor + 1, DIR_UP));
+
+                bus.publish(new Message(Topic.hallCall, elevatorRecieving + 1,floor + 1 + 10 * DIR_UP));
                 lastCallState[floor][0] = true;
             }
 
             if (bldg.callButtons[floor].isDownCallPressed() && !lastCallState[floor][1]) {
-                bus.publish(new Message(Topic.hallCall, floor + 1, DIR_DOWN));
+                bus.publish(new Message(Topic.hallCall, elevatorRecieving + 1, floor + 1 + 10 * DIR_DOWN));
                 lastCallState[floor][1] = true;
             }
         }
+        elevatorRecieving += 1;
+        elevatorRecieving %= NUM_ELELVATORS;
     }
 
     // Poll fire alarm state
