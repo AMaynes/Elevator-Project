@@ -58,7 +58,6 @@ public class ElevatorFloorDisplay {
         Platform.runLater(() -> {
             try {
                 URL sound = getClass().getResource("/sounds/ding.mp3");
-                System.out.println(sound);
                 if (sound == null) {
                     System.err.println("Sound file not found.");
                     return;
@@ -82,7 +81,6 @@ public class ElevatorFloorDisplay {
         Platform.runLater(() -> {
             try {
                 URL sound = getClass().getResource("/sounds/buzz.mp3");
-                System.out.println(sound);
                 if (sound == null) {
                     System.err.println("Sound file not found.");
                     return;
