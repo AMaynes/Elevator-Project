@@ -1,6 +1,5 @@
-package CommandCenter;
+package CommandCenterOld;
 
-import CommandCenter.ElevatorPanel;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -14,27 +13,23 @@ import Bus.*;
 
 public class ElevatorControlSystem extends Application {
 
+    private SoftwareBus busServer;
+    private SoftwareBus ccClient;
     private ElevatorPanel[] elevators;
-    private CommandCenter commandCenter;
     private CommandPanel commandPanel;
 
-    //JUST FOR TESTING!!!!!!!!!!!!! This should be passed through a starter class
-    private SoftwareBus softwareBus;
 
+   public ElevatorControlSystem(){
+       busServer = new SoftwareBus(true);
+       ccClient = new SoftwareBus(false);
+       commandPanel = new CommandPanel(busServer);   //Changed by team 6,7
+       elevators = new ElevatorPanel[4];
+       for (int i = 0; i < 4; i++) {
+           elevators[i] = new ElevatorPanel(i + 1, ccClient); //Changed by team 6,7
 
-    public ElevatorControlSystem(){
-        softwareBus =new SoftwareBus(true);
-        commandCenter=new CommandCenter(softwareBus);
+       }
 
-        commandPanel=new CommandPanel(commandCenter);
-
-        elevators = new ElevatorPanel[4];
-        for (int i = 0; i < 4; i++) {
-            elevators[i] = new ElevatorPanel(i + 1, commandCenter); //Changed by team 6,7
-
-        }
-
-    }
+   }
 
     /**
      * This has been changed to just use java fx, any logic surrounding the
