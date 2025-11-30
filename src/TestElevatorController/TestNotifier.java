@@ -4,23 +4,23 @@ import Bus.SoftwareBus;
 import ElevatorController.LowerLevel.Notifier;
 import ElevatorController.Util.Direction;
 import ElevatorController.Util.FloorNDirection;
-import Message.Topic;
 import Message.Message;
+import Bus.SoftwareBusCodes;
 
 /**
  * For testing the Notifier object in ElevatorController/LowerLevel
  */
 public class TestNotifier {
     // Topic for updating car info
-    private static final int TOPIC_DISPLAY_FLOOR = Topic.displayFloor;
-    private static final int TOPIC_DISPLAY_DIREC = Topic.displayDirection;
+    private static final int TOPIC_DISPLAY_FLOOR = SoftwareBusCodes.displayFloor;
+    private static final int TOPIC_DISPLAY_DIREC = SoftwareBusCodes.displayDirection;
 
-    // Topics for playing sounds
-    private static final int TOPIC_SPEAKER = Topic.playSound;
+    // SoftwareBusCodess for playing sounds
+    private static final int TOPIC_SPEAKER = SoftwareBusCodes.playSound;
 
     // Body for play capacity noise
-    private static final int BODY_CAPACITY = Topic.overloaded;
-    private static final int BODY_ARRIVAL  = Topic.emptyBody;
+    private static final int BODY_CAPACITY = SoftwareBusCodes.overloaded;
+    private static final int BODY_ARRIVAL  = SoftwareBusCodes.emptyBody;
 
     // software bus
     private static final SoftwareBus  BUS =  new SoftwareBus(true);

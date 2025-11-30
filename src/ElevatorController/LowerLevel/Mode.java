@@ -6,7 +6,6 @@ import CommandCenter.CommandPanel;
 import ElevatorController.Util.FloorNDirection;
 import ElevatorController.Util.State;
 import Message.Message;
-import Message.TopicCodes;
 
 /**
  * The mode serves as a means for the Elevator Controller to be put into and track its current mode.
@@ -101,7 +100,7 @@ public class Mode {
             if(fireAlarm.getBody() == 1){
                 //Notify the command center
                 softwareBus.publish(new Message(TOPIC_FIRE_MODE, elevatorID,
-                        0));
+                        SoftwareBusCodes.emptyBody));
                 currentMode = State.FIRE;
             }
             fireAlarm = softwareBus.get(TOPIC_FIRE_ALARM, elevatorID);

@@ -8,7 +8,6 @@ import ElevatorController.Util.FloorNDirection;
 import ElevatorController.Util.Timer;
 import Message.Message;
 import Message.MessageHelper;
-import Message.Topic;
 
 /**
  * The cabin provides a means for the elevator controller to send the elevator to a destination.

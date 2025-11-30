@@ -4,7 +4,6 @@ import Bus.SoftwareBus;
 import Bus.SoftwareBusCodes;
 import ElevatorController.Util.FloorNDirection;
 import Message.Message;
-import Message.Topic;
 
 /**
  * The notifier object is used to communicate all necessary visual and audio
@@ -23,6 +22,11 @@ public class Notifier {
     private static final int TOPIC_CABIN_POSITION = SoftwareBusCodes.cabinPosition;
     private static final int TOPIC_DISPLAY_DIRECTION =SoftwareBusCodes.displayDirection;
     private static final int TOPIC_PLAY_SOUND = SoftwareBusCodes.playSound;
+    private static final int TOPIC_COMMAND_CENTER =
+            SoftwareBusCodes.elevatorStatus;
+    private static final int TOPIC_COMMAND_DIRECTION =
+            SoftwareBusCodes.ccElevatorDirection;
+
     //bodies
     private static final int BODY_ARRIVAL = 0;
     private static final int BODY_OVERLOAD = 1;
@@ -54,22 +58,28 @@ public class Notifier {
 
         //Tell mux where we are
         softwareBus.publish(new Message(TOPIC_CABIN_POSITION,elevatorID, floorNDirection.floor()));
+
+        //Tell CC where we are
+        softwareBus.publish(new Message(TOPIC_COMMAND_CENTER,elevatorID,
+                floorNDirection.floor()));
+
+        softwareBus.publish(new Message(TOPIC_COMMAND_DIRECTION, elevatorID,
+                direction));
     }
 
     /**
      * Notify the MUX to play the capacity buzzer
      */
     public void playCapacityNoise(){
-        // Todo: I p sure the mux needs to be ready to receive this command.
-        //  Don't see anything for it in the Photo Val sent me.
+        softwareBus.publish(new Message(TOPIC_PLAY_SOUND,elevatorID,
+                SoftwareBusCodes.overloaded ));
     }
 
     /**
      * Notify the MUX to stop playing the capacity buzzer
      */
     public void stopCapacityNoise(){
-        // Todo: I p sure the mux needs to be ready to receive this command.
-        //  Don't see anything for it in the Photo Val sent me.
+        // NEVER HAPPENS will end on its own
     }
 
 }

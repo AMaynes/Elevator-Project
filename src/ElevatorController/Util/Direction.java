@@ -1,11 +1,11 @@
 package ElevatorController.Util;
 
-import Message.Topic;
+import Bus.SoftwareBusCodes;
 
 public enum Direction {
-    UP(Topic.up),
-    DOWN(Topic.down),
-    STOPPED(Topic.none);
+    UP(SoftwareBusCodes.up),
+    DOWN(SoftwareBusCodes.down),
+    STOPPED(SoftwareBusCodes.none);
 
     // Directions associated with numbers from MUX's body handling
     private int integerVersion;
