@@ -1,14 +1,33 @@
 package ElevatorController.Processes;
 
+import ElevatorController.LowerLevel.Buttons;
+import ElevatorController.LowerLevel.Cabin;
 import ElevatorController.LowerLevel.DoorAssembly;
 import ElevatorController.LowerLevel.Notifier;
 import ElevatorController.Util.ConstantsElevatorControl;
+import ElevatorController.Util.FloorNDirection;
 import ElevatorController.Util.Timer;
 
 import static ElevatorController.Util.ConstantsElevatorControl.DOOR_CLOSE_TIMEOUT;
 
 public class ProcessesUtil {
 
+
+    /**
+     * Method for elevator arrival
+     * @param buttons buttons to reset
+     * @param doorAssembly doors to open/close
+     * @param notifier notifier for elevator closure
+     * @param currentRequest the current request to reset
+     */
+    public static void arriveProcess(Buttons buttons, DoorAssembly doorAssembly,
+                                     Notifier notifier, FloorNDirection currentRequest) {
+        buttons.callReset(currentRequest);
+        doorAssembly.open();
+        while (!ProcessesUtil.tryDoorOpen(doorAssembly)) ;
+        ProcessesUtil.DoorsOpenWait();
+        ProcessesUtil.doorClose(doorAssembly, notifier);
+    }
     /**
      * Holds the door open for specified time
      */

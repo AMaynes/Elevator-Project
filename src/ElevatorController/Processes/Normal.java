@@ -1,6 +1,7 @@
 package ElevatorController.Processes;
 
 import ElevatorController.LowerLevel.*;
+import ElevatorController.Util.FloorNDirection;
 import ElevatorController.Util.State;
 
 /**
@@ -22,6 +23,29 @@ public class Normal {
      */
     public static State normal(Mode mode, Buttons buttons, Cabin cabin,
                                DoorAssembly doorAssembly, Notifier notifier){
-        return State.NULL;
+
+        //Check if normal
+        if (mode.getMode() != State.NORMAL) return mode.getMode();
+
+        //Prepare for use
+        buttons.enableCalls();
+        buttons.enableAllRequests();
+        ProcessesUtil.doorClose(doorAssembly,notifier);
+        FloorNDirection currentService = null;
+
+        //Process Requests until state changes
+        while (mode.getMode() == State.NORMAL) {
+            //get next service
+            if (currentService == null) currentService = buttons.nextService(cabin.currentStatus());
+            //go to floor of current service
+            if (currentService != null) cabin.gotoFloor(currentService.floor());
+            //arrive (open doors, wait, close doors)
+            if (cabin.arrived()) {
+                ProcessesUtil.arriveProcess(buttons,doorAssembly,notifier,currentService);
+                currentService = null;
+            }
+        }
+        //Exit mode
+        return mode.getMode();
     }
 }

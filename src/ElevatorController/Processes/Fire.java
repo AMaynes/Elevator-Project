@@ -2,6 +2,7 @@ package ElevatorController.Processes;
 
 import ElevatorController.LowerLevel.*;
 import ElevatorController.Util.ConstantsElevatorControl;
+import ElevatorController.Util.Direction;
 import ElevatorController.Util.FloorNDirection;
 import ElevatorController.Util.State;
 
@@ -29,6 +30,9 @@ public class Fire {
         //if single calls are enable then the fire key is inserted
         buttons.disableCalls();
 
+        //TODO: Should this be single or multiple?
+        buttons.enableSingleRequest();
+
         //Close doors
         ProcessesUtil.doorClose(doorAssembly,notifier);
 
@@ -36,17 +40,21 @@ public class Fire {
 
         //Listen to requests if fire key is inserted, otherwise go to first floor
         while (cabin.getTargetFloor() != 1 && !cabin.arrived()) {
+            //Get any services enabled by fire key
             if (fireKeyService == null) fireKeyService = buttons.nextService(cabin.currentStatus());
-            if (fireKeyService != null) cabin.gotoFloor(fireKeyService.floor());
-            else if (cabin.getTargetFloor() != 1) cabin.gotoFloor(1);
+            //Process services enabled by fire key
+            if (fireKeyService != null)
+                cabin.gotoFloor(fireKeyService.floor());
+            //Go to floor 1 if no requests
+            else if (cabin.getTargetFloor() != 1)
+                cabin.gotoFloor(1);
+            //Arrival process (open doors, wait, close doors)
             if (cabin.arrived()) {
-                doorAssembly.open();
-                while (!ProcessesUtil.tryDoorOpen(doorAssembly)) ;
-                ProcessesUtil.DoorsOpenWait();
-                ProcessesUtil.doorClose(doorAssembly, notifier);
+                ProcessesUtil.arriveProcess(buttons, doorAssembly, notifier, fireKeyService);
+                fireKeyService = null;
             }
         }
-
+        //Return exit mode
         return mode.getMode();
     }
 

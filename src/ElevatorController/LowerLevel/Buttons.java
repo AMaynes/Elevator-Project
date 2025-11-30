@@ -73,6 +73,8 @@ public class Buttons {
     public void callReset(FloorNDirection floorNDirection) {
         //Todo: these should be the right Topic codes now
         // I am going to assume this is for the call button on the floor
+
+        if (floorNDirection == null) return;
         if(!destinations.contains(floorNDirection)) return;
         switch(floorNDirection.direction()){
             case UP -> softwareBus.publish(new Message(CALL_RESET, floorNDirection.floor(), 0));
