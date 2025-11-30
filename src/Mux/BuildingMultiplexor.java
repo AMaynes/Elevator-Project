@@ -4,13 +4,20 @@ import Message.*;
 import Bus.SoftwareBus;
 import PFDAPI.Building;
 
+import javafx.application.Platform;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import PFDAPI.Building;
+import PFDAPI.FloorCallButtons;
+
+import java.net.URL;
+
 // Below are the import statements used by Team 10
 //package mux;
-//
+
 //import bus.Bus.SoftwareBus;
 //import bus.Bus.SoftwareBusCodes;
 //import bus.Message.Message;
-//import pfdAPI.Building;
 
 /**
  * Class that defines the BuildingMultiplexor, which coordinates communication from the Elevator
@@ -126,6 +133,10 @@ public class BuildingMultiplexor {
         if (state != lastFireState) {
             bus.publish(new Message(Topic.fireAlarmActive, 0, state ? FIRE_ON : FIRE_OFF));
             lastFireState = state;
+            if(state){
+                fireAlarmResets(true);
+                playFireAlarm();
+            }
         }
     }
 
@@ -136,10 +147,14 @@ public class BuildingMultiplexor {
     // Handle Fire Alarm Message
     public void handleFireAlarm(Message msg) {
         int modeCode = msg.getBody();
-        if (modeCode == FIRE_ON) {
+        if ((modeCode == FIRE_ON) && (!lastFireState)) {
             bldg.callButtons[0].setFireAlarm(true);
+            lastFireState = true;
+            fireAlarmResets(false);
+            playFireAlarm();
         } else if(modeCode == FIRE_OFF){
             bldg.callButtons[0].setFireAlarm(false);
+            lastFireState = false;
         }
     }
 
@@ -161,5 +176,35 @@ public class BuildingMultiplexor {
     public void handleCallEnable(Message msg){
         int body = msg.getBody();
         bldg.callButtons[1].setButtonsEnabled(body);
+    }
+
+
+    private void fireAlarmResets(boolean sendMsg){
+        for(FloorCallButtons buttons : bldg.callButtons){
+            buttons.resetCallButton("DOWN");
+            buttons.resetCallButton("UP");
+        }
+        if(sendMsg){
+            bus.publish(new Message(Topic.fireAlarm, 0, 1));
+        }
+    }
+
+    private void playFireAlarm(){
+        System.out.println("FIRE!");
+        Platform.runLater(() -> {
+            try {
+                URL sound = getClass().getResource("/sounds/firealarm.mp3");
+                if (sound == null) {
+                    System.err.println("Sound file not found.");
+                    return;
+                }
+
+                Media media = new Media(sound.toExternalForm());
+                MediaPlayer player = new MediaPlayer(media);
+                player.play();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
