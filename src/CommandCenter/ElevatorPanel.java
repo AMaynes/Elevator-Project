@@ -101,16 +101,16 @@ public class ElevatorPanel extends VBox {
         }
     }
 
-    public ElevatorPanel(int id) {
+    public ElevatorPanel(int id, SoftwareBus bus) {
         super(3);
         this.elevatorId = id;
-        this.bus = new SoftwareBus(false);
+        this.bus =bus;
 
         // Subscribe to all topics relevant for this car
         bus.subscribe(SoftwareBusCodes.systemStop, 0);          // System Stop
         bus.subscribe(SoftwareBusCodes.systemStart, 0);         // System Start
         bus.subscribe(SoftwareBusCodes.clearFire, 0);           // Clear Fire
-        bus.subscribe(SoftwareBusCodes.setMode, 0);             // Mode
+        bus.subscribe(SoftwareBusCodes.setMode, 0);             // Mode  This should not be subscribed
         bus.subscribe(SoftwareBusCodes.startElevator, elevatorId);         // Start this elevator
         bus.subscribe(SoftwareBusCodes.stopElevator, elevatorId);          // Stop this elevator
         bus.subscribe(SoftwareBusCodes.carDispatch, elevatorId);           // DISPATCH
@@ -249,31 +249,31 @@ public class ElevatorPanel extends VBox {
     }
 
     private void handleCommand(Message m) {
-        int t = m.getTopic();
-        int st = m.getSubTopic();
+        int topic = m.getTopic();
+        int subTopic = m.getSubTopic();
         int body = m.getBody();
 
-        if (t == SoftwareBusCodes.systemStop) {// System Stop (all)
+        if (topic == SoftwareBusCodes.systemStop) {// System Stop (all)
             Platform.runLater(() -> {
                 isEnabled = false;
                 applyEnabledUI();
                 logState("System Stop");
             });
-        } else if(t == SoftwareBusCodes.systemStart) { // System Start (all)
+        } else if(topic == SoftwareBusCodes.systemStart) { // System Start (all)
             Platform.runLater(() -> {
                 isEnabled = true;
                 applyEnabledUI();
                 logState("System Start");
             });
-        } else if(t == SoftwareBusCodes.clearFire) {
+        } else if(topic == SoftwareBusCodes.clearFire) {
             Platform.runLater(() -> {
                 isFireMode = false;
-                closeDoor();
+                closeDoor();   //TODO: THIS SHOULD BE A MESSAGE
                 clearAllCallIndicators();
                 logState("Fire Cleared");
                 System.out.println("Elevator " + elevatorId + " fire cleared - ready for normal operation");
             });
-        } else if(t == SoftwareBusCodes.setMode) {
+        } else if(topic == SoftwareBusCodes.setMode) {
             Platform.runLater(() -> {
                 if (body == SoftwareBusCodes.centralized) {          // Centralized
                     autoMode = false;
@@ -294,23 +294,23 @@ public class ElevatorPanel extends VBox {
                     System.out.println("Elevator " + elevatorId + " entered FIRE mode - clearing all calls");
                 }
             });
-        } else if(t == SoftwareBusCodes.startElevator) {
-            if (st == elevatorId) {
+        } else if(topic == SoftwareBusCodes.startElevator) {
+            if (subTopic == elevatorId) {
                 Platform.runLater(() -> {
                     isEnabled = true;
                     applyEnabledUI();
                     logState("Elevator Start");
                 });
             }
-        } else if(t == SoftwareBusCodes.stopElevator) {
-            if (st == elevatorId) {
+        } else if(topic == SoftwareBusCodes.stopElevator) {
+            if (subTopic == elevatorId) {
                 Platform.runLater(() -> {
                     isEnabled = false;
                     applyEnabledUI();
                     logState("Elevator Stop");
                 });
             }
-        } else if(t == SoftwareBusCodes.carDispatch) {
+        } else if(topic == SoftwareBusCodes.carDispatch) {
             Platform.runLater(() -> {
                 int assignedFloor = body;
                 Direction d;
@@ -325,10 +325,10 @@ public class ElevatorPanel extends VBox {
                 }
                 logState("Car Dispatch to floor " + assignedFloor);
             });
-        } else if(t == SoftwareBusCodes.cabinPosition) {
+        } else if(topic == SoftwareBusCodes.cabinPosition) {
             Platform.runLater(() -> updateElevatorPosition(body, true));
             setDirection(Direction.IDLE);
-        } else if(t == SoftwareBusCodes.doorStatus) {
+        } else if(topic == SoftwareBusCodes.doorStatus) {
             Platform.runLater(() -> {
                 boolean open = (body == SoftwareBusCodes.doorOpen);
                 setDoorStatus(open);
@@ -342,7 +342,7 @@ public class ElevatorPanel extends VBox {
                 }
                 logState("Door " + (open ? "Open" : "Closed"));
             });
-        } else if(t == SoftwareBusCodes.displayDirection) {
+        } else if(topic == SoftwareBusCodes.displayDirection) {
             Platform.runLater(() -> {
                 switch (body) {
                     case 0 -> setDirection(Direction.UP);
@@ -350,13 +350,13 @@ public class ElevatorPanel extends VBox {
                     default -> setDirection(Direction.IDLE);
                 }
             });
-        } else if(t == SoftwareBusCodes.displayFloor) {
+        } else if(topic == SoftwareBusCodes.displayFloor) {
             Platform.runLater(() -> {
                 currentFloor = body;
                 currentFloorDisplay.setText("" + body);
                 carFloorLabel.setText("" + body);
             });
-        } else if(t == SoftwareBusCodes.hallCall) { // HALL CALL HANDLING - ADDED
+        } else if(topic == SoftwareBusCodes.hallCall) { // HALL CALL HANDLING - ADDED
             Platform.runLater(() -> {
                 logState("HallCall received");
                 int calledFloor = body;

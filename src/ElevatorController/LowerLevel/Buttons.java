@@ -32,6 +32,7 @@ public class Buttons {
     private final static int TOPIC_FIRE_KEY = Topic.fireKey;
     private final static int TOPIC_CABIN_LOAD = Topic.cabinLoad;
     private final static int TOPIC_RESET_CALL = Topic.resetCall;
+    private final static int RESET_FLOOR_SELECTION = Topic.resetFloorSelection;
 
     // FIRE_KEY BODY
     private final static int BODY_F_KEY_ACTIVE   = Topic.active; //TODO make elevator mux have this as public constant
@@ -70,11 +71,16 @@ public class Buttons {
      * @param floorNDirection The call button and direction which is no longer relevant
      */
     public void callReset(FloorNDirection floorNDirection) {
-        //Todo: these should be the right Topic codes now
-        // I am going to assume this is for the call button on the floor
-
         if (floorNDirection == null) return;
         if(!destinations.contains(floorNDirection)) return;
+
+        //Cabin Button Reset
+        if (floorNDirection.direction() == null) {
+            softwareBus.publish(new Message(RESET_FLOOR_SELECTION, elevatorID, floorNDirection.floor()));
+            destinations.remove(floorNDirection);
+            return;
+        }
+        //Floor Button Reset
         switch(floorNDirection.direction()){
             case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, floorNDirection.floor(), 0));
             case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, floorNDirection.floor(), 1));
