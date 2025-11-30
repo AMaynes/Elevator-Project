@@ -1,6 +1,7 @@
 package ElevatorController.LowerLevel;
 
 import Bus.SoftwareBus;
+import Bus.SoftwareBusCodes;
 import Message.*;
 
 /**
@@ -22,9 +23,9 @@ public class DoorAssembly {
     private SoftwareBus softwareBus;
 
     // Constants for topic codes
-    private static final int TOPIC_DOOR_CONTROL = Topic.doorControl;
-    private static final int DOOR_SENSOR = Topic.doorSensor;
-    private static final int CABIN_LOAD = Topic.cabinLoad;
+    private static final int TOPIC_DOOR_CONTROL = SoftwareBusCodes.doorControl;
+    private static final int DOOR_SENSOR = SoftwareBusCodes.doorSensor;
+    private static final int CABIN_LOAD = SoftwareBusCodes.cabinLoad;
 
     //Constants for body codes
     private static final int OPEN_CODE = 1;

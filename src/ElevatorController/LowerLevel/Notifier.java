@@ -1,6 +1,7 @@
 package ElevatorController.LowerLevel;
 
 import Bus.SoftwareBus;
+import Bus.SoftwareBusCodes;
 import ElevatorController.Util.FloorNDirection;
 import Message.Message;
 import Message.Topic;
@@ -19,9 +20,9 @@ public class Notifier {
     private SoftwareBus softwareBus;
 
     // Topic for car postion
-    private static final int TOPIC_CABIN_POSITION = Topic.cabinPosition;
-    private static final int TOPIC_DISPLAY_DIRECTION =Topic.displayDirection;
-    private static final int TOPIC_PLAY_SOUND = Topic.playSound;
+    private static final int TOPIC_CABIN_POSITION = SoftwareBusCodes.cabinPosition;
+    private static final int TOPIC_DISPLAY_DIRECTION =SoftwareBusCodes.displayDirection;
+    private static final int TOPIC_PLAY_SOUND = SoftwareBusCodes.playSound;
     //bodies
     private static final int BODY_ARRIVAL = 0;
     private static final int BODY_OVERLOAD = 1;

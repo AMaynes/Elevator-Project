@@ -1,6 +1,7 @@
 package ElevatorController.LowerLevel;
 
 import Bus.SoftwareBus;
+import Bus.SoftwareBusCodes;
 import ElevatorController.Util.ConstantsElevatorControl;
 import ElevatorController.Util.Direction;
 import ElevatorController.Util.FloorNDirection;
@@ -25,12 +26,12 @@ public class Cabin implements Runnable {
     private SoftwareBus softwareBus;
 
     // Constants for cabin topic
-    private static final int TOPIC_CAR_STOP = Topic.carStop;
-    private static final int TOPIC_CAR_DISPATCH = Topic.carDispatch;
-    private static final int TOPIC_TOP_FLOOR_SENSOR = Topic.topSensor;
-    private static final int TOPIC_BOTTOM_SENSOR = Topic.bottomSensor;
-    private static final int TOPIC_CABIN_POSITION = Topic.cabinPosition;
-    private static final int TOPIC_CURR_DIRECTION = Topic.currDirection;
+    private static final int TOPIC_CAR_STOP = SoftwareBusCodes.carStop;
+    private static final int TOPIC_CAR_DISPATCH = SoftwareBusCodes.carDispatch;
+    private static final int TOPIC_TOP_FLOOR_SENSOR = SoftwareBusCodes.topSensor;
+    private static final int TOPIC_BOTTOM_SENSOR = SoftwareBusCodes.bottomSensor;
+    private static final int TOPIC_CABIN_POSITION = SoftwareBusCodes.cabinPosition;
+    private static final int TOPIC_CURR_DIRECTION = SoftwareBusCodes.currDirection;
 
     //Constants for cabin bodies
     private static final int STOP_MOTOR = 0;
