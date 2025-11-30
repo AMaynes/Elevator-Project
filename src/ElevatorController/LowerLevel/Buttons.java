@@ -1,6 +1,7 @@
 package ElevatorController.LowerLevel;
 
 import Bus.SoftwareBus;
+import Bus.SoftwareBusCodes;
 import ElevatorController.Util.Direction;
 import ElevatorController.Util.FloorNDirection;
 import Message.*;
@@ -27,19 +28,19 @@ public class Buttons {
     private boolean fireKey = false;
 
     // Software Bus Topics
-    private final static int TOPIC_HALL_CALL = Topic.hallCall; // buttons in the halls
-    private final static int TOPIC_CABIN_SELECT = Topic.cabinSelect; // button events in the cabin
-    private final static int TOPIC_FIRE_KEY = Topic.fireKey;
-    private final static int TOPIC_CABIN_LOAD = Topic.cabinLoad;
-    private final static int TOPIC_RESET_CALL = Topic.resetCall;
-    private final static int RESET_FLOOR_SELECTION = Topic.resetFloorSelection;
+    private final static int TOPIC_HALL_CALL = SoftwareBusCodes.hallCall; // buttons in the halls
+    private final static int TOPIC_CABIN_SELECT = SoftwareBusCodes.cabinSelect; // button events in the cabin
+    private final static int TOPIC_FIRE_KEY = SoftwareBusCodes.fireKey;
+    private final static int TOPIC_CABIN_LOAD = SoftwareBusCodes.cabinLoad;
+    private final static int TOPIC_RESET_CALL = SoftwareBusCodes.resetCall;
+    private final static int RESET_FLOOR_SELECTION = SoftwareBusCodes.resetFloorSelection;
 
     // FIRE_KEY BODY
-    private final static int BODY_F_KEY_ACTIVE   = Topic.active; //TODO make elevator mux have this as public constant
-    private final static int BODY_F_KEY_INACTIVE = Topic.inactive;
+    private final static int BODY_F_KEY_ACTIVE   = SoftwareBusCodes.active; //TODO make elevator mux have this as public constant
+    private final static int BODY_F_KEY_INACTIVE = SoftwareBusCodes.inactive;
     // CABIN_LOAD Body
-    private final static int BODY_CABIN_OVERLOADED = Topic.overloaded; //TODO: make elevator mux have this as public constant
-    private final static int BODY_CABIN_UNDERLOADED = Topic.normal;
+    private final static int BODY_CABIN_OVERLOADED = SoftwareBusCodes.overloaded; //TODO: make elevator mux have this as public constant
+    private final static int BODY_CABIN_UNDERLOADED = SoftwareBusCodes.normal;
 
     /**
      * Instantiate a Buttons Object
