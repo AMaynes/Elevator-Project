@@ -4,7 +4,6 @@ import Bus.SoftwareBus;
 import ElevatorController.Util.FloorNDirection;
 import Message.Message;
 import Message.Topic;
-import Team7MotionControl.Hardware.Elevator;
 
 /**
  * The notifier object is used to communicate all necessary visual and audio
@@ -20,12 +19,12 @@ public class Notifier {
     private SoftwareBus softwareBus;
 
     // Topic for car postion
-    private static final int CAR_POSITION = Topic.CAR_POSITION;
-    private static final int DISPLAY_DIRECTION=Topic.DISPLAY_DIRECTION;
-    private static final int PLAY_SOUND = Topic.PLAY_SOUND;
+    private static final int TOPIC_CABIN_POSITION = Topic.cabinPosition;
+    private static final int TOPIC_DISPLAY_DIRECTION =Topic.displayDirection;
+    private static final int TOPIC_PLAY_SOUND = Topic.playSound;
     //bodies
-    private static final int ARRIVAL = 0;
-    private static final int OVERLOAD = 1;
+    private static final int BODY_ARRIVAL = 0;
+    private static final int BODY_OVERLOAD = 1;
 
     public  Notifier(int elevatorID, SoftwareBus softwareBus){
         this.elevatorID = elevatorID;
@@ -38,7 +37,7 @@ public class Notifier {
      * @param floorNDirection This elevator's current floor and direction
      */
     public void arrivedAtFloor(FloorNDirection floorNDirection){
-        softwareBus.publish(new Message(PLAY_SOUND, elevatorID, ARRIVAL));
+        softwareBus.publish(new Message(TOPIC_PLAY_SOUND, elevatorID, BODY_ARRIVAL));
     }
 
     /**
@@ -50,10 +49,10 @@ public class Notifier {
         int direction = floorNDirection.getDirection().getIntegerVersion();
 
         // Tell mux what direction we're going
-        softwareBus.publish(new Message(DISPLAY_DIRECTION,elevatorID,direction));
+        softwareBus.publish(new Message(TOPIC_DISPLAY_DIRECTION,elevatorID,direction));
 
         //Tell mux where we are
-        softwareBus.publish(new Message(CAR_POSITION,elevatorID, floorNDirection.floor()));
+        softwareBus.publish(new Message(TOPIC_CABIN_POSITION,elevatorID, floorNDirection.floor()));
     }
 
     /**
