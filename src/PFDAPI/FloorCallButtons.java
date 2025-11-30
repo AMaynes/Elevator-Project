@@ -1,5 +1,10 @@
 package PFDAPI;
 import PFDGUI.gui;
+
+// Bellow are Team 10's import statements
+//package pfdAPI;
+//import pfdGUI.gui;
+
 /**
  * Class that defines the functionality of the Floor Call Buttons. Represents
  * the pair of buttons on each floor that allow users to call an elevator for a
@@ -45,26 +50,6 @@ public class FloorCallButtons implements FloorCallButtonsAPI {
     }
 
     /**
-     * Simulate pressing the Up call
-     */
-    public synchronized void pressUpCall() {
-        if (hasUp) {
-            upPressed = true;
-            guiControl.setCallButton(floorNumber, "UP");
-        }
-    }
-
-    /**
-     * Simulate pressing the Down call
-     */
-    public synchronized void pressDownCall() {
-        if (hasDown) {
-            downPressed = true;
-            guiControl.setCallButton(floorNumber, "DOWN");
-        }
-    }
-
-    /**
      * Set the fire alarm status
      * @param status true if fire alarm is active, false otherwise
      */
@@ -81,7 +66,7 @@ public class FloorCallButtons implements FloorCallButtonsAPI {
      */
     @Override
     public synchronized boolean isUpCallPressed() {
-        return hasUp && guiControl.isCallButtonActive(floorNumber, "UP");
+        return guiControl.isCallButtonActive(floorNumber, "UP");
     }
 
     /**
@@ -90,20 +75,29 @@ public class FloorCallButtons implements FloorCallButtonsAPI {
      */
     @Override
     public synchronized boolean isDownCallPressed() {
-        return hasDown && guiControl.isCallButtonActive(floorNumber, "DOWN");
+        return guiControl.isCallButtonActive(floorNumber, "DOWN");
     }
 
     /**
      * Reset the specified call indicator ("Up" or "Down") after service.
-     * Both must be reset upon emergency mode activation.
+     * Both must be reset upon fire mode activation.
      * @param direction the button to be reset
      */
     @Override
     public synchronized void resetCallButton(String direction) {
-        if (direction.equalsIgnoreCase("UP") && hasUp) {
-            guiControl.resetCallButton(floorNumber);
-        } else if (direction.equalsIgnoreCase("DOWN") && hasDown) {
-            guiControl.resetCallButton(floorNumber);
+        guiControl.resetCallButton(floorNumber, direction);
+    }
+
+    /**
+     * Set EVERY button panel to disabled or enabled.
+     * Applies to the entire building, despite being 1 panel. So only called on 1!
+     * @param enabled, 0 = disabled 1 = enabled
+     */
+    public synchronized void setButtonsEnabled(int enabled){
+        if(enabled == 1){
+            guiControl.setCallButtonsDisabled(false);
+        }else{
+            guiControl.setCallButtonsDisabled(true);
         }
     }
 }

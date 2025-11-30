@@ -2,6 +2,16 @@ package PFDAPI;
 
 import PFDGUI.gui;
 
+//Team 10's import statements below
+//package pfdAPI;
+//
+import javafx.application.Platform;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+//import pfdGUI.gui;
+//
+import java.net.URL;
+
 /**
  * Class that defines the functionality of the Elevator floor displays. Represents
  * the panel above elevator doors that show the elevator's location and direction of movement.
@@ -49,7 +59,23 @@ public class ElevatorFloorDisplay {
      */
     public synchronized void playArrivalChime() {
         // again simulating the Ding noise
-        System.out.println("*Ding! Elevator has arrived at floor");
+        System.out.println("*Ding! Elevator " + carId + " has arrived.");
+        Platform.runLater(() -> {
+            try {
+                URL sound = getClass().getResource("/sounds/ding.mp3");
+                System.out.println(sound);
+                if (sound == null) {
+                    System.err.println("Sound file not found.");
+                    return;
+                }
+
+                Media media = new Media(sound.toExternalForm());
+                MediaPlayer player = new MediaPlayer(media);
+                player.play();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     /**
@@ -57,6 +83,32 @@ public class ElevatorFloorDisplay {
      */
     public synchronized void playOverLoadWarning() {
         // simulating the buzzing noise
-        System.out.println("*Buzz! Warning: Overload detected at floor" + currentFloor);
+        System.out.println("*Buzz! Warning: Overload detected on Elevator " + carId);
+        Platform.runLater(() -> {
+            try {
+                URL sound = getClass().getResource("/sounds/buzz.mp3");
+                System.out.println(sound);
+                if (sound == null) {
+                    System.err.println("Sound file not found.");
+                    return;
+                }
+
+                Media media = new Media(sound.toExternalForm());
+                MediaPlayer player = new MediaPlayer(media);
+                player.play();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * Returns whether the Cabin is overloaded.
+     * Why is this in the display specifically? IDK!
+     * @return true when Overload is selected in GUI, otherwise false
+     */
+    public boolean isOverloaded(){
+        return guiControl.getIsCabinOverloaded(carId);
     }
 }
+

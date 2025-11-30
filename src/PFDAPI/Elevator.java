@@ -2,6 +2,11 @@ package PFDAPI;
 
 import PFDGUI.gui;
 
+// Below are Team 10's import statement
+//package pfdAPI;
+//
+//import pfdGUI.gui;
+
 /**
  * Class that defines a given Elevator (4 in total).
  * Elevators each have their own doors and floor displays for
@@ -18,13 +23,12 @@ public class Elevator {
     // The elevator's passenger panel
     public final CabinPassengerPanel panel;
     // The elevator's floor display
-    public final PFDAPI.ElevatorFloorDisplay display;
+    public final ElevatorFloorDisplay display;
 
     /**
      * Constructs an Elevator.
      * @param carId the ID of the elevator (1-4)
      * @param totalFloors the number of floors in the building (=10)
-     *
      */
     public Elevator(int carId, int totalFloors) {
         gui g = gui.getInstance();
@@ -32,6 +36,6 @@ public class Elevator {
         this.totalFloors = totalFloors;
         this.door  = new ElevatorDoorsAssembly(carId, g.internalState);
         this.panel  = new CabinPassengerPanel(carId, totalFloors, g.internalState);
-        this.display = new PFDAPI.ElevatorFloorDisplay(carId, g.internalState);
+        this.display = new ElevatorFloorDisplay(carId, g.internalState);
     }
 }
