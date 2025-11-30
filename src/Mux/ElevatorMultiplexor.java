@@ -1,15 +1,16 @@
 package Mux;
 
-import Message.Topic;
+//import Message.Topic;
+import Bus.SoftwareBusCodes;
 import Message.Message;
-import PFDAPI.Elevator;
+import PFDAPI.*;
 import Bus.SoftwareBus;
 import Team7MotionControl.Elevator_Controler.MotionController;
 import Team7MotionControl.Util.Direction;
 
 // NOTE: below are Mux's import statements
 //package mux;
-
+//
 //import bus.Bus.SoftwareBus;
 //import bus.Bus.SoftwareBusCodes;
 //import bus.Message.Message;
@@ -50,17 +51,17 @@ public class ElevatorMultiplexor {
 
     // Initialize the MUX
     public void initialize() {
-        bus.subscribe(Topic.doorControl, ID);
-        bus.subscribe(Topic.displayFloor, ID);
-        bus.subscribe(Topic.displayDirection, ID);
-        bus.subscribe(Topic.carDispatch, ID);
-        bus.subscribe(Topic.resetFloorSelection, ID);
+        bus.subscribe(SoftwareBusCodes.doorControl, ID);
+        bus.subscribe(SoftwareBusCodes.displayFloor, ID);
+        bus.subscribe(SoftwareBusCodes.displayDirection, ID);
+        bus.subscribe(SoftwareBusCodes.carDispatch, ID);
+        bus.subscribe(SoftwareBusCodes.resetFloorSelection, ID);
 
-        bus.subscribe(Topic.carStop, ID);
-        bus.subscribe(Topic.selectionsEnable, ID);
-        bus.subscribe(Topic.selectionsType, ID);
-        bus.subscribe(Topic.playSound, ID);
-        bus.subscribe(Topic.fireAlarm, 0);
+        bus.subscribe(SoftwareBusCodes.carStop, ID);
+        bus.subscribe(SoftwareBusCodes.selectionsEnable, ID);
+        bus.subscribe(SoftwareBusCodes.selectionsType, ID);
+        bus.subscribe(SoftwareBusCodes.playSound, ID);
+        bus.subscribe(SoftwareBusCodes.fireAlarm, 0);
 
         System.out.println("ElevatorMUX " + ID + " initialized and subscribed");
         startBusPoller();
@@ -78,44 +79,44 @@ public class ElevatorMultiplexor {
             // keep polling
             while (true) {
                 Message msg;
-                msg = bus.get(Topic.doorControl, ID);
+                msg = bus.get(SoftwareBusCodes.doorControl, ID);
                 if (msg != null) {
                     handleDoorControl(msg);
                 }
-                msg = bus.get(Topic.displayFloor, ID);
+                msg = bus.get(SoftwareBusCodes.displayFloor, ID);
                 if (msg != null) {
                     handleDisplayFloor(msg);
                 }
-                msg = bus.get(Topic.displayDirection, ID);
+                msg = bus.get(SoftwareBusCodes.displayDirection, ID);
                 if (msg != null) {
                     handleDisplayDirection(msg);
                 }
-                msg = bus.get(Topic.carDispatch, ID);
+                msg = bus.get(SoftwareBusCodes.carDispatch, ID);
                 if (msg != null) {
                     handleCarDispatch(msg);
                 }
-                msg = bus.get(Topic.resetFloorSelection, ID);
+                msg = bus.get(SoftwareBusCodes.resetFloorSelection, ID);
                 if (msg != null) {
                     int floorNumber = msg.getBody();
                     elev.panel.resetFloorButton(floorNumber);
                 }
-                msg = bus.get(Topic.carStop, ID);
+                msg = bus.get(SoftwareBusCodes.carStop, ID);
                 if (msg != null) {
                     handleCarStop(msg);
                 }
-                msg = bus.get(Topic.selectionsEnable, ID);
+                msg = bus.get(SoftwareBusCodes.selectionsEnable, ID);
                 if (msg != null) {
                     handleSelectionEnable(msg);
                 }
-                msg = bus.get(Topic.selectionsType, ID);
+                msg = bus.get(SoftwareBusCodes.selectionsType, ID);
                 if (msg != null) {
                     handleSelectionType(msg);
                 }
-                msg = bus.get(Topic.playSound, 0);
+                msg = bus.get(SoftwareBusCodes.playSound, 0);
                 if (msg != null) {
                     handlePlaySound(msg);
                 }
-                msg = bus.get(Topic.fireAlarm, 0);
+                msg = bus.get(SoftwareBusCodes.fireAlarm, 0);
                 if (msg != null) {
                     handleFireAlarm(msg);
                 }
@@ -162,7 +163,7 @@ public class ElevatorMultiplexor {
             int v;
             if (fireKeyActive) v = 1;
             else v = 0;
-            Message fireMsg = new Message(Topic.fireKey, ID, v);
+            Message fireMsg = new Message(SoftwareBusCodes.fireKey, ID, v);
             bus.publish(fireMsg);
             lastFireKeyState = fireKeyActive;
         }
@@ -172,7 +173,7 @@ public class ElevatorMultiplexor {
     private void pollPressedFloors() {
         int targetFloor = elev.panel.getPressedFloor();
         if (targetFloor != 0 && targetFloor != lastPressedFloor) {
-            Message selectMsg = new Message(Topic.cabinSelect, ID, targetFloor);
+            Message selectMsg = new Message(SoftwareBusCodes.cabinSelect, ID, targetFloor);
             bus.publish(selectMsg);
             lastPressedFloor = targetFloor;
         }
@@ -189,7 +190,7 @@ public class ElevatorMultiplexor {
         }
         // Update obstruction state
         if (isObstructed != lastObstructedState) {
-            Message statusMsg = new Message(Topic.doorSensor, ID, body);
+            Message statusMsg = new Message(SoftwareBusCodes.doorSensor, ID, body);
             bus.publish(statusMsg);
             lastObstructedState = isObstructed;
         }
@@ -204,7 +205,7 @@ public class ElevatorMultiplexor {
             int v;
             if (isOverloaded) v = 1;
             else v = 0;
-            Message loadMsg = new Message(Topic.cabinLoad, ID, v);
+            Message loadMsg = new Message(SoftwareBusCodes.cabinLoad, ID, v);
             bus.publish(loadMsg);
             lastOverloadState = isOverloaded;
         }
@@ -222,8 +223,8 @@ public class ElevatorMultiplexor {
         if (!topChanged && !botChanged) return;
 
         // Publish sensor data if has changed
-        if (topChanged) bus.publish(new Message(Topic.topSensor, ID, topSensor));
-        if (botChanged) bus.publish(new Message(Topic.bottomSensor, ID, bottomSensor));
+        if (topChanged) bus.publish(new Message(SoftwareBusCodes.topSensor, ID, topSensor));
+        if (botChanged) bus.publish(new Message(SoftwareBusCodes.bottomSensor, ID, bottomSensor));
 
         // Calculate new floor
         int newFloor = (bottomSensor / 2) + 1; // +1 for indexing
@@ -244,7 +245,7 @@ public class ElevatorMultiplexor {
             // Update GUI and publish position
             elev.display.updateFloorIndicator(currentFloor, currentDirection);
             elev.panel.setDisplay(currentFloor, currentDirection);
-            bus.publish(new Message(Topic.cabinPosition, ID, currentFloor));
+            bus.publish(new Message(SoftwareBusCodes.cabinPosition, ID, currentFloor));
         }
 
         // Update last sensor reads
@@ -269,16 +270,16 @@ public class ElevatorMultiplexor {
         if (command == 0) {
             elev.door.open();
             if(elev.door.isFullyOpen()){
-                positionMsg = new Message(Topic.doorStatus, ID, 0);
+                positionMsg = new Message(SoftwareBusCodes.doorStatus, ID, 0);
             } else {
-                positionMsg = new Message(Topic.doorStatus, ID, 1);
+                positionMsg = new Message(SoftwareBusCodes.doorStatus, ID, 1);
             }
         } else if (command == 1) {
             elev.door.close();
             if(elev.door.isFullyClosed()){
-                positionMsg = new Message(Topic.doorStatus, ID, 1);
+                positionMsg = new Message(SoftwareBusCodes.doorStatus, ID, 1);
             } else {
-                positionMsg = new Message(Topic.doorStatus, ID, 0);
+                positionMsg = new Message(SoftwareBusCodes.doorStatus, ID, 0);
             }
         }
         bus.publish(positionMsg);
@@ -309,18 +310,17 @@ public class ElevatorMultiplexor {
     // Handle car dispatch messages
     private void handleCarDispatch(Message msg) {
         int dir = msg.getBody();
-
         if(elev.door.isFullyClosed()){
             if (dir == 0) {
                 currentDirection = "UP";
                 motionAPI.set_direction(Direction.UP);
-                bus.publish(new Message(Topic.currDirection, ID, 0));
+                bus.publish(new Message(SoftwareBusCodes.currDirection, ID, 0));
             } else if (dir == 1) {
                 currentDirection = "DOWN";
                 motionAPI.set_direction(Direction.DOWN);
-                bus.publish(new Message(Topic.currDirection, ID, 1));
+                bus.publish(new Message(SoftwareBusCodes.currDirection, ID, 1));
             }
-            bus.publish(new Message(Topic.currMovement, ID, 1));
+            bus.publish(new Message(SoftwareBusCodes.currMovement, ID, 1));
 
             elev.display.updateFloorIndicator(currentFloor, currentDirection);
             elev.panel.setDisplay(currentFloor, currentDirection);
@@ -334,13 +334,16 @@ public class ElevatorMultiplexor {
         elev.display.updateFloorIndicator(currentFloor, "IDLE");
         elev.panel.setDisplay(currentFloor, "IDLE");
         motionAPI.set_direction(Direction.NULL);
-        bus.publish(new Message(Topic.currDirection, ID, 2));
-        bus.publish(new Message(Topic.currMovement, ID, 0));
+        bus.publish(new Message(SoftwareBusCodes.currDirection, ID, 2));
+        bus.publish(new Message(SoftwareBusCodes.currMovement, ID, 0));
     }
 
     // Handle Selection Disable/Enable Message
     private void handleSelectionEnable(Message msg) {
         int body = msg.getBody();
+        if(body == 0) {
+            elev.panel.clearPressedFloors();
+        }
         elev.panel.setButtonsDisabled(body);
     }
 
