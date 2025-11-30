@@ -62,11 +62,11 @@ public class ProcessesUtil {
      */
     public static boolean doorClose(DoorAssembly doorAssembly, Notifier notifier) {
         boolean success;
-        success = ProcessesUtil.tryDoorClose(doorAssembly);
+        success = ProcessesUtil.tryDoorClose(doorAssembly,notifier, false);
         if (success) return true;
         while(!success){
             notifier.playCapacityNoise();
-            success = ProcessesUtil.tryDoorClose(doorAssembly);
+            success = ProcessesUtil.tryDoorClose(doorAssembly,notifier, true);
         }
         notifier.stopCapacityNoise();
         return false;
@@ -75,24 +75,27 @@ public class ProcessesUtil {
     /**
      * Attempts to close the doors but opens if there's an obstruction
      * @param doorAssembly the doors to close
+     * @param notifier the notifier to play capacity noise
+     * @param capacity true if over time limit, then plays capacity noise for door obstruction
      * @return true if doors successfully close before timeout
      */
-    public static boolean tryDoorClose(DoorAssembly doorAssembly){
+    public static boolean tryDoorClose(DoorAssembly doorAssembly, Notifier notifier, boolean capacity){
         Timer timer =new Timer(DOOR_CLOSE_TIMEOUT);
 
-        while(!doorAssembly.fullyClosed()){
+        while(!doorAssembly.fullyClosed() && !doorAssembly.overCapacity()){
             if(doorAssembly.obstructed()){
+                if (capacity) notifier.playCapacityNoise();
                 doorAssembly.open();
-            }else{
+            }else if (doorAssembly.overCapacity()){
+                doorAssembly.open();
+                notifier.playCapacityNoise();
+            } else {
                 doorAssembly.close();
-
             }
             if(timer.timeout()&&!doorAssembly.fullyClosed()){
                 return false;
             }
-
         }
         return true;
-
     }
 }

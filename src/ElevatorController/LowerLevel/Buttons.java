@@ -158,11 +158,17 @@ public class Buttons {
         int currServiceFloor = destinations.get(0).getFloor();
 
         for (FloorNDirection fd : destinations) {
+            //Service incompatible
+            boolean belowDown =
+                    fd.floor() < currServiceFloor && fd.direction() != null && fd.direction() == Direction.DOWN;
+            boolean aboveUp =
+                    fd.floor() > currServiceFloor && fd.direction() != null && fd.direction() == Direction.UP;
+            //Floor incompatible
             boolean belowUp =
-                    fd.floor() < currServiceFloor && fd.direction() == Direction.UP;
+                    fd.floor() < currFloor && fd.direction() == Direction.UP;
             boolean aboveDown =
-                    fd.floor() > currServiceFloor && fd.direction() == Direction.DOWN;
-            if (belowUp || aboveDown) {
+                    fd.floor() > currFloor && fd.direction() == Direction.DOWN;
+            if (belowDown || aboveUp || belowUp || aboveDown) {
                 unreachable.add(fd);
             }
         }
