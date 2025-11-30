@@ -1,6 +1,7 @@
 package ElevatorController.LowerLevel;
 
 import Bus.SoftwareBus;
+import Bus.SoftwareBusCodes;
 import CommandCenter.CommandPanel;
 import ElevatorController.Util.FloorNDirection;
 import ElevatorController.Util.State;
@@ -25,11 +26,16 @@ public class Mode {
     private FloorNDirection currDestination;
 
     // Topic Constants
-    private static final int TOPIC_START = TopicCodes.SYSTEM_START.code();
-    private static final int TOPIC_STOP = TopicCodes.SYSTEM_STOP.code();
+    private static final int TOPIC_START = SoftwareBusCodes.elevatorOnOff;
     //TODO: do we need to handle a SYSTEM_RESET message?
-    private static final int TOPIC_CENTRALIZED = TopicCodes.CLEAR_FIRE.code();
-    private static final int TOPIC_MODE = TopicCodes.MODE.code();
+    private static final int TOPIC_MODE = SoftwareBusCodes.setMode;
+    private static final int TOPIC_DESTINATION =
+            SoftwareBusCodes.setDestination;
+    private static final int TOPIC_FIRE_MODE = SoftwareBusCodes.fireMode;
+    private static final int TOPIC_FIRE_ALARM =
+            SoftwareBusCodes.fireAlarmActive;
+
+
 
     //TODO: handle these in software bus getter
     // Body for mode changes
@@ -55,9 +61,9 @@ public class Mode {
 
         // Subscribe to relevant topics, subtopic is elevatorID
         softwareBus.subscribe(TOPIC_START, elevatorID);
-        softwareBus.subscribe(TOPIC_STOP, elevatorID);
-        softwareBus.subscribe(TOPIC_CENTRALIZED, elevatorID);
         softwareBus.subscribe(TOPIC_MODE, elevatorID);
+        softwareBus.subscribe(TOPIC_DESTINATION, elevatorID);
+        softwareBus.subscribe(TOPIC_FIRE_ALARM, elevatorID);
     }
 
     /**
@@ -75,16 +81,30 @@ public class Mode {
      * sets current mode equal to the last relevant message
      */
     private void setCurrentMode(){
-        //Todo: Set current mode from software bus
+        // From the Command Center
         Message message = softwareBus.get(TOPIC_MODE,elevatorID);
+        // From the MUX
+        Message fireAlarm = softwareBus.get(TOPIC_FIRE_ALARM, elevatorID);
+
+        // Update current mode based on software bus messages sent by Command
+        // Center
         while (message != null){
             int state = message.getBody();
             switch (state){
                 case BODY_CENTRALIZED_MODE -> currentMode = State.CONTROL;
-                case BODY_FIRE_MODE -> currentMode = State.FIRE;
                 case BODY_NORMAL_MODE -> currentMode = State.NORMAL;
             }
             message = softwareBus.get(TOPIC_MODE,elevatorID);
+        }
+        // In fire mode if the fire alarm is pulled (sent by MUX)
+        while(fireAlarm != null){
+            if(fireAlarm.getBody() == 1){
+                //Notify the command center
+                softwareBus.publish(new Message(TOPIC_FIRE_MODE, elevatorID,
+                        0));
+                currentMode = State.FIRE;
+            }
+            fireAlarm = softwareBus.get(TOPIC_FIRE_ALARM, elevatorID);
         }
     }
 
@@ -94,6 +114,18 @@ public class Mode {
      */
     public FloorNDirection nextService(){
         //TODO needs Command Center stuff
-        return null;}
+        int floor = -1;
+        Message message = softwareBus.get(TOPIC_DESTINATION, elevatorID);
+        //Checks to see if there is a new message for the destination
+        while(message != null){
+            floor = message.getBody();
+            message = softwareBus.get(TOPIC_DESTINATION , elevatorID);
+        }
+        //When there is no next service given
+        if (floor == -1) {
+            return null;
+        }
+
+        return new FloorNDirection(floor, null);}
 
 }
