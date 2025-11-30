@@ -4,6 +4,7 @@ import Bus.SoftwareBus;
 import Bus.SoftwareBusCodes;
 import ElevatorController.Util.Direction;
 import ElevatorController.Util.FloorNDirection;
+import ElevatorController.Util.State;
 import Message.Message;
 
 public class CommandCenter {
@@ -24,6 +25,11 @@ public class CommandCenter {
     private static final int STOP_ELEVATOR=4;
 
     private static final int SERVICE_MESSAGE = 5;
+
+    private static final int GET_MODE = 6;
+    private static final int GET_ELEVATOR_STATUS = 7;
+    private static final int GET_DOOR_STATUS = 8;
+    private State currMode = State.NORMAL;
 
     public CommandCenter(SoftwareBus bus){
         this.bus=bus;
@@ -90,9 +96,36 @@ public class CommandCenter {
         bus.publish(new Message(SERVICE_MESSAGE,elevatorID,floor));
     }
     /**
-     *
+     * Gets a new mode from software bus if there is one, otherwise returns current mode
      */
+    private State getMode() {
+        //hard coded for fire alarm, would need to handle other cases if we are told to switch to other modes
+        if (bus.get(GET_MODE,0) != null) return State.FIRE;
+        return currMode;
+    }
 
+    /**
+     * Returns the current elevator status
+     * @param id of the elevator
+     * @return current floor and motion of the elevator
+     */
+    private FloorNDirection getElevatorStatus(int id) {
+        int message = bus.get(GET_ELEVATOR_STATUS,id).getBody();
+        if (message > 200) return new FloorNDirection(message-200,Direction.UP);
+        if (message > 100) return new FloorNDirection(message-100,Direction.STOPPED);
+        return new FloorNDirection(message,Direction.DOWN);
+    }
+
+    /**
+     * Gets the door status of specified elevator
+     * @param id of the elevator
+     * @return 0 for open, 1 for closed, -1 error
+     */
+    private int getDoorStatus(int id) {
+        int message = bus.get(GET_DOOR_STATUS,id).getBody();
+        if (message == 0 || message == 1) return message;
+        return -1;
+    }
 
 
 
@@ -107,10 +140,10 @@ public class CommandCenter {
         int subTopic= message.getSubTopic();
         int body = message.getBody();
 
-        switch(topic){
-            case SET_MODE->
-
-        }
+//        switch(topic){
+//            case SET_MODE->
+//
+//        }
     }
 
 

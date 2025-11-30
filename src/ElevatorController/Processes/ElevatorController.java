@@ -30,14 +30,19 @@ public class ElevatorController {
         State currentMode = normal(mode, buttons, cabin, doorAssembly,
                 notifier);
         while(onOff){
-
-            switch (currentMode){
-                case NORMAL -> currentMode = normal(mode, buttons, cabin,
-                        doorAssembly, notifier);
-                case FIRE -> currentMode = fire(mode, buttons, cabin,
-                        doorAssembly, notifier);
-                case CONTROL -> currentMode = control(mode, buttons, cabin,
-                        doorAssembly, notifier);
+            boolean on = true;
+            if (on) {
+                switch (currentMode){
+                    case NORMAL -> currentMode = normal(mode, buttons, cabin,
+                            doorAssembly, notifier);
+                    case FIRE -> currentMode = fire(mode, buttons, cabin,
+                            doorAssembly, notifier);
+                    case CONTROL -> currentMode = control(mode, buttons, cabin,
+                            doorAssembly, notifier);
+                    case OFF -> on = false;
+                }
+            } else {
+                if (mode.getMode() != State.OFF) on = true;
             }
         }
     }

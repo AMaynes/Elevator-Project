@@ -42,7 +42,7 @@ public class Control {
         FloorNDirection nextSer = null;
         while(mode.getMode() == State.CONTROL){
             nextSer = mode.nextService();
-            if(nextSer != null){
+            if(nextSer != null && cabin.getTargetFloor() != nextSer.floor()){
                 cabin.gotoFloor(nextSer.floor());
             }
             //Arrival process (open doors, wait, close doors)

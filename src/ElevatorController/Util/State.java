@@ -1,5 +1,5 @@
 package ElevatorController.Util;
 
 public enum State {
-    FIRE, NORMAL, CONTROL, NULL
+    FIRE, NORMAL, CONTROL, OFF, NULL
 }
