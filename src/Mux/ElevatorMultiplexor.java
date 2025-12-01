@@ -61,7 +61,7 @@ public class ElevatorMultiplexor {
         bus.subscribe(SoftwareBusCodes.selectionsEnable, ID);
         bus.subscribe(SoftwareBusCodes.selectionsType, ID);
         bus.subscribe(SoftwareBusCodes.playSound, ID);
-        bus.subscribe(SoftwareBusCodes.fireAlarm, 0);
+        bus.subscribe(SoftwareBusCodes.fireAlarm, ID);
 
         System.out.println("ElevatorMUX " + ID + " initialized and subscribed");
         startBusPoller();

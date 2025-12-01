@@ -34,6 +34,11 @@ public class Buttons {
     private final static int TOPIC_CABIN_LOAD = SoftwareBusCodes.cabinLoad;
     private final static int TOPIC_RESET_CALL = SoftwareBusCodes.resetCall;
     private final static int RESET_FLOOR_SELECTION = SoftwareBusCodes.resetFloorSelection;
+    private final static int TOPIC_CALLS_ENABLED = SoftwareBusCodes.callsEnable;
+    private final static int TOPIC_REQS_ENABLED =
+            SoftwareBusCodes.selectionsEnable;
+    private final static int TOPIC_SELECTION_TYPE =
+            SoftwareBusCodes.selectionsType;
 
     // FIRE_KEY BODY
     private final static int BODY_F_KEY_ACTIVE   = SoftwareBusCodes.active; //TODO make elevator mux have this as public constant
@@ -109,18 +114,37 @@ public class Buttons {
      * In normal mode, level call buttons are enabled
      */
     public void enableCalls(){
+        // Publish to MUX
+        softwareBus.publish(new Message(TOPIC_CALLS_ENABLED,
+                SoftwareBusCodes.buildingMUX,
+                SoftwareBusCodes.on));
+
+        // set local variable
         this.callEnabled = true;
     }
 
     /**
      * In fire mode, and controlled mode call buttons are disabled
      */
-    public void disableCalls(){this.callEnabled = false;}
+    public void disableCalls(){
+        // Notify MUX
+        softwareBus.publish(new Message(TOPIC_CALLS_ENABLED, SoftwareBusCodes.buildingMUX,
+                SoftwareBusCodes.off));
+
+        // Update local
+        this.callEnabled = false;}
 
     /**
      * In Normal mode, all request buttons are enabled
      */
     public void enableAllRequests(){
+        // Notify MUX
+        softwareBus.publish(new Message(TOPIC_REQS_ENABLED, elevatorID,
+                SoftwareBusCodes.on));
+        softwareBus.publish(new Message(TOPIC_SELECTION_TYPE, elevatorID,
+                SoftwareBusCodes.multiple));
+
+        // Set local variable
         this.multipleRequests = true;
     }
 
@@ -128,6 +152,13 @@ public class Buttons {
      * In Fire mode, the request buttons in the cabin are mutually exclusive
      */
     public void enableSingleRequest(){
+        // Notify MUX
+        softwareBus.publish(new Message(TOPIC_REQS_ENABLED, elevatorID,
+                SoftwareBusCodes.on));
+        softwareBus.publish(new Message(TOPIC_SELECTION_TYPE, elevatorID,
+                SoftwareBusCodes.single));
+
+        // Set local variable
         this.multipleRequests = false;
     }
 
