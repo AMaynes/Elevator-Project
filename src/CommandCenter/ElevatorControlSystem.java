@@ -12,18 +12,17 @@ import javafx.geometry.Insets;
 
 import Bus.*;
 
-public class ElevatorControlSystem extends Application {
+public class ElevatorControlSystem{
 
     private ElevatorPanel2[] elevators;
     private CommandCenter commandCenter;
     private CommandPanel commandPanel;
 
-    //JUST FOR TESTING!!!!!!!!!!!!! This should be passed through a starter class
     private SoftwareBus softwareBus;
 
 
-    public ElevatorControlSystem(){
-        softwareBus =new SoftwareBus(true);
+    public ElevatorControlSystem(SoftwareBus softwareBus){
+        this.softwareBus=softwareBus;
         commandCenter=new CommandCenter(softwareBus);
 
         commandPanel=new CommandPanel(commandCenter);
@@ -39,14 +38,14 @@ public class ElevatorControlSystem extends Application {
     /**
      * This has been changed to just use java fx, any logic surrounding the
      * software bust or starting logic has been moved to the constructor
-     * @param primaryStage the primary stage for this application, onto which
      * the application scene can be set.
      * Applications may create other stages, if needed, but they will not be
      * primary stages.
      */
 
-    @Override
-    public void start(Stage primaryStage) {
+
+    public Stage getStage() {
+        Stage primaryStage=new Stage();
         primaryStage.setTitle("Command Center");
 
         BorderPane root = new BorderPane();
@@ -69,10 +68,11 @@ public class ElevatorControlSystem extends Application {
 
         root.setRight(commandPanel);
 
-        Scene scene = new Scene(root, 1000, 660);
+        Scene scene = new Scene(root, 800, 660);
         primaryStage.setScene(scene);
-        primaryStage.show();
+        return primaryStage;
+
     }
 
-    public static void main(String[] args) { launch(args); }
+
 }

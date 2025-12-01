@@ -57,6 +57,7 @@ public class CommandCenter {
      * Publishes starts single elevator
      */
     public void enableSingleElevator(int elevatorId){
+        System.out.println("In command center; Turning on elevator: "+elevatorId);
         elevatorEnabled[elevatorId-1]=true;
         bus.publish(new Message(TURN_ELEVATOR_ON_OFF,elevatorId,1)); //turn elevator on
     }
@@ -76,6 +77,7 @@ public class CommandCenter {
      */
     public void enableElevator(){
         Arrays.fill(elevatorEnabled,true);
+        System.out.println("In command center; Turning on elevators");
         bus.publish(new Message(TURN_ELEVATOR_ON_OFF,0,1)); //Turn all elevators on
     }
 
@@ -85,6 +87,7 @@ public class CommandCenter {
      * @param elevatorId the elevator to be stoped
      */
     public void disableSingleElevator(int elevatorId){
+        System.out.println("In command center; Turning off elevator: "+elevatorId);
         elevatorEnabled[elevatorId-1]=false;
         bus.publish(new Message(TURN_ELEVATOR_ON_OFF,elevatorId,0)); //turns elevator off
     }
@@ -94,6 +97,7 @@ public class CommandCenter {
      */
 
     public void disableElevator(){
+        System.out.println("In command center; Turning off elevator: ");
         Arrays.fill(elevatorEnabled,false);
         bus.publish(new Message(TURN_ELEVATOR_ON_OFF,0,0)); //Turns all elevators off
     }

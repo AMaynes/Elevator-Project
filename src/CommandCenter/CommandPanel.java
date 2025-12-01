@@ -21,7 +21,7 @@ public class CommandPanel extends GridPane {
     // UI controls
     private final Label modeDisplay;
     private final Button autoButton;
-    private final Button fireControlButton;
+    //private final Button fireControlButton;
     private final Button startButton;
     private final Button stopButton;
 
@@ -73,28 +73,28 @@ public class CommandPanel extends GridPane {
         }
 
         // Mode display badge
-        modeDisplay = new Label("CENTRALIZED");
-        modeDisplay.setPrefSize(170, 60);
+        modeDisplay = new Label("Mode: CENTRALIZED");
+        modeDisplay.setPrefSize(200, 60);
         modeDisplay.setStyle(modeDisplayBaseStyle + colorModeCentral);
         add(modeDisplay, 0, 2, 1, 2);
 
         // Buttons  publish messages
-        fireControlButton = createButton("TEST FIRE", Color.web("#C62828"), 70,
-                e -> onFirePressed());
-        add(fireControlButton, 0, 4, 1, 2);
+//        fireControlButton = createButton("TEST FIRE", Color.web("#C62828"), 70,
+//                e -> onFirePressed());
+//        add(fireControlButton, 0, 4, 1, 2);
 
         autoButton = createButton("AUTO", Color.web("#283593"), 70,
                 e -> onAutoPressed());
         autoButton.setStyle(colorAuto + " " + buttonBaseStyle + " " + autoBorderOn);
-        add(autoButton, 0, 6, 1, 2);
+        add(autoButton, 0, 4, 1, 2);
 
         startButton = createButton("START", Color.web("#2E7D32"), 70,
                 e -> onStart());
-        add(startButton, 0, 8, 1, 2);
+        add(startButton, 0, 6, 1, 2);
 
         stopButton = createButton("STOP", Color.web("#B71C1C"), 70,
                 e -> onStop());
-        add(stopButton, 0, 10, 1, 2);
+        add(stopButton, 0, 8, 1, 2);
 
         updateButtonStates(true);
 
@@ -144,7 +144,7 @@ public class CommandPanel extends GridPane {
             //publishAll(SoftwareBusCodes.clearFire, 0);          // Clear Fire
             updateForFireMode(false);
         } else {
-            commandCenter.sendModeMessage(SoftwareBusCodes.fire);
+           // commandCenter.sendModeMessage(SoftwareBusCodes.fire);
             systemMode = "FIRE";
             //publishAll(SoftwareBusCodes.setMode, SoftwareBusCodes.fire);  // enter FIRE mode
             updateForFireMode(true);
@@ -195,14 +195,14 @@ public class CommandPanel extends GridPane {
     public void updateButtonStates(boolean isRunning) {
         startButton.setDisable(isRunning);
         stopButton.setDisable(!isRunning);
-        fireControlButton.setDisable(!isRunning);
+        //fireControlButton.setDisable(!isRunning);
         autoButton.setDisable(!isRunning);
 
         // keep labels readable even when disabled
         String keepOpacity = " -fx-opacity: 1.0;";
         startButton.setStyle(startButton.getStyle() + keepOpacity);
         stopButton.setStyle(stopButton.getStyle() + keepOpacity);
-        fireControlButton.setStyle(fireControlButton.getStyle() + keepOpacity);
+        //fireControlButton.setStyle(fireControlButton.getStyle() + keepOpacity);
         autoButton.setStyle(autoButton.getStyle() + keepOpacity);
     }
 
@@ -217,26 +217,26 @@ public class CommandPanel extends GridPane {
 
     public void updateForFireMode(boolean isFire) {
         if (isFire) {
-            modeDisplay.setText("FIRE");
+            modeDisplay.setText("Mode: FIRE");
             modeDisplay.setStyle(modeDisplayBaseStyle + colorModeFire);
-            fireControlButton.setText("CLEAR FIRE");
-            fireControlButton.setStyle(colorFire + " " + buttonBaseStyle + " " + fireBtnGlowOn + " -fx-opacity: 1.0;");
+//            fireControlButton.setText("CLEAR FIRE");
+//            fireControlButton.setStyle(colorFire + " " + buttonBaseStyle + " " + fireBtnGlowOn + " -fx-opacity: 1.0;");
         } else {
-            modeDisplay.setText("CENTRALIZED");
+            modeDisplay.setText("Mode: CENTRALIZED");
             modeDisplay.setStyle(modeDisplayBaseStyle + colorModeCentral);
-            fireControlButton.setText("TEST FIRE");
-            fireControlButton.setStyle(colorFire + " " + buttonBaseStyle + " " + fireBtnGlowOff + " -fx-opacity: 1.0;");
+//            fireControlButton.setText("TEST FIRE");
+//            fireControlButton.setStyle(colorFire + " " + buttonBaseStyle + " " + fireBtnGlowOff + " -fx-opacity: 1.0;");
             autoButton.setStyle(colorAuto + " " + buttonBaseStyle + " " + autoBorderOn + " -fx-opacity: 1.0;");
         }
     }
 
     public void updateForAutoMode(String mode) {
         if ("CENTRALIZED".equals(mode)) {
-            modeDisplay.setText("CENTRALIZED");
+            modeDisplay.setText("Mode: CENTRALIZED");
             modeDisplay.setStyle(modeDisplayBaseStyle + colorModeCentral);
             autoButton.setStyle(colorAuto + " " + buttonBaseStyle + " " + autoBorderOn + " -fx-opacity: 1.0;");
         } else {
-            modeDisplay.setText("INDEPENDENT");
+            modeDisplay.setText("Mode: INDEPENDENT");
             modeDisplay.setStyle(modeDisplayBaseStyle + colorModeIndependent);
             autoButton.setStyle(colorAuto + " " + buttonBaseStyle + " " + autoBorderOff + " -fx-opacity: 1.0;");
         }
@@ -293,7 +293,7 @@ public class CommandPanel extends GridPane {
                 systemMode = "CENTRALIZED";
                 updateForFireMode(false);
                 updateForAutoMode("CENTRALIZED");
-                modeDisplay.setText("CENTRALIZED");
+                modeDisplay.setText("Mode: CENTRALIZED");
                 modeDisplay.setStyle(modeDisplayBaseStyle + colorModeCentral);
                 updateButtonStates(true);
                 System.out.println("Fire cleared system returning to CENTRALIZED mode");

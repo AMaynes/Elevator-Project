@@ -117,7 +117,7 @@ public class ElevatorPanel2 extends VBox {
         title.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
 
         // START/STOP button now in one button!!!
-        mainControlButton = new Button("STOP");
+        mainControlButton = new Button("OFF");
         mainControlButton.setStyle("-fx-background-color: #B22222; -fx-text-fill: white;");
         mainControlButton.setPrefWidth(90);
         mainControlButton.setOnAction(e -> toggleLocalRunStop());
@@ -196,11 +196,11 @@ public class ElevatorPanel2 extends VBox {
     // Flips button and lets command center know about it
     private void updateRunStopUI() {
         if (isEnabled) {
-            mainControlButton.setText("STOP");
+            mainControlButton.setText("OFF");
             mainControlButton.setStyle("-fx-background-color:#B22222; -fx-text-fill:white;");
             commandCenter.disableSingleElevator(elevatorId);
         } else {
-            mainControlButton.setText("START");
+            mainControlButton.setText("ON");
             mainControlButton.setStyle("-fx-background-color:#228B22; -fx-text-fill:white;");
             commandCenter.enableSingleElevator(elevatorId);
         }
