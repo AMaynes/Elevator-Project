@@ -12,35 +12,33 @@ import Message.MessageHelper;
  * The mode is indirectly being updated by the Control Room, a separate entity outside of the Elevator Controller system.
  * Additionally, the mode is responsible for taking in demands from the Control Room when the elevator is being remotely controlled.
  * The mode object receives messages via the software bus but does not post messages to the software bus.
- *
- * The modes:
- *         1 – NORMAL
- *         2 – FIRE_SAFETY
- *         3 - CONTROLLED
  */
 public class Mode {
     private final int ELEVATOR_ID;
-    private SoftwareBus softwareBus;
+    private final SoftwareBus softwareBus;
     private State currentMode;
     private FloorNDirection currDestination;
 
-    // Topic Constants
+    // *** Topic Constants ***
+    // From Command Center to Mode
     private static final int TOPIC_ON_OFF = SoftwareBusCodes.elevatorOnOff;
     //TODO: do we need to handle a SYSTEM_RESET message?
     private static final int TOPIC_MODE = SoftwareBusCodes.setMode;
     private static final int TOPIC_DESTINATION =
             SoftwareBusCodes.setDestination;
+    // From Mode to Command Center
     private static final int TOPIC_FIRE_MODE = SoftwareBusCodes.fireMode;
+
+    // From MUX to Mode
     private static final int TOPIC_FIRE_ALARM =
             SoftwareBusCodes.fireAlarmActive;
+    // From Mode to MUX
     private static final int TOPIC_SET_FIRE = SoftwareBusCodes.fireAlarm;
-
-    //TODO: handle these in software bus getter
 
     // Body for mode changes
     private static final int BODY_CENTRALIZED_MODE  = SoftwareBusCodes.centralized;
     private static final int BODY_NORMAL_MODE = SoftwareBusCodes.normal;
-    private static final int BODY_FIRE_MODE = SoftwareBusCodes.fire;
+    private static final int BODY_FIRE_MODE = SoftwareBusCodes.fire; //TODO: safe to delete this?
 
     /**
      * Instantiate a Mode object
@@ -124,20 +122,22 @@ public class Mode {
 
     /**
      * Call get() on softwareBus w/ appropriate topic/subtopic,
-     * @return
+     * @return next floor to travel to (no direction)
      */
     public FloorNDirection nextService(){
-        int floor = -1;
-        Message message = softwareBus.get(TOPIC_DESTINATION, ELEVATOR_ID);
-        //Checks to see if there is a new message for the destination
-        while(message != null){
+        int floor;
+
+        Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_DESTINATION);
+
+        if (message != null){
+            // Update next floor service based on message
             floor = message.getBody();
-            message = softwareBus.get(TOPIC_DESTINATION , ELEVATOR_ID);
-        }
-        //When there is no next service given
-        if (floor == -1) {
-            return null;
+        } else {
+            return currDestination;
         }
 
-        return new FloorNDirection(floor, null);}
+        // Update currDestination based on Message
+        currDestination = new FloorNDirection(floor, null);
+        return currDestination;
+    }
 }
