@@ -68,7 +68,6 @@ public class Cabin implements Runnable {
      */
     @Override
     public void run() {
-        //Todo: papa bird, mama bird! Check if the alignment logic is right please please
         while (true) {
             stepTowardsDest();
             System.out.println(""); // <- why?
