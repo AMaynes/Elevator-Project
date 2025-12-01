@@ -18,6 +18,16 @@ import Team7MotionControl.Util.Direction;
 //import motion.Util.Direction;
 //import pfdAPI.*;
 
+// Elevator MUX constructor for taking in software bus:
+// private final SoftwareBus bus;
+//    // Constructor
+//    public ElevatorMultiplexor(int ID, SoftwareBus softwareBus){
+//        bus = softwareBus;
+//        this.ID = ID;
+//        this.elev = new Elevator(ID, 10);
+//        initialize();
+//    }
+
 /**
  * Class that defines the ElevatorMultiplexor, which coordinates communication from the Elevator
  * Command Center to the relevant devices. Communication is accomplished via the software bus,
@@ -26,7 +36,6 @@ import Team7MotionControl.Util.Direction;
  * Note: car and elevator are used interchangeably in this context.
  */
 public class ElevatorMultiplexor {
-
     private final SoftwareBus bus;
     // Constructor
     public ElevatorMultiplexor(int ID, SoftwareBus softwareBus){
@@ -113,11 +122,11 @@ public class ElevatorMultiplexor {
                 if (msg != null) {
                     handleSelectionType(msg);
                 }
-                msg = bus.get(SoftwareBusCodes.playSound, 0);
+                msg = bus.get(SoftwareBusCodes.playSound, ID);
                 if (msg != null) {
                     handlePlaySound(msg);
                 }
-                msg = bus.get(SoftwareBusCodes.fireAlarm, 0);
+                msg = bus.get(SoftwareBusCodes.fireAlarm, ID);
                 if (msg != null) {
                     handleFireAlarm(msg);
                 }
