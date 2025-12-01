@@ -35,6 +35,9 @@ public class Main extends Application {
         for (int i = 0; i < numElevators; i++) {
             elevatorMuxes[i] = new Mux.ElevatorMultiplexor(i + 1,serverBus);  // Store
             // the reference
+
+
+
         }
         guiMux.initilizeMuxs(elevatorMuxes);
         ElevatorMain em1 = new ElevatorMain(elevator1, serverBus);
