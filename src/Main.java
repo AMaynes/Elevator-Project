@@ -2,6 +2,7 @@ import Bus.SoftwareBus;
 import CommandCenter.*;
 import CommandCenter.ElevatorPanel;
 import ElevatorController.HigherLevel.ElevatorMain;
+import PFDGUI.gui;
 import Mux.BuildingMultiplexor;
 import Mux.ElevatorMultiplexor;
 import javafx.application.Application;
@@ -9,7 +10,9 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
     private static Stage commandStage;
+    private static Stage muxStage;
     private static ElevatorControlSystem elevatorControlSystem;
+    private static gui guiMux = new gui();
 
     public static void main(String[] args) {
         int numElevators = 4;
@@ -38,6 +41,15 @@ public class Main extends Application {
         ElevatorMain em3 = new ElevatorMain(elevator3, clientBus);
         ElevatorMain em4 = new ElevatorMain(elevator4, clientBus);
 
+        Thread thread1 = new Thread(em1);
+        Thread thread2 = new Thread(em2);
+        Thread thread3 = new Thread(em3);
+        Thread thread4 = new Thread(em4);
+        thread1.start();
+        thread2.start();
+        thread3.start();
+        thread4.start();
+
         launch(args);
 
     }
@@ -60,7 +72,12 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         commandStage=elevatorControlSystem.getStage();
+
         commandStage.show();
+        Thread.sleep(500);
+        System.out.println("ooooooooooo");
+        muxStage = guiMux.getStage();
+        muxStage.show();
 
     }
 }

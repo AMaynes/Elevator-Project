@@ -10,7 +10,7 @@ import static ElevatorController.Processes.ElevatorController.onOff;
  * Main is a lightweight object, which instantiates Elevator Controller, Mode,
  * Buttons, Cabin, Door Assembly and Notifier.
  */
-public class ElevatorMain {
+public class ElevatorMain implements Runnable{
     /**
      * Instantiate Everything
      * @param elevatorID the number associated with this elevator
@@ -30,7 +30,11 @@ public class ElevatorMain {
         notifier = new Notifier(elevatorID, softwareBus);
         mode = new Mode(elevatorID, softwareBus);
         onOff = true;
-        elevatorController(mode,buttons,cabin,doorAssembly,notifier);
 
+    }
+
+    @Override
+    public void run() {
+        elevatorController(mode,buttons,cabin,doorAssembly,notifier);
     }
 }

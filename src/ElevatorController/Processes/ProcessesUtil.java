@@ -82,15 +82,25 @@ public class ProcessesUtil {
     public static boolean tryDoorClose(DoorAssembly doorAssembly, Notifier notifier, boolean capacity){
         Timer timer =new Timer(DOOR_CLOSE_TIMEOUT);
 
+        boolean lastCommand = true;
         while(!doorAssembly.fullyClosed() && !doorAssembly.overCapacity()){
             if(doorAssembly.obstructed()){
                 if (capacity) notifier.playCapacityNoise();
-                doorAssembly.open();
+                if(lastCommand == false){
+                    doorAssembly.open();
+                    lastCommand = true;
+                }
             }else if (doorAssembly.overCapacity()){
-                doorAssembly.open();
+                if(lastCommand == false){
+                    doorAssembly.open();
+                    lastCommand = true;
+                }
                 notifier.playCapacityNoise();
             } else {
-                doorAssembly.close();
+                if(lastCommand == true){
+                    doorAssembly.close();
+                    lastCommand = false;
+                }
             }
             if(timer.timeout()&&!doorAssembly.fullyClosed()){
                 return false;
