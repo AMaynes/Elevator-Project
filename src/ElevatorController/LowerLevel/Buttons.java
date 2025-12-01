@@ -287,13 +287,7 @@ public class Buttons {
     private void handleCabinSelect() {
         Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_CABIN_SELECT);
         int floor = message.getBody();
-        FloorNDirection fd;
-        if (floor < currFloor){
-            fd = new FloorNDirection(floor, Direction.DOWN);
-        } else {
-            fd = new FloorNDirection(floor, Direction.UP);
-        }
-        destinations.add(fd);
+        destinations.add(new FloorNDirection(floor, null));
     }
 
     /**
