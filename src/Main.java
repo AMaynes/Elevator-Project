@@ -23,11 +23,6 @@ public class Main extends Application {
 
 
 
-//        CommandCenter commandCenter = new CommandCenter(serverBus);
-//        ElevatorPanel[] elevators = new ElevatorPanel[4];
-//        for (int i = 0; i < 4; i++){
-//            elevators[i] = new ElevatorPanel(i +1,commandCenter);
-//        }
         //TODO will need to change the code in building and elevator
         // multiplexer to be given a single client software bus. These
         // changes will need to be made to the init function and the
