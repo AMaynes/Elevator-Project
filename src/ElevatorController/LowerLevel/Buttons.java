@@ -26,7 +26,7 @@ public class Buttons {
     private boolean fireKey = false;
 
     //  *** Software Bus Topics ***
-    // Recieving from MUX
+    // Receiving from MUX
     private final static int TOPIC_HALL_CALL = SoftwareBusCodes.hallCall; // buttons in the halls
     private final static int TOPIC_CABIN_SELECT = SoftwareBusCodes.cabinSelect; // button events in the cabin
     private final static int TOPIC_FIRE_KEY = SoftwareBusCodes.fireKey; //TODO: handle fire key messages
@@ -56,7 +56,7 @@ public class Buttons {
             case 1, 2, 3, 4:
                 break;
             default:
-                System.out.println("ERRROR: Invalid elevator ID");
+                System.out.println("ERROR: Invalid elevator ID");
         }
 
         // Assuming normal mode settings initially
@@ -190,7 +190,7 @@ public class Buttons {
         if (!callEnabled && !fireKey) return null;
 
         if (!multipleRequests) {
-            FloorNDirection nextService = destinations.get(0);
+            FloorNDirection nextService = destinations.getFirst();
             destinations.clear();
             destinations.add(nextService); //TODO: this seems incorrect?
             return nextService;
@@ -198,7 +198,7 @@ public class Buttons {
 
         //Determine floors not on the way
         List<FloorNDirection> unreachable = new ArrayList<>();
-        int currServiceFloor = destinations.get(0).getFloor();
+        int currServiceFloor = destinations.getFirst().getFloor();
 
         for (FloorNDirection fd : destinations) {
             //Service incompatible
@@ -271,14 +271,14 @@ public class Buttons {
         if (message != null) {
             // If a message exist, use it to update the local fire key variable
             switch (message.getBody()){
-                case SoftwareBusCodes.active -> fireKey = true;
-                case SoftwareBusCodes.off -> fireKey = false;
+                case BODY_F_KEY_ACTIVE -> fireKey = true;
+                case BODY_F_KEY_INACTIVE -> fireKey = false;
                 default -> {
                     fireKey = false;
                     System.out.println("Unexpected Body in Buttons, TOPIC_FIRE_KEY, body = " + message.getBody());
                 }
             }
-        };
+        }
     }
 
     /**
