@@ -27,8 +27,10 @@ import Team7MotionControl.Util.Direction;
  */
 public class ElevatorMultiplexor {
 
+    private final SoftwareBus bus;
     // Constructor
-    public ElevatorMultiplexor(int ID){
+    public ElevatorMultiplexor(int ID, SoftwareBus softwareBus){
+        bus = softwareBus;
         this.ID = ID;
         this.elev = new Elevator(ID, 10);
         initialize();
@@ -39,7 +41,6 @@ public class ElevatorMultiplexor {
     private String currentDirection = "IDLE";
     private final int ID;
     private final Elevator elev;
-    private final SoftwareBus bus = new SoftwareBus(false);
     private final MotionController motionAPI = new MotionController();
     private boolean lastFireKeyState = false;
     private boolean lastObstructedState = false;

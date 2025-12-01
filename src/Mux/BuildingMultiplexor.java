@@ -40,13 +40,14 @@ import static java.lang.Math.abs;
  */
 public class BuildingMultiplexor {
 
+    private final SoftwareBus bus;
     // Constructor
-    public BuildingMultiplexor(){
+    public BuildingMultiplexor(SoftwareBus softwareBus){
+        bus = softwareBus;
         initialize();
     }
 
     // Listener for GUI/API integration
-    private final SoftwareBus bus = new SoftwareBus(false);
     private final Building bldg = new Building(10);;
     boolean[][] lastCallState = new boolean[bldg.totalFloors][3]; // Up/Down/Null
     private boolean lastFireState = false;
