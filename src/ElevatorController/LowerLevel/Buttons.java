@@ -286,6 +286,9 @@ public class Buttons {
      */
     private void handleCabinSelect() {
         Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_CABIN_SELECT);
+        if(message==null){
+            return;
+        }
         int floor = message.getBody();
         destinations.add(new FloorNDirection(floor, null));
     }
@@ -295,6 +298,9 @@ public class Buttons {
      */
     private void handleHallCall() {
         Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_HALL_CALL);
+        if(message==null){
+            return;
+        }
         int floor;
         int destCode = message.getBody();
         FloorNDirection fd;

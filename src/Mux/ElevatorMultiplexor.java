@@ -86,11 +86,14 @@ public class ElevatorMultiplexor {
     // Polls the software bus for messages and handles them accordingly
     public void startBusPoller() {
         Thread t = new Thread(() -> {
+
             // keep polling
             while (true) {
                 Message msg;
                 msg = bus.get(SoftwareBusCodes.doorControl, ID);
+
                 if (msg != null) {
+                    System.out.println("Got a door control message; "+ msg);
                     handleDoorControl(msg);
                 }
                 msg = bus.get(SoftwareBusCodes.displayFloor, ID);
@@ -275,6 +278,7 @@ public class ElevatorMultiplexor {
 
     // Handle door control messages
     private void handleDoorControl(Message msg) {
+        System.out.println("Handling door control");
         int command = msg.getBody();
         Message positionMsg = null;
         if (command == 0) {

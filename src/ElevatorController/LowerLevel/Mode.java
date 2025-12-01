@@ -88,28 +88,37 @@ public class Mode {
         Message onOffMessage = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_ON_OFF);
 
 
-        int state = modeMessage.getBody();
-        switch (state){
-            case BODY_CENTRALIZED_MODE -> currentMode = State.CONTROL;
-            case BODY_NORMAL_MODE -> currentMode = State.NORMAL;
+        int state;
+        if(modeMessage!=null){
+            state = modeMessage.getBody();
+            switch (state){
+                case BODY_CENTRALIZED_MODE -> currentMode = State.CONTROL;
+                case BODY_NORMAL_MODE -> currentMode = State.NORMAL;
+            }
         }
+
 
         //TODO: do we have to send messages to the MUX?
         //Jackie: Also, don't worry about sending Fire Alarm to each elevator
         // when fire mode is activated by the pfd GUI specifically. The building
         // mux handles that automatically. They will need to be sent if you're doing
         // it via the control center, however @Val
-        state = fireMessage.getBody();
-        if (state == SoftwareBusCodes.pulled){
-            softwareBus.publish(new Message(TOPIC_FIRE_MODE, ELEVATOR_ID,
+        if(fireMessage!=null){
+            state = fireMessage.getBody();
+            if (state == SoftwareBusCodes.pulled){
+                softwareBus.publish(new Message(TOPIC_FIRE_MODE, ELEVATOR_ID,
                         SoftwareBusCodes.emptyBody));
-            currentMode = State.FIRE;
+                currentMode = State.FIRE;
+            }
         }
 
-        state = onOffMessage.getBody();
-        if (state == SoftwareBusCodes.off){
-            currentMode = State.OFF;
+        if(onOffMessage!=null){
+            state = onOffMessage.getBody();
+            if (state == SoftwareBusCodes.off){
+                currentMode = State.OFF;
+            }
         }
+
 
         // Notify the MUX that the fire is active
         if (currentMode == State.FIRE){

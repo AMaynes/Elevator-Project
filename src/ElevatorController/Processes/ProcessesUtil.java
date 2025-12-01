@@ -62,6 +62,7 @@ public class ProcessesUtil {
      */
     public static boolean doorClose(DoorAssembly doorAssembly, Notifier notifier) {
         boolean success;
+        //TODO:This is causing a problem
         success = ProcessesUtil.tryDoorClose(doorAssembly,notifier, false);
         if (success) return true;
         while(!success){
@@ -83,8 +84,11 @@ public class ProcessesUtil {
         Timer timer =new Timer(DOOR_CLOSE_TIMEOUT);
 
         boolean lastCommand = true;
+        System.out.println("Fully closed: "+ doorAssembly.fullyClosed()+
+                " over capacity "+ doorAssembly.overCapacity()+ " obstructed "+ doorAssembly.obstructed());
         while(!doorAssembly.fullyClosed() && !doorAssembly.overCapacity()){
             if(doorAssembly.obstructed()){
+
                 if (capacity) notifier.playCapacityNoise();
                 if(lastCommand == false){
                     doorAssembly.open();
@@ -97,7 +101,8 @@ public class ProcessesUtil {
                 }
                 notifier.playCapacityNoise();
             } else {
-                if(lastCommand == true){
+                if(lastCommand){
+                    System.out.println("Trying to close doors");
                     doorAssembly.close();
                     lastCommand = false;
                 }

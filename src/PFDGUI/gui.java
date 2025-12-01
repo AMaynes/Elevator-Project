@@ -302,6 +302,9 @@ public class gui {
             if (buttonIndex < 0 || buttonIndex >= numFloors) {
                 return false;
             }
+            if(callButtons[buttonIndex]==null){
+                return false; //zzz ????????????
+            }
             String currentDirection = callButtons[buttonIndex].direction;
             if(currentDirection.equalsIgnoreCase("BOTH")) {
                 return true;

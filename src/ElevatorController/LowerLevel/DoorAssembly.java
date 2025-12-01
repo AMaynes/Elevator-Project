@@ -73,6 +73,7 @@ public class DoorAssembly {
      */
     public void close(){
         // correcct body for current mux 11/23/2025
+        System.out.println("Sending close message to the humble mux");
         softwareBus.publish(new Message(TOPIC_DOOR_CONTROL, elevatorID, CLOSE_CODE));
     }
 
@@ -99,6 +100,8 @@ public class DoorAssembly {
             if (message.getBody() == OPEN_CODE) fullyClosed = false;
             if (message.getBody() == CLOSE_CODE) fullyClosed = true;
             else System.out.println("Unexpected body in SoftwareBusCodes.doorStatus Message in DoorAssembly: body = " + message.getBody());
+        }else{
+            //System.out.println("NULL MESSAGE IN DOOR ASSEMBLY YOU MORON OF COURSE ITS A NULL MESSAGE");
         }
         return fullyClosed;
     }
