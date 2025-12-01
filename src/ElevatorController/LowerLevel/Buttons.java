@@ -301,13 +301,31 @@ public class Buttons {
      */
     private void handleHallCall() {
         Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_HALL_CALL);
-        int floor = message.getSubTopic();
-        int dir = message.getBody();
+        int floor;
+        int destCode = message.getBody();
         FloorNDirection fd;
-        switch(dir){
-            case 0 ->  fd = new FloorNDirection(floor, Direction.UP);
-            case 1 ->  fd = new FloorNDirection(floor, Direction.DOWN);
-            default -> throw new IllegalStateException("Unexpected value: " + dir);
+
+        /*
+         *  destCode = 1 to 10    -> down calls on that level
+         *  destCode = 101 to 110 -> up calls on that level
+         */
+        if (destCode >=100) {
+            // Subtract 100 to get floor
+            floor = destCode - SoftwareBusCodes.upOffset;
+
+            // Direction is UP
+            fd = new FloorNDirection(floor, Direction.UP);
+        } else {
+            // Subtracting 0
+            floor = destCode - SoftwareBusCodes.downOffset;
+
+            // Direction is DOWN
+            fd = new FloorNDirection(floor, Direction.DOWN);
+        }
+        if (floor < 1 || floor > 10) {
+            // Unexpected floor, print error message
+            System.out.println("ERROR in Buttons of Elevator " + ELEVATOR_ID +
+                    ", floor = " + floor + ", destCode = " + destCode);
         }
         destinations.add(fd);
     }
