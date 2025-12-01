@@ -63,6 +63,7 @@ public class SoftwareBusCodes {
     public static final int elevatorTwo = 2;
     public static final int elevatorThree = 3;
     public static final int elevatorFour = 4;
+    public static final int buildingMUX = 5;
 
     public static final int floorOne = 1;
     public static final int floorTwo = 2;
@@ -111,6 +112,12 @@ public class SoftwareBusCodes {
 
     public static final int normal = 0;
     public static final int overloaded = 1;
+
+    public static final int on = 1;
+    public static final int off = 0;
+
+    public static final int single = 0;
+    public static final int multiple = 1;
 
     public final static int downOffset = 0; // for down call button body:  1 - 10
     public final static int upOffset = 100; // for up call button body: 101 - 110

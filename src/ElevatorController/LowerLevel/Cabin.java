@@ -31,6 +31,8 @@ public class Cabin implements Runnable {
     private static final int TOPIC_BOTTOM_SENSOR = SoftwareBusCodes.bottomSensor;
     private static final int TOPIC_CABIN_POSITION = SoftwareBusCodes.cabinPosition;
     private static final int TOPIC_CURR_DIRECTION = SoftwareBusCodes.currDirection;
+    private static final int TOPIC_TOP_SEN = SoftwareBusCodes.topSensor;
+    private static final int TOPIC_BOTTOM_SEN = SoftwareBusCodes.bottomSensor;
 
     //Constants for cabin bodies
     private static final int STOP_MOTOR = 0;
@@ -76,15 +78,18 @@ public class Cabin implements Runnable {
      * @return the floor and direction of the elevator
      */
     public FloorNDirection currentStatus(){
-        // Todo: ok we handle motor moving in house and dont have a method to check if the motor is moving??
-        Message floorMessage = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_CABIN_POSITION);
-        Message directionMessage = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_CURR_DIRECTION);
-        currFloor = floorMessage.getBody();
-        int annoyingAF = directionMessage.getBody();
-        switch (annoyingAF){
-            case 0 -> currDirection = Direction.UP;
-            case 1 -> currDirection = Direction.DOWN;
-            case 2 -> currDirection = Direction.STOPPED;
+        bottomAlignment();
+        topAlignment();
+
+        switch (currDirection){
+            case UP -> {
+                // Going up -> current floor based on top of floor sensors
+               currFloor = topAlign / 2 + 1;
+            }
+            case DOWN -> {
+                // Going down -> current floor based on bottom of floor sensors
+                currFloor = botAlign / 2 + 1;
+            }
         }
         return new FloorNDirection(currFloor,currDirection);}
 
@@ -129,9 +134,6 @@ public class Cabin implements Runnable {
             //Reset time to stop
             timeToStop = null;
         }
-    }
-    private int closestFloor() {
-        return -69420;
     }
 
     /**

@@ -50,6 +50,7 @@ public class BuildingMultiplexor {
     private final Building bldg = new Building(10);;
     boolean[][] lastCallState = new boolean[bldg.totalFloors][3]; // Up/Down/Null
     private boolean lastFireState = false;
+    private final static int BUILDING_MUX_ID = SoftwareBusCodes.buildingMUX;
     int[] elevatorPos = new int[4];
 
     int DIR_UP = 0;
@@ -60,9 +61,9 @@ public class BuildingMultiplexor {
 
     // Initialize the MUX
     public void initialize() {
-        bus.subscribe(SoftwareBusCodes.fireAlarm, 0);
+        bus.subscribe(SoftwareBusCodes.fireAlarm, BUILDING_MUX_ID);
         bus.subscribe(SoftwareBusCodes.resetCall, 0);
-        bus.subscribe(SoftwareBusCodes.callsEnable, 0);
+        bus.subscribe(SoftwareBusCodes.callsEnable, BUILDING_MUX_ID);
 
         bus.subscribe(SoftwareBusCodes.cabinPosition, 1);
         bus.subscribe(SoftwareBusCodes.cabinPosition, 2);
@@ -86,7 +87,7 @@ public class BuildingMultiplexor {
             while (true) {
 
                 Message msg;
-                msg = bus.get(SoftwareBusCodes.fireAlarm, 0);
+                msg = bus.get(SoftwareBusCodes.fireAlarm, BUILDING_MUX_ID);
                 if (msg != null) {
                     handleFireAlarm(msg);
                 }
@@ -95,7 +96,7 @@ public class BuildingMultiplexor {
                     handleCallReset(msg);
                 }
 
-                msg = bus.get(SoftwareBusCodes.callsEnable, 0);
+                msg = bus.get(SoftwareBusCodes.callsEnable, BUILDING_MUX_ID);
                 if (msg != null) {
                     handleCallEnable(msg);
                 }

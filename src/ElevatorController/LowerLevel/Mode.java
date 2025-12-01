@@ -33,6 +33,7 @@ public class Mode {
     private static final int TOPIC_FIRE_MODE = SoftwareBusCodes.fireMode;
     private static final int TOPIC_FIRE_ALARM =
             SoftwareBusCodes.fireAlarmActive;
+    private static final int TOPIC_SET_FIRE = SoftwareBusCodes.fireAlarm;
 
 
 
@@ -104,6 +105,12 @@ public class Mode {
                 currentMode = State.FIRE;
             }
             fireAlarm = softwareBus.get(TOPIC_FIRE_ALARM, elevatorID);
+        }
+
+        // Notify the MUX that the fire is active
+        if (currentMode == State.FIRE){
+            softwareBus.publish(new Message(TOPIC_SET_FIRE, elevatorID,
+                    SoftwareBusCodes.allElevators));
         }
     }
 
