@@ -59,7 +59,7 @@ public class ElevatorPanel extends VBox {
     private final ElevatorPanel.DirectionIndicatorPanel directionIndicator;
     private final Label currentFloorDisplay;
 
-    private static final double FLOOR_HEIGHT = 30.0;
+    private static final double FLOOR_HEIGHT = 20.0;
     private static final double FLOOR_SPACING = 3.0;
     private static final double TOTAL_FLOOR_HEIGHT = FLOOR_HEIGHT + FLOOR_SPACING;
     private static final double ANIMATION_SPEED_PER_FLOOR = 400.0; // ms per floor
