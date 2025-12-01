@@ -39,9 +39,9 @@ public class Mode {
 
     //TODO: handle these in software bus getter
     // Body for mode changes
-    private static final int BODY_CENTRALIZED_MODE  = CommandPanel.B_MODE_CEN;
-    private static final int BODY_NORMAL_MODE = CommandPanel.B_MODE_IND;
-    private static final int BODY_FIRE_MODE = CommandPanel.B_MODE_TF;
+    private static final int BODY_CENTRALIZED_MODE  = SoftwareBusCodes.centralized;
+    private static final int BODY_NORMAL_MODE = SoftwareBusCodes.normal;
+    private static final int BODY_FIRE_MODE = SoftwareBusCodes.fire;
 
     /**
      * Instantiate a Mode object
@@ -109,8 +109,10 @@ public class Mode {
 
         // Notify the MUX that the fire is active
         if (currentMode == State.FIRE){
+            //TODO are these bodies okay?
             softwareBus.publish(new Message(TOPIC_SET_FIRE, elevatorID,
-                    SoftwareBusCodes.allElevators));
+                    SoftwareBusCodes.emptyBody));
+            softwareBus.publish(new Message(TOPIC_SET_FIRE, SoftwareBusCodes.buildingMUX, SoftwareBusCodes.emptyBody));
         }
     }
 

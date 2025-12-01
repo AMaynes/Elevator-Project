@@ -24,20 +24,17 @@ public class DoorAssembly {
 
     // Constants for topic codes
     private static final int TOPIC_DOOR_CONTROL = SoftwareBusCodes.doorControl;
-    private static final int DOOR_SENSOR = SoftwareBusCodes.doorSensor;
-    private static final int CABIN_LOAD = SoftwareBusCodes.cabinLoad;
+    private static final int TOPIC_DOOR_SENSOR = SoftwareBusCodes.doorSensor;
+    private static final int TOPIC_CABIN_LOAD = SoftwareBusCodes.cabinLoad;
+    private static final int TOPIC_DOOR_STATUS = SoftwareBusCodes.doorStatus;
 
     //Constants for body codes
-    private static final int OPEN_CODE = 1;
-    private static final int CLOSE_CODE = 2;
-    private static final int OBSTRUCTED_CODE = 0;
-    private static final int NOT_OBSTRUCTED_CODE = 1;
-    private static final int FULLY_CLOSED_CODE = 2;
-    private static final int NOT_FULLY_CLOSED_CODE = 3;
-    private static final int FULLY_OPEN_CODE = 4;
-    private static final int NOT_FULLY_OPEN_CODE = 5;
-    private static final int OVER_CAPACITY_CODE = 0;
-    private static final int NOT_OVER_CAPACITY_CODE = 1;
+    private static final int OPEN_CODE = SoftwareBusCodes.doorOpen;
+    private static final int CLOSE_CODE = SoftwareBusCodes.doorClose;
+    private static final int OBSTRUCTED_CODE = SoftwareBusCodes.obstructed;
+    private static final int NOT_OBSTRUCTED_CODE = SoftwareBusCodes.clear;
+    private static final int OVER_CAPACITY_CODE = SoftwareBusCodes.overloaded;
+    private static final int NOT_OVER_CAPACITY_CODE = SoftwareBusCodes.normal;
 
     /**
      * Instantiate a DoorAssembly object, and run its thread
@@ -56,8 +53,9 @@ public class DoorAssembly {
         this.elevatorID = this.elevatorID;
 
         //Todo: (DOOR_STATUS or DOOR_SENSOR????????)
-        softwareBus.subscribe(DOOR_SENSOR, elevatorID);
-        softwareBus.subscribe(CABIN_LOAD, elevatorID);
+        softwareBus.subscribe(TOPIC_DOOR_SENSOR, elevatorID);
+        softwareBus.subscribe(TOPIC_CABIN_LOAD, elevatorID);
+        softwareBus.subscribe(TOPIC_DOOR_STATUS, elevatorID);
     }
 
     /**
@@ -83,7 +81,7 @@ public class DoorAssembly {
      */
     public boolean obstructed(){
         //Todo: ok so I assume this will return a message that says 0 for not obstructed and 1 if obstructed (DOOR_STATUS or DOOR_SENSOR????????)
-        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, DOOR_SENSOR);
+        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_DOOR_SENSOR);
         if (message != null ) {
             if (message.getBody() == OBSTRUCTED_CODE) obstructed = true;
             if (message.getBody() == NOT_OBSTRUCTED_CODE) obstructed = false;
@@ -96,10 +94,11 @@ public class DoorAssembly {
      */
     public boolean fullyClosed(){
         // Todo: assuming 3 for fully closed and 4 for not fully closed (DOOR_STATUS or DOOR_SENSOR????????)
-        Message message =  MessageHelper.pullAllMessages(softwareBus, elevatorID, DOOR_SENSOR);
+        Message message =  MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_DOOR_STATUS);
         if (message != null ) {
-            if (message.getBody() == FULLY_CLOSED_CODE) fullyClosed = true;
-            if (message.getBody() == NOT_FULLY_CLOSED_CODE) fullyClosed = false;
+            if (message.getBody() == OPEN_CODE) fullyClosed = false;
+            if (message.getBody() == CLOSE_CODE) fullyClosed = true;
+            else System.out.println("Unexpected body in SoftwareBusCodes.doorStatus Message in DoorAssembly: body = " + message.getBody());
         }
         return fullyClosed;
     }
@@ -109,10 +108,10 @@ public class DoorAssembly {
      */
     public boolean fullyOpen(){
         // Todo: assuming 5 for fully closed and 6 for not fully closed (DOOR_STATUS or DOOR_SENSOR????????)
-        Message message =  MessageHelper.pullAllMessages(softwareBus, elevatorID, DOOR_SENSOR);
+        Message message =  MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_DOOR_STATUS);
         if (message != null ) {
-            if (message.getBody() == FULLY_OPEN_CODE) fullyOpen = true;
-            if (message.getBody() == NOT_FULLY_OPEN_CODE) fullyOpen = false;
+            if (message.getBody() == OPEN_CODE) fullyOpen = true;
+            if (message.getBody() == OPEN_CODE) fullyOpen = false;
         }
         return fullyOpen;
     }
@@ -123,7 +122,7 @@ public class DoorAssembly {
      */
     public boolean overCapacity(){
         //Todo: assuming 0 for over capacity and 1 for not over capacity
-        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, CABIN_LOAD);
+        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_CABIN_LOAD);
         if (message != null ) {
             if (message.getBody() == OVER_CAPACITY_CODE) overCapacity = true;
             if (message.getBody() == NOT_OVER_CAPACITY_CODE) overCapacity = false;
