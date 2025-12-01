@@ -14,7 +14,7 @@ import Bus.*;
 
 public class ElevatorControlSystem extends Application {
 
-    private ElevatorPanel[] elevators;
+    private ElevatorPanel2[] elevators;
     private CommandCenter commandCenter;
     private CommandPanel commandPanel;
 
@@ -28,9 +28,9 @@ public class ElevatorControlSystem extends Application {
 
         commandPanel=new CommandPanel(commandCenter);
 
-        elevators = new ElevatorPanel[4];
+        elevators = new ElevatorPanel2[4];
         for (int i = 0; i < 4; i++) {
-            elevators[i] = new ElevatorPanel(i + 1, commandCenter); //Changed by team 6,7
+            elevators[i] = new ElevatorPanel2(i + 1, commandCenter); //Changed by team 6,7
 
         }
 
@@ -69,7 +69,7 @@ public class ElevatorControlSystem extends Application {
 
         root.setRight(commandPanel);
 
-        Scene scene = new Scene(root, 1200, 720);
+        Scene scene = new Scene(root, 1000, 660);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

@@ -51,10 +51,7 @@ public class CommandPanel extends GridPane {
     private final String fireBtnGlowOn  = "-fx-effect: dropshadow(gaussian, rgba(255,193,7,0.7), 18, 0.4, 0, 0);";
     private final String fireBtnGlowOff = "-fx-effect: none;";
 
-    // Encoded mode bodies (match SoftwareBusCodes.centralized / independent / fire)
-    public static final int B_MODE_CEN = 1000;
-    public static final int B_MODE_IND = 1100;
-    public static final int B_MODE_TF  = 1110;
+
 
     public CommandPanel(CommandCenter commandCenter) {
         this.commandCenter=commandCenter;

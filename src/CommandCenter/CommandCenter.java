@@ -120,6 +120,7 @@ public class CommandCenter {
      * Send Service Message
      */
     public void sendServiceMessage(int elevatorID, int floor) {
+        System.out.println("Sent service message for elevator: "+ elevatorID+ " to floor "+ floor);
         bus.publish(new Message(SERVICE_MESSAGE,elevatorID,floor));
     }
     /**
