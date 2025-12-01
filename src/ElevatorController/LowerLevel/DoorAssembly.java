@@ -50,7 +50,7 @@ public class DoorAssembly {
         this.fullyOpen = true;
         this.overCapacity = false;
         this.softwareBus = softwareBus;
-        this.elevatorID = this.elevatorID;
+        this.elevatorID = elevatorID;
 
         //Todo: (DOOR_STATUS or DOOR_SENSOR????????)
         softwareBus.subscribe(TOPIC_DOOR_SENSOR, elevatorID);
@@ -73,8 +73,8 @@ public class DoorAssembly {
      */
     public void close(){
         // correcct body for current mux 11/23/2025
-        System.out.println("Sending close message to the humble mux");
         softwareBus.publish(new Message(TOPIC_DOOR_CONTROL, elevatorID, CLOSE_CODE));
+
     }
 
     /**

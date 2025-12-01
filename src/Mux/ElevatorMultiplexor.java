@@ -92,8 +92,8 @@ public class ElevatorMultiplexor {
                 Message msg;
                 msg = bus.get(SoftwareBusCodes.doorControl, ID);
 
+
                 if (msg != null) {
-                    System.out.println("Got a door control message; "+ msg);
                     handleDoorControl(msg);
                 }
                 msg = bus.get(SoftwareBusCodes.displayFloor, ID);
@@ -106,6 +106,7 @@ public class ElevatorMultiplexor {
                 }
                 msg = bus.get(SoftwareBusCodes.carDispatch, ID);
                 if (msg != null) {
+
                     handleCarDispatch(msg);
                 }
                 msg = bus.get(SoftwareBusCodes.resetFloorSelection, ID);
@@ -185,6 +186,7 @@ public class ElevatorMultiplexor {
     // Poll and publish pressed floor buttons
     private void pollPressedFloors() {
         int targetFloor = elev.panel.getPressedFloor();
+        //System.out.println("Target Elevator in mux is "+ targetFloor);
         if (targetFloor != 0 && targetFloor != lastPressedFloor) {
             Message selectMsg = new Message(SoftwareBusCodes.cabinSelect, ID, targetFloor);
             bus.publish(selectMsg);
@@ -278,7 +280,6 @@ public class ElevatorMultiplexor {
 
     // Handle door control messages
     private void handleDoorControl(Message msg) {
-        System.out.println("Handling door control");
         int command = msg.getBody();
         Message positionMsg = null;
         if (command == 0) {

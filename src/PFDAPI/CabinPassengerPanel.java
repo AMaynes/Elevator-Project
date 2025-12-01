@@ -70,7 +70,9 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
      * @param floorNumber The floor being requested
      */
     public synchronized void pressFloorButton(int floorNumber) {
+        //System.out.println("IM HERE IM HERE");
         if (floorNumber >= 1 && floorNumber <= totalFloors && !floorButtons[floorNumber - 1]) {
+            //System.out.println("adding "+floorNumber+ " to pressed floors");
             floorButtons[floorNumber - 1] = true;
             pressedFloorsQueue.add(floorNumber);
             guiControl.pressPanelButton(carId, floorNumber);

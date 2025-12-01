@@ -3,6 +3,7 @@ package PFDGUI;
 import java.util.ArrayList;
 
 import ElevatorController.Util.State;
+import Mux.ElevatorMultiplexor;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -254,10 +255,9 @@ public class gui {
                 Platform.runLater(() -> {
                     if (direction.contains("UP")) {
                         callButtons[buttonIndex].elevCallButtonsImg.setImage(loader.imageList.get(15));
-                        System.out.println("UP button set on floor " + floorNumber);
                     } else if (direction.contains("DOWN")) {
                         callButtons[buttonIndex].elevCallButtonsImg.setImage(loader.imageList.get(14));
-                        System.out.println("DOWN button set on floor " + floorNumber);
+
                     }
                 });
             }
@@ -268,6 +268,9 @@ public class gui {
             int buttonIndex = floorNumber - 1;  // Convert floor number (1-10) to array index (0-9)
             if (buttonIndex >= 0 && buttonIndex < numFloors) {
                 Platform.runLater(() -> {
+                    if(callButtons[buttonIndex]==null){
+                        return;
+                    }
                     if(callButtons[buttonIndex].direction.equals("BOTH")) {
                         if(direction.equalsIgnoreCase("UP")) {
                             callButtons[buttonIndex].setDirection("DOWN");
@@ -370,12 +373,12 @@ public class gui {
         return primaryStage;
 //        primaryStage.show();
 
-        // Initialize multiplexors AFTER GUI is fully set up
-//        new Mux.BuildingMultiplexor();
-//        for (int i = 0; i < numElevators; i++) {
-//            elevatorMuxes[i] = new Mux.ElevatorMultiplexor(i + 1);  // Store the reference
-//        }
-//        System.out.println("All multiplexors initialized after GUI setup");
+
+    }
+
+    public void initilizeMuxs(ElevatorMultiplexor[] elevatorMuxes){
+        this.elevatorMuxes=elevatorMuxes;
+
     }
 
     private class Panel{

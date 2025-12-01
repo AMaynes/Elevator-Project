@@ -89,19 +89,6 @@ public class Cabin implements Runnable {
      * @return the floor and direction of the elevator
      */
     public FloorNDirection currentStatus(){
-        bottomAlignment();
-        topAlignment();
-
-        switch (currDirection){
-            case UP -> {
-                // Going up -> current floor based on top of floor sensors
-               currFloor = topAlign / 2 + 1;
-            }
-            case DOWN -> {
-                // Going down -> current floor based on bottom of floor sensors
-                currFloor = botAlign / 2 + 1;
-            }
-        }
         return new FloorNDirection(currFloor,currDirection);}
 
     /**
@@ -123,23 +110,32 @@ public class Cabin implements Runnable {
      * Main thread method, used to step towards a target floor
      */
     private synchronized void stepTowardsDest() {
+        if (ELEVATOR_ID == 7) {
+            System.out.println("MY DEST IS " + currDest);
+            System.out.println("IM AT " + currFloor);
+            System.out.println("My BOT sensor is " + botAlign+ " the humble convert "+sensorToFloor(botAlign));
+            System.out.println("My TOP sensor is " + topAlign+ " the humble convert "+sensorToFloor(topAlign));
+        }
         //Update alignment
         topAlignment();
         bottomAlignment();
+        updateCurrFloor();
         //Last sensor before stop
         boolean almostThere;
-        if (currDirection == Direction.UP) almostThere = sensorToFloor(botAlign) == currDest;
-        else almostThere = sensorToFloor(topAlign) == currDest;
+        if (currDirection == Direction.DOWN) almostThere = sensorToFloor(topAlign) == currDest;
+        else almostThere = sensorToFloor(botAlign) == currDest;
+        //System.out.println(motor + " "+almostThere);
         //Should time stop
         if (motor && almostThere) {
             //Time to stop!
+            System.out.println("ALMOST THERE WOAHHHHHHHHH");
             if (timeToStop != null && timeToStop.timeout()) stopMotor();
             //Determine time to stop
             else if (timeToStop == null) timeToStop = timeStop();
-        } else if (!motor){
+        } else if (!motor && currFloor != currDest){
             //Turn motor on if needed
             if (currFloor > currDest) currDirection = Direction.DOWN;
-            else currDirection = Direction.UP;
+            else if (currFloor!=currDest) currDirection = Direction.UP;
             startMotor(currDirection);
         } else {
             //Reset time to stop
@@ -168,6 +164,7 @@ public class Cabin implements Runnable {
 
     //Wrapper methods for software bus messages
     private void startMotor(Direction direction) {
+        System.out.println("TURNING ON OH GOD OH GOD HOLY SHIT");
         //We set the direction number based on current mux 11/23/2025
         motor = true;
         int dir = -1;
@@ -179,6 +176,7 @@ public class Cabin implements Runnable {
                         " calling startMotor() with invalid direction");
             }
         }
+
         softwareBus.publish(new Message(TOPIC_CAR_DISPATCH, ELEVATOR_ID, dir));
     }
 
@@ -186,6 +184,7 @@ public class Cabin implements Runnable {
      * Send message to MUX to stop the motor
      */
     private void stopMotor() {
+        System.out.println("AHAHA IM STOPPJINGNGGDSLKAKLDSAJKDSAJKDKASJKJDASKJDASKJDJAKJASDKJDSALKJghsajkdsb");
         motor = false;
         softwareBus.publish(new Message(TOPIC_CAR_STOP, ELEVATOR_ID, STOP_MOTOR));
     }
@@ -205,5 +204,25 @@ public class Cabin implements Runnable {
         Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_BOTTOM_SENSOR);
         if (message != null) botAlign = message.getBody();
     }
+
+    /**
+     * Estimates current floor based on sensors
+     * Rounds to next floor
+     */
+    private void updateCurrFloor() {
+        switch (currDirection){
+            case UP -> {
+                // Going up -> current floor based on top of floor sensors
+                currFloor = botAlign / 2 + 1;
+            }
+            case DOWN -> {
+                // Going down -> current floor based on bottom of floor sensors
+                currFloor = topAlign / 2 + 1;
+            }
+        }
+    }
+
+    //TODO: REMOVEEEEE
+    public int getID() {return ELEVATOR_ID;}
 
 }

@@ -72,8 +72,7 @@ public class Buttons {
         softwareBus.subscribe(TOPIC_HALL_CALL, elevatorID);
         softwareBus.subscribe(TOPIC_FIRE_KEY, elevatorID);
 
-        //Go to line 200 for explanation
-        startThread();
+
     }
 
     /**
@@ -183,6 +182,7 @@ public class Buttons {
      * @return next service direction and floor (direction non-null for call buttons, null for requests)
      */
     public FloorNDirection nextService(FloorNDirection floorNDirection) {
+        handleCabinSelect();
         currDirection = floorNDirection.direction();
         currFloor = floorNDirection.floor();
 
@@ -198,6 +198,9 @@ public class Buttons {
 
         //Determine floors not on the way
         List<FloorNDirection> unreachable = new ArrayList<>();
+        if(destinations.isEmpty()){
+            return null;
+        }
         int currServiceFloor = destinations.getFirst().getFloor();
 
         for (FloorNDirection fd : destinations) {
@@ -246,20 +249,8 @@ public class Buttons {
 
         return destinations.getFirst();
     }
-
-    // Guys trust me trust me
-    // I think we need a thread to update destinations
-    // I am adding a thread to pull messages for now we can change later
-    // If we don't have this thread we would need to add a public method to allow the
-    // processes to busy check. There's no other way to update the destinations
-    Runnable run = new Runnable() {
-        @Override
-        public void run() {
-            handleHallCall();
-            handleCabinSelect();
-            handleFireKey();
-        }
-    };
+    //TODO: HANDLE handleHallCall();
+    //            handleFireKey();
 
     /**
      * Get the fire key message from the MUX
@@ -285,12 +276,13 @@ public class Buttons {
      *  Get the cabin selection button presses from MUX
      */
     private void handleCabinSelect() {
-        Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_CABIN_SELECT);
-        if(message==null){
-            return;
+        Message message = softwareBus.get(TOPIC_CABIN_SELECT,ELEVATOR_ID);
+        while(message!=null){
+            int floor = message.getBody();
+            System.out.println("adding to destinations: "+floor);
+            destinations.add(new FloorNDirection(floor, null));
+            message=softwareBus.get(TOPIC_CABIN_SELECT,ELEVATOR_ID);
         }
-        int floor = message.getBody();
-        destinations.add(new FloorNDirection(floor, null));
     }
 
     /**
@@ -330,11 +322,6 @@ public class Buttons {
         destinations.add(fd);
     }
 
-    /**
-     * Start this Buttons object running
-     */
-    private void startThread(){
-        Thread t = new Thread(run);
-        t.start();
-    }
+
+
 }

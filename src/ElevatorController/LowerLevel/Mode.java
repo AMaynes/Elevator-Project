@@ -136,11 +136,14 @@ public class Mode {
     public FloorNDirection nextService(){
         int floor;
 
+
         Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_DESTINATION);
 
         if (message != null){
+
             // Update next floor service based on message
             floor = message.getBody();
+            System.out.println("Please take me to floor "+floor);
         } else {
             return currDestination;
         }

@@ -21,7 +21,7 @@ public class Main extends Application {
         int elevator3 = 3;
         int elevator4 = 4;
         SoftwareBus serverBus = new SoftwareBus(true);
-        SoftwareBus clientBus = new SoftwareBus(false);
+        //SoftwareBus clientBus = new SoftwareBus(false);
         elevatorControlSystem =new ElevatorControlSystem(serverBus);
 
 
@@ -30,16 +30,17 @@ public class Main extends Application {
         // multiplexer to be given a single client software bus. These
         // changes will need to be made to the init function and the
         // constructor for both objects.
-        BuildingMultiplexor buildingMultiplexor = new Mux.BuildingMultiplexor(clientBus);
+        BuildingMultiplexor buildingMultiplexor = new Mux.BuildingMultiplexor(serverBus);
         ElevatorMultiplexor[] elevatorMuxes = new ElevatorMultiplexor[4];
         for (int i = 0; i < numElevators; i++) {
-            elevatorMuxes[i] = new Mux.ElevatorMultiplexor(i + 1,clientBus);  // Store
+            elevatorMuxes[i] = new Mux.ElevatorMultiplexor(i + 1,serverBus);  // Store
             // the reference
         }
-        ElevatorMain em1 = new ElevatorMain(elevator1, clientBus);
-        ElevatorMain em2 = new ElevatorMain(elevator2, clientBus);
-        ElevatorMain em3 = new ElevatorMain(elevator3, clientBus);
-        ElevatorMain em4 = new ElevatorMain(elevator4, clientBus);
+        guiMux.initilizeMuxs(elevatorMuxes);
+        ElevatorMain em1 = new ElevatorMain(elevator1, serverBus);
+        ElevatorMain em2 = new ElevatorMain(elevator2, serverBus);
+        ElevatorMain em3 = new ElevatorMain(elevator3, serverBus);
+        ElevatorMain em4 = new ElevatorMain(elevator4, serverBus);
 
         Thread thread1 = new Thread(em1);
         Thread thread2 = new Thread(em2);
