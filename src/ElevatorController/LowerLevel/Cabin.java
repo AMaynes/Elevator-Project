@@ -173,22 +173,35 @@ public class Cabin implements Runnable {
         motor = true;
         int dir = -1;
         switch (direction) {
-            case UP -> dir = 0;
-            case DOWN -> dir = 1;
-            case STOPPED -> dir = -1;
+            case UP -> dir = SoftwareBusCodes.up;
+            case DOWN -> dir = SoftwareBusCodes.down;
+            default -> {
+                System.out.println("ERROR: Cabin " + ELEVATOR_ID +
+                        " calling startMotor() with invalid direction");
+            }
         }
         softwareBus.publish(new Message(TOPIC_CAR_DISPATCH, ELEVATOR_ID, dir));
     }
 
+    /**
+     * Send message to MUX to stop the motor
+     */
     private void stopMotor() {
         motor = false;
         softwareBus.publish(new Message(TOPIC_CAR_STOP, ELEVATOR_ID, STOP_MOTOR));
     }
 
+    /**
+     * Update topAlign variable via messages from the MUX
+     */
     private void topAlignment() {
        Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_TOP_FLOOR_SENSOR);
        if (message != null) topAlign = message.getBody();
     }
+
+    /**
+     * Update botAlign variable via messages from the MUX
+     */
     private void bottomAlignment() {
         Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_BOTTOM_SENSOR);
         if (message != null) botAlign = message.getBody();
