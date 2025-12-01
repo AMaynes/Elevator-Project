@@ -104,6 +104,9 @@ public class SoftwareBusCodes {
     public static final int down = 1;
     public static final int none = 2;
 
+    public static final int pulled = 1;
+    public static final int idle = 0;
+
     public static final int obstructed = 0;
     public static final int clear = 1;
 
