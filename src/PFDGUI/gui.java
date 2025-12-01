@@ -1,6 +1,8 @@
 package PFDGUI;
 
 import java.util.ArrayList;
+
+import ElevatorController.Util.State;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -24,7 +26,7 @@ import Util.imageLoader;
  * Simple JavaFX GUI that listens to model classes via a nested listener
  * interface and swaps images in response to events.
  */
-public class gui extends Application {
+public class gui {
     private int numElevators = 4; // Total number of elevators
     private int numFloors = 10; // Total number of floors
     private imageLoader loader; // Utility image loader
@@ -315,9 +317,8 @@ public class gui extends Application {
 
     private double scale = 0.8;
 
-    @Override
-    public void start(Stage primaryStage) {
-
+    public Stage getStage() {
+        Stage primaryStage = new Stage();
         // load images via utility
         loader = new imageLoader();
         loader.loadImages();
@@ -363,14 +364,15 @@ public class gui extends Application {
         Scene scene = new Scene(hbox, width, height, Color.web("#c0bfbbff"));
         primaryStage.setTitle("Elevator Passenger Devices");
         primaryStage.setScene(scene);
-        primaryStage.show();
+        return primaryStage;
+//        primaryStage.show();
 
         // Initialize multiplexors AFTER GUI is fully set up
-        new Mux.BuildingMultiplexor();
-        for (int i = 0; i < numElevators; i++) {
-            elevatorMuxes[i] = new Mux.ElevatorMultiplexor(i + 1);  // Store the reference
-        }
-        System.out.println("All multiplexors initialized after GUI setup");
+//        new Mux.BuildingMultiplexor();
+//        for (int i = 0; i < numElevators; i++) {
+//            elevatorMuxes[i] = new Mux.ElevatorMultiplexor(i + 1);  // Store the reference
+//        }
+//        System.out.println("All multiplexors initialized after GUI setup");
     }
 
     private class Panel{
@@ -679,9 +681,9 @@ public class gui extends Application {
      ****************************************
      */
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+//    public static void main(String[] args) {
+//        launch(args);
+//    }
 
 
 }
