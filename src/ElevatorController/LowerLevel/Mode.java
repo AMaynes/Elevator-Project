@@ -96,6 +96,11 @@ public class Mode {
             case BODY_NORMAL_MODE -> currentMode = State.NORMAL;
         }
 
+        //TODO: do we have to send messages to the MUX?
+        //Jackie: Also, don't worry about sending Fire Alarm to each elevator
+        // when fire mode is activated by the pfd GUI specifically. The building
+        // mux handles that automatically. They will need to be sent if you're doing
+        // it via the control center, however @Val
         state = fireMessage.getBody();
         if (state == SoftwareBusCodes.pulled){
             softwareBus.publish(new Message(TOPIC_FIRE_MODE, ELEVATOR_ID,
