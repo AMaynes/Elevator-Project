@@ -15,23 +15,23 @@ import java.util.List;
  * buttons on each level. These button events are being received via the software bus.
  * The buttons object does not post any messages to the Software Bus.
  */
-
-// OK I need to call someone to talk about the buttons functionality. It might be worth waiting until sunday
 public class Buttons {
     private boolean callEnabled;
     private boolean multipleRequests;
-    private int elevatorID;
-    private List<FloorNDirection> destinations;
-    private SoftwareBus softwareBus;
+    private final int ELEVATOR_ID;
+    private final List<FloorNDirection> destinations;
+    private final SoftwareBus softwareBus;
     private int currFloor;
     private Direction currDirection;
     private boolean fireKey = false;
 
-    // Software Bus Topics
+    //  *** Software Bus Topics ***
+    // Recieving from MUX
     private final static int TOPIC_HALL_CALL = SoftwareBusCodes.hallCall; // buttons in the halls
     private final static int TOPIC_CABIN_SELECT = SoftwareBusCodes.cabinSelect; // button events in the cabin
-    private final static int TOPIC_FIRE_KEY = SoftwareBusCodes.fireKey;
-    private final static int TOPIC_CABIN_LOAD = SoftwareBusCodes.cabinLoad;
+    private final static int TOPIC_FIRE_KEY = SoftwareBusCodes.fireKey; //TODO: handle fire key messages
+
+    //Sending to MUX
     private final static int TOPIC_RESET_CALL = SoftwareBusCodes.resetCall;
     private final static int RESET_FLOOR_SELECTION = SoftwareBusCodes.resetFloorSelection;
     private final static int TOPIC_CALLS_ENABLED = SoftwareBusCodes.callsEnable;
@@ -40,12 +40,10 @@ public class Buttons {
     private final static int TOPIC_SELECTION_TYPE =
             SoftwareBusCodes.selectionsType;
 
-    // FIRE_KEY BODY
-    private final static int BODY_F_KEY_ACTIVE   = SoftwareBusCodes.active; //TODO make elevator mux have this as public constant
+    // Bodies for the fire key
+    private final static int BODY_F_KEY_ACTIVE   = SoftwareBusCodes.active;
     private final static int BODY_F_KEY_INACTIVE = SoftwareBusCodes.inactive;
-    // CABIN_LOAD Body
-    private final static int BODY_CABIN_OVERLOADED = SoftwareBusCodes.overloaded; //TODO: make elevator mux have this as public constant
-    private final static int BODY_CABIN_UNDERLOADED = SoftwareBusCodes.normal;
+
 
     /**
      * Instantiate a Buttons Object
@@ -54,17 +52,25 @@ public class Buttons {
      * @param softwareBus the means of communication
      */
     public Buttons(int elevatorID, SoftwareBus softwareBus) {
+        switch (elevatorID) {
+            case 1, 2, 3, 4:
+                break;
+            default:
+                System.out.println("ERRROR: Invalid elevator ID");
+        }
+
         // Assuming normal mode settings initially
         this.callEnabled = true;
         this.multipleRequests = true;
 
         this.destinations = new ArrayList<>();
         this.softwareBus = softwareBus;
-        this.elevatorID = elevatorID;
+        this.ELEVATOR_ID = elevatorID;
 
         // Subscribing
         softwareBus.subscribe(TOPIC_CABIN_SELECT, elevatorID);
-        softwareBus.subscribe(TOPIC_HALL_CALL, TOPIC_CABIN_LOAD);
+        softwareBus.subscribe(TOPIC_HALL_CALL, elevatorID);
+        softwareBus.subscribe(TOPIC_FIRE_KEY, elevatorID);
 
         //Go to line 200 for explanation
         startThread();
@@ -82,7 +88,7 @@ public class Buttons {
 
         //Cabin Button Reset
         if (floorNDirection.direction() == null) {
-            softwareBus.publish(new Message(RESET_FLOOR_SELECTION, elevatorID, floorNDirection.floor()));
+            softwareBus.publish(new Message(RESET_FLOOR_SELECTION, ELEVATOR_ID, floorNDirection.floor()));
             destinations.remove(floorNDirection);
             return;
         }
@@ -107,7 +113,7 @@ public class Buttons {
         // I am going to assume these ar the buttons inside the cabin
         // we may want to consider keeping track of what buttons are on with an array of booleans
         // this could reduce clutter so we only call publish if the array contains true at the index of the floor
-        softwareBus.publish(new Message(TOPIC_RESET_CALL, elevatorID, floor));
+        softwareBus.publish(new Message(TOPIC_RESET_CALL, ELEVATOR_ID, floor));
     }
 
     /**
@@ -139,9 +145,9 @@ public class Buttons {
      */
     public void enableAllRequests(){
         // Notify MUX
-        softwareBus.publish(new Message(TOPIC_REQS_ENABLED, elevatorID,
+        softwareBus.publish(new Message(TOPIC_REQS_ENABLED, ELEVATOR_ID,
                 SoftwareBusCodes.on));
-        softwareBus.publish(new Message(TOPIC_SELECTION_TYPE, elevatorID,
+        softwareBus.publish(new Message(TOPIC_SELECTION_TYPE, ELEVATOR_ID,
                 SoftwareBusCodes.multiple));
 
         // Set local variable
@@ -153,9 +159,9 @@ public class Buttons {
      */
     public void enableSingleRequest(){
         // Notify MUX
-        softwareBus.publish(new Message(TOPIC_REQS_ENABLED, elevatorID,
+        softwareBus.publish(new Message(TOPIC_REQS_ENABLED, ELEVATOR_ID,
                 SoftwareBusCodes.on));
-        softwareBus.publish(new Message(TOPIC_SELECTION_TYPE, elevatorID,
+        softwareBus.publish(new Message(TOPIC_SELECTION_TYPE, ELEVATOR_ID,
                 SoftwareBusCodes.single));
 
         // Set local variable
@@ -186,7 +192,7 @@ public class Buttons {
         if (!multipleRequests) {
             FloorNDirection nextService = destinations.get(0);
             destinations.clear();
-            destinations.add(nextService);
+            destinations.add(nextService); //TODO: this seems incorrect?
             return nextService;
         }
 
@@ -251,11 +257,35 @@ public class Buttons {
         public void run() {
             handleHallCall();
             handleCabinSelect();
+            handleFireKey();
         }
     };
 
+    /**
+     * Get the fire key message from the MUX
+     */
+    private void handleFireKey() {
+        // Most recent fire key message
+        Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_FIRE_KEY);
+
+        if (message != null) {
+            // If a message exist, use it to update the local fire key variable
+            switch (message.getBody()){
+                case SoftwareBusCodes.active -> fireKey = true;
+                case SoftwareBusCodes.off -> fireKey = false;
+                default -> {
+                    fireKey = false;
+                    System.out.println("Unexpected Body in Buttons, TOPIC_FIRE_KEY, body = " + message.getBody());
+                }
+            }
+        };
+    }
+
+    /**
+     *  Get the cabin selection button presses from MUX
+     */
     private void handleCabinSelect() {
-        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_CABIN_SELECT);
+        Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_CABIN_SELECT);
         int floor = message.getBody();
         FloorNDirection fd;
         if (floor < currFloor){
@@ -266,8 +296,11 @@ public class Buttons {
         destinations.add(fd);
     }
 
+    /**
+     *  get the hall call button presses from MUX
+     */
     private void handleHallCall() {
-        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_HALL_CALL);
+        Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_HALL_CALL);
         int floor = message.getSubTopic();
         int dir = message.getBody();
         FloorNDirection fd;
@@ -279,6 +312,9 @@ public class Buttons {
         destinations.add(fd);
     }
 
+    /**
+     * Start this Buttons object running
+     */
     private void startThread(){
         Thread t = new Thread(run);
         t.start();
