@@ -50,7 +50,7 @@ public class ElevatorMultiplexor {
         bus.subscribe(SoftwareBusCodes.selectionsEnable, ID);
         bus.subscribe(SoftwareBusCodes.selectionsType, ID);
         bus.subscribe(SoftwareBusCodes.playSound, ID);
-        bus.subscribe(SoftwareBusCodes.fireAlarm, 0);
+        bus.subscribe(SoftwareBusCodes.fireAlarm, ID);
 
         System.out.println("ElevatorMUX " + ID + " initialized and subscribed");
         startBusPoller();
@@ -101,11 +101,11 @@ public class ElevatorMultiplexor {
                 if (msg != null) {
                     handleSelectionType(msg);
                 }
-                msg = bus.get(SoftwareBusCodes.playSound, 0);
+                msg = bus.get(SoftwareBusCodes.playSound, ID);
                 if (msg != null) {
                     handlePlaySound(msg);
                 }
-                msg = bus.get(SoftwareBusCodes.fireAlarm, 0);
+                msg = bus.get(SoftwareBusCodes.fireAlarm, ID);
                 if (msg != null) {
                     handleFireAlarm(msg);
                 }

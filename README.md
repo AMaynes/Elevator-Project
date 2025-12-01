@@ -65,14 +65,14 @@ Topic | Meaning           |Subtopic (1 int)| Body (1 int) | Meaning of Body   | 
 102	  |Car dispatch	      |1,2,3,4 (elevID)| 0/1	      |0=up 1=down	      | Elevator MUX     | Cabin
 103	  |Car stop	          |1,2,3,4 (elevID)| 0	          |stop car	          | Elevator MUX     | Cabin
 109	  |Selection reset	  |1,2,3,4 (elevID)| 1-10	      |Floor number	      | Elevator MUX     | Buttons
-110	  |Call reset	      |1 to 10 (floor#)| 0/1	      |0=up 1=down        | Building MUX     | Buttons
+110	  |Call reset	      |5               |(0-9)0/(0-9)1 |0=up 1=down 1st=flr| Building MUX     | Buttons
 111	  |Display floor	  |1,2,3,4 (elevID)| 1-10	      |Floor number	      | Elevator MUX     | Cabin
 112	  |Display direction  |1,2,3,4 (elevID)| 0/1/2	      |0=up 1=down 2=none | Elevator MUX     | Cabin
-113	  |Calls Enabled	  |0	           | 0/1	      |0=disabled1=enabled| Building MUX     | Buttons
+113	  |Calls Enabled	  |5	           | 0/1	      |0=disabled1=enabled| Building MUX     | Buttons
 114	  |Selections Enabled |1,2,3,4 (elevID)| 0/1	      |0=disabled1=enabled| Elevator MUX     | Buttons
 115	  |Selections type	  |1,2,3,4 (elevID)| 0/1	      |0=single1=multiple |	Elevator MUX     | Buttons
 116	  |Play sound	      |1,2,3,4 (elevID)| 0/1          |0=arrival1=overload| Elevator MUX     | Notifier
-120	  |Fire Alarm	      |0	           | 0/1	      |0=off 1=on         | Building MUX     | Mode
+120	  |Fire Alarm	      |1,2,3,4,5	   | 0/1	      |0=off 1=on         | Building MUX     | Mode
 
 200	  |Hall call	      |1,2,3,4 (elevID)| 101-110,1-10 |>100=up <100=down  | Buttons	         | Building MUX
 201	  |Cabin select	      |1,2,3,4 (elevID)| 1-10	      |Floor number	      | Buttons	         | Elevator MUX
@@ -83,7 +83,7 @@ Topic | Meaning           |Subtopic (1 int)| Body (1 int) | Meaning of Body   | 
 206	  |Fire Key	          |1,2,3,4 (elevID)| 0/1	      |0=inactive1=active | Mode	         | Elevator MUX	
 207	  |Car direction	  |1,2,3,4 (elevID)| 0/1/2	      |0=up1=down2=none   | Cabin	         | Elevator MUX
 208	  |Car movement	      |1,2,3,4 (elevID)| 0/1	      |0=idle 1=moving	  | Cabin	         | Elevator MUX
-209	  |Fire alarm active  |0	           | 0/1	      |0=idle 1=pulled	  | Mode	         | Building MUX
+209	  |Fire alarm active  |5	           | 0/1	      |0=idle 1=pulled	  | Mode	         | Building MUX
 210	  |Top Sensor trig.   |1,2,3,4 (elevID)| 0-19 odd	  |Sensor ID	      | Cabin	         | Elevator MUX
 211	  |Bottom Sensor trig.|1,2,3,4 (elevID)| 0-19 even	  |Sensor ID	      | Cabin	         | Elevator MUX
 ```
