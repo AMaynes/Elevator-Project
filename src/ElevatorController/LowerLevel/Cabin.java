@@ -17,34 +17,46 @@ import Message.MessageHelper;
 public class Cabin implements Runnable {
     private int currDest;
     private Direction currDirection;
-    private int elevatorID;
+    private int ELEVATOR_ID;
     private int currFloor;
     private int topAlign;
     private int botAlign;
     private boolean motor;
     private SoftwareBus softwareBus;
 
-    // Constants for cabin topic
+    // *** Constants for cabin topic ***
+    // Sending to the MUX
     private static final int TOPIC_CAR_STOP = SoftwareBusCodes.carStop;
     private static final int TOPIC_CAR_DISPATCH = SoftwareBusCodes.carDispatch;
+
+    // Recieving from the MUX
     private static final int TOPIC_TOP_FLOOR_SENSOR = SoftwareBusCodes.topSensor;
     private static final int TOPIC_BOTTOM_SENSOR = SoftwareBusCodes.bottomSensor;
-    private static final int TOPIC_CABIN_POSITION = SoftwareBusCodes.cabinPosition;
-    private static final int TOPIC_CURR_DIRECTION = SoftwareBusCodes.currDirection;
-    private static final int TOPIC_TOP_SEN = SoftwareBusCodes.topSensor;
-    private static final int TOPIC_BOTTOM_SEN = SoftwareBusCodes.bottomSensor;
 
     //Constants for cabin bodies
     private static final int STOP_MOTOR = 0;
     private static final int START_MOTOR = 1;
 
+    /**
+     * Instanciate the Cabin
+     * @param elevatorID the elevator associated with this cabin (1 to 4)
+     * @param softwareBus the softwareBus associated with the entire system
+     */
     public Cabin(int elevatorID, SoftwareBus softwareBus){
-        //TODO call subscribe on softwareBus w/ relevant topic/subtopic
-
+        switch (elevatorID) {
+            case 1, 2, 3, 4:
+                break;
+            default:
+                System.out.println("ERRROR: Invalid elevator ID");
+        }
         this.softwareBus = softwareBus;
         this.currDest = 0;
         this.currDirection = Direction.STOPPED;
-        this.elevatorID = elevatorID;
+        this.ELEVATOR_ID = elevatorID;
+
+        //Subscribing
+        softwareBus.subscribe(TOPIC_TOP_FLOOR_SENSOR, ELEVATOR_ID);
+        softwareBus.subscribe(TOPIC_BOTTOM_SENSOR, ELEVATOR_ID);
 
         //Start Cabin Thread
         Thread thread = new Thread(this);
@@ -56,7 +68,6 @@ public class Cabin implements Runnable {
      */
     @Override
     public void run() {
-        //Todo: papa bird, mama bird! Check if the alignment logic is right please please
         while (true) {
             stepTowardsDest();
             System.out.println(""); // <- why?
@@ -161,24 +172,37 @@ public class Cabin implements Runnable {
         motor = true;
         int dir = -1;
         switch (direction) {
-            case UP -> dir = 0;
-            case DOWN -> dir = 1;
-            case STOPPED -> dir = -1;
+            case UP -> dir = SoftwareBusCodes.up;
+            case DOWN -> dir = SoftwareBusCodes.down;
+            default -> {
+                System.out.println("ERROR: Cabin " + ELEVATOR_ID +
+                        " calling startMotor() with invalid direction");
+            }
         }
-        softwareBus.publish(new Message(TOPIC_CAR_DISPATCH, elevatorID, dir));
+        softwareBus.publish(new Message(TOPIC_CAR_DISPATCH, ELEVATOR_ID, dir));
     }
 
+    /**
+     * Send message to MUX to stop the motor
+     */
     private void stopMotor() {
         motor = false;
-        softwareBus.publish(new Message(TOPIC_CAR_STOP, elevatorID, STOP_MOTOR));
+        softwareBus.publish(new Message(TOPIC_CAR_STOP, ELEVATOR_ID, STOP_MOTOR));
     }
 
+    /**
+     * Update topAlign variable via messages from the MUX
+     */
     private void topAlignment() {
-       Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_TOP_FLOOR_SENSOR);
+       Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_TOP_FLOOR_SENSOR);
        if (message != null) topAlign = message.getBody();
     }
+
+    /**
+     * Update botAlign variable via messages from the MUX
+     */
     private void bottomAlignment() {
-        Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_BOTTOM_SENSOR);
+        Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_BOTTOM_SENSOR);
         if (message != null) botAlign = message.getBody();
     }
 

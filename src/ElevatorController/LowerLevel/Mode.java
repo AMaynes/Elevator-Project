@@ -2,10 +2,10 @@ package ElevatorController.LowerLevel;
 
 import Bus.SoftwareBus;
 import Bus.SoftwareBusCodes;
-import CommandCenter.CommandPanel;
 import ElevatorController.Util.FloorNDirection;
 import ElevatorController.Util.State;
 import Message.Message;
+import Message.MessageHelper;
 
 /**
  * The mode serves as a means for the Elevator Controller to be put into and track its current mode.
@@ -19,13 +19,13 @@ import Message.Message;
  *         3 - CONTROLLED
  */
 public class Mode {
-    private final int elevatorID;
+    private final int ELEVATOR_ID;
     private SoftwareBus softwareBus;
     private State currentMode;
     private FloorNDirection currDestination;
 
     // Topic Constants
-    private static final int TOPIC_START = SoftwareBusCodes.elevatorOnOff;
+    private static final int TOPIC_ON_OFF = SoftwareBusCodes.elevatorOnOff;
     //TODO: do we need to handle a SYSTEM_RESET message?
     private static final int TOPIC_MODE = SoftwareBusCodes.setMode;
     private static final int TOPIC_DESTINATION =
@@ -35,9 +35,8 @@ public class Mode {
             SoftwareBusCodes.fireAlarmActive;
     private static final int TOPIC_SET_FIRE = SoftwareBusCodes.fireAlarm;
 
-
-
     //TODO: handle these in software bus getter
+
     // Body for mode changes
     private static final int BODY_CENTRALIZED_MODE  = SoftwareBusCodes.centralized;
     private static final int BODY_NORMAL_MODE = SoftwareBusCodes.normal;
@@ -52,7 +51,7 @@ public class Mode {
     public Mode(int elevatorID, SoftwareBus softwareBus) {
         //TODO call subscribe on softwareBus w/ relevant topic/subtopic
         this.softwareBus = softwareBus;
-        this.elevatorID = elevatorID;
+        this.ELEVATOR_ID = elevatorID;
 
         this.currDestination = null;
 
@@ -60,7 +59,7 @@ public class Mode {
         this.currentMode = State.NORMAL;
 
         // Subscribe to relevant topics, subtopic is elevatorID
-        softwareBus.subscribe(TOPIC_START, elevatorID);
+        softwareBus.subscribe(TOPIC_ON_OFF, elevatorID);
         softwareBus.subscribe(TOPIC_MODE, elevatorID);
         softwareBus.subscribe(TOPIC_DESTINATION, elevatorID);
         softwareBus.subscribe(TOPIC_FIRE_ALARM, elevatorID);
@@ -82,35 +81,37 @@ public class Mode {
      */
     private void setCurrentMode(){
         // From the Command Center
-        Message message = softwareBus.get(TOPIC_MODE,elevatorID);
-        // From the MUX
-        Message fireAlarm = softwareBus.get(TOPIC_FIRE_ALARM, elevatorID);
+        Message modeMessage =  MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_MODE);
 
-        // Update current mode based on software bus messages sent by Command
-        // Center
-        while (message != null){
-            int state = message.getBody();
-            switch (state){
-                case BODY_CENTRALIZED_MODE -> currentMode = State.CONTROL;
-                case BODY_NORMAL_MODE -> currentMode = State.NORMAL;
-            }
-            message = softwareBus.get(TOPIC_MODE,elevatorID);
+        // From the MUX, was the fire alarm pulled?
+        Message fireMessage =  MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_FIRE_ALARM);
+
+        // From the Command Center, On/Off
+        Message onOffMessage = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_ON_OFF);
+
+
+        int state = modeMessage.getBody();
+        switch (state){
+            case BODY_CENTRALIZED_MODE -> currentMode = State.CONTROL;
+            case BODY_NORMAL_MODE -> currentMode = State.NORMAL;
         }
-        // In fire mode if the fire alarm is pulled (sent by MUX)
-        while(fireAlarm != null){
-            if(fireAlarm.getBody() == 1){
-                //Notify the command center
-                softwareBus.publish(new Message(TOPIC_FIRE_MODE, elevatorID,
+
+        state = fireMessage.getBody();
+        if (state == SoftwareBusCodes.pulled){
+            softwareBus.publish(new Message(TOPIC_FIRE_MODE, ELEVATOR_ID,
                         SoftwareBusCodes.emptyBody));
-                currentMode = State.FIRE;
-            }
-            fireAlarm = softwareBus.get(TOPIC_FIRE_ALARM, elevatorID);
+            currentMode = State.FIRE;
+        }
+
+        state = onOffMessage.getBody();
+        if (state == SoftwareBusCodes.off){
+            currentMode = State.OFF;
         }
 
         // Notify the MUX that the fire is active
         if (currentMode == State.FIRE){
             //TODO are these bodies okay?
-            softwareBus.publish(new Message(TOPIC_SET_FIRE, elevatorID,
+            softwareBus.publish(new Message(TOPIC_SET_FIRE, ELEVATOR_ID,
                     SoftwareBusCodes.emptyBody));
             softwareBus.publish(new Message(TOPIC_SET_FIRE, SoftwareBusCodes.buildingMUX, SoftwareBusCodes.emptyBody));
         }
@@ -121,13 +122,12 @@ public class Mode {
      * @return
      */
     public FloorNDirection nextService(){
-        //TODO needs Command Center stuff
         int floor = -1;
-        Message message = softwareBus.get(TOPIC_DESTINATION, elevatorID);
+        Message message = softwareBus.get(TOPIC_DESTINATION, ELEVATOR_ID);
         //Checks to see if there is a new message for the destination
         while(message != null){
             floor = message.getBody();
-            message = softwareBus.get(TOPIC_DESTINATION , elevatorID);
+            message = softwareBus.get(TOPIC_DESTINATION , ELEVATOR_ID);
         }
         //When there is no next service given
         if (floor == -1) {
@@ -135,5 +135,4 @@ public class Mode {
         }
 
         return new FloorNDirection(floor, null);}
-
 }
