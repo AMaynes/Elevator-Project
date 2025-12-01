@@ -27,15 +27,16 @@ public class Main extends Application {
         // multiplexer to be given a single client software bus. These
         // changes will need to be made to the init function and the
         // constructor for both objects.
-//        BuildingMultiplexor buildingMultiplexor =new Mux.BuildingMultiplexor();
-//        ElevatorMultiplexor[] elevatorMuxes = new ElevatorMultiplexor[4];
-//        for (int i = 0; i < numElevators; i++) {
-//            elevatorMuxes[i] = new Mux.ElevatorMultiplexor(i + 1);  // Store the reference
-//        }
-//        ElevatorMain em1 = new ElevatorMain(elevator1, clientBus);
-//        ElevatorMain em2 = new ElevatorMain(elevator2, clientBus);
-//        ElevatorMain em3 = new ElevatorMain(elevator3, clientBus);
-//        ElevatorMain em4 = new ElevatorMain(elevator4, clientBus);
+        BuildingMultiplexor buildingMultiplexor = new Mux.BuildingMultiplexor(clientBus);
+        ElevatorMultiplexor[] elevatorMuxes = new ElevatorMultiplexor[4];
+        for (int i = 0; i < numElevators; i++) {
+            elevatorMuxes[i] = new Mux.ElevatorMultiplexor(i + 1,clientBus);  // Store
+            // the reference
+        }
+        ElevatorMain em1 = new ElevatorMain(elevator1, clientBus);
+        ElevatorMain em2 = new ElevatorMain(elevator2, clientBus);
+        ElevatorMain em3 = new ElevatorMain(elevator3, clientBus);
+        ElevatorMain em4 = new ElevatorMain(elevator4, clientBus);
 
         launch(args);
 
