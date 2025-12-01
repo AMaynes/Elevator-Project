@@ -40,6 +40,9 @@ public class Buttons {
     private final static int TOPIC_SELECTION_TYPE =
             SoftwareBusCodes.selectionsType;
 
+    //Subtopic for sending to Building MUX
+    private final static int SUBTOPIC_BUILD_MUX = SoftwareBusCodes.buildingMUX;
+
     // Bodies for the fire key
     private final static int BODY_F_KEY_ACTIVE   = SoftwareBusCodes.active;
     private final static int BODY_F_KEY_INACTIVE = SoftwareBusCodes.inactive;
@@ -91,13 +94,95 @@ public class Buttons {
             destinations.remove(floorNDirection);
             return;
         }
-        //Floor Button Reset
-        switch(floorNDirection.direction()){
-            case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, floorNDirection.floor(), 0));
-            case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, floorNDirection.floor(), 1));
-            // if direction is not up or down handle with grace!
-            default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
 
+        //Floor Button Reset
+
+        switch(floorNDirection.floor()){
+//            case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, 0));
+//            case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, 1));
+//            // if direction is not up or down handle with grace!
+//            default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
+            case 1 -> {
+                switch(floorNDirection.direction()) {
+                    case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset1Up));
+                    case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset1Down));
+                    // if direction is not up or down handle with grace!
+                    default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
+                }
+            }
+            case 2 -> {
+                switch(floorNDirection.direction()) {
+                    case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset2Up));
+                    case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset2Down));
+                    // if direction is not up or down handle with grace!
+                    default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
+                }
+            }
+            case 3 -> {
+                switch(floorNDirection.direction()) {
+                    case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset3Up));
+                    case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset3Down));
+                    // if direction is not up or down handle with grace!
+                    default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
+                }
+            }
+            case 4 -> {
+                switch(floorNDirection.direction()) {
+                    case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset4Up));
+                    case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset4Down));
+                    // if direction is not up or down handle with grace!
+                    default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
+                }
+            }
+            case 5 -> {
+                switch(floorNDirection.direction()) {
+                    case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset5Up));
+                    case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset5Down));
+                    // if direction is not up or down handle with grace!
+                    default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
+                }
+            }
+            case 6 -> {
+                switch(floorNDirection.direction()) {
+                    case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset6Up));
+                    case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset6Down));
+                    // if direction is not up or down handle with grace!
+                    default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
+                }
+            }
+            case 7 -> {
+                switch(floorNDirection.direction()) {
+                    case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset7Up));
+                    case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset7Down));
+                    // if direction is not up or down handle with grace!
+                    default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
+                }
+            }
+            case 8 -> {
+                switch(floorNDirection.direction()) {
+                    case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset8Up));
+                    case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset8Down));
+                    // if direction is not up or down handle with grace!
+                    default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
+                }
+            }
+            case 9 -> {
+                switch(floorNDirection.direction()) {
+                    case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset9Up));
+                    case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset9Down));
+                    // if direction is not up or down handle with grace!
+                    default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
+                }
+            }
+            case 10 -> {
+                switch(floorNDirection.direction()) {
+                    case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset10Up));
+                    case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset10Down));
+                    // if direction is not up or down handle with grace!
+                    default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
+                }
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
         }
         destinations.remove(floorNDirection);
     }

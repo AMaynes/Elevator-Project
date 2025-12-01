@@ -125,6 +125,29 @@ public class SoftwareBusCodes {
     public static final int single = 0;
     public static final int multiple = 1;
 
-    public final static int downOffset = 0; // for down call button body:  1 - 10
-    public final static int upOffset = 100; // for up call button body: 101 - 110
+    public static final int downOffset = 0; // for down call button body:  1 - 10
+    public static final int upOffset = 100; // for up call button body: 101 - 110
+
+    //BODIES for TOPIC: resetCall
+    public static final int reset1Up = 00;
+    public static final int reset2Up = 10;
+    public static final int reset3Up = 20;
+    public static final int reset4Up = 30;
+    public static final int reset5Up = 40;
+    public static final int reset6Up = 50;
+    public static final int reset7Up = 60;
+    public static final int reset8Up = 70;
+    public static final int reset9Up = 80;
+    public static final int reset10Up = 90;
+
+    public static final int reset1Down= 01;
+    public static final int reset2Down = 11;
+    public static final int reset3Down = 21;
+    public static final int reset4Down = 31;
+    public static final int reset5Down = 41;
+    public static final int reset6Down = 51;
+    public static final int reset7Down = 61;
+    public static final int reset8Down = 71;
+    public static final int reset9Down = 81;
+    public static final int reset10Down = 91;
 }
