@@ -116,6 +116,9 @@ public class SoftwareBusCodes {
     public static final int normal = 0;
     public static final int overloaded = 1;
 
+    public static final int arrivalNoise = 0;
+    public static final int overloadNoise = 1;
+
     public static final int on = 1;
     public static final int off = 0;
 
