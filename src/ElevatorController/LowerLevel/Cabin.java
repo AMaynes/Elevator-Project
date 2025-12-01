@@ -70,7 +70,7 @@ public class Cabin implements Runnable {
     public void run() {
         while (true) {
             stepTowardsDest();
-            System.out.println(""); // <- why?
+            System.out.printf(""); // <- why?
         }
     }
 

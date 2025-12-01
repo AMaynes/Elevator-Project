@@ -41,6 +41,15 @@ public class Main extends Application {
         ElevatorMain em3 = new ElevatorMain(elevator3, clientBus);
         ElevatorMain em4 = new ElevatorMain(elevator4, clientBus);
 
+        Thread thread1 = new Thread(em1);
+        Thread thread2 = new Thread(em2);
+        Thread thread3 = new Thread(em3);
+        Thread thread4 = new Thread(em4);
+        thread1.start();
+        thread2.start();
+        thread3.start();
+        thread4.start();
+
         launch(args);
 
     }
