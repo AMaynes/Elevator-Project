@@ -2,9 +2,7 @@ package PFDGUI;
 
 import java.util.ArrayList;
 
-import ElevatorController.Util.State;
 import Mux.ElevatorMultiplexor;
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.stage.Screen;

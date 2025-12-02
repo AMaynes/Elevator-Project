@@ -1,4 +1,4 @@
-package ElevatorController.Util;
+package EC.Util;
 
 public class Timer {
     private final long timeout;

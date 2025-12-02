@@ -1,4 +1,4 @@
-package ElevatorController.Util;
+package EC.Util;
 
 public record FloorNDirection(int floor, Direction direction) {
 
