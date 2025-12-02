@@ -82,7 +82,7 @@ public class ElevatorFloorDisplay {
      */
     public synchronized void playOverLoadWarning() {
         // simulating the buzzing noise
-        System.out.println("*Buzz! Warning: Overload detected on Elevator " + carId);
+        //System.out.println("*Buzz! Warning: Overload detected on Elevator " + carId);
         Platform.runLater(() -> {
             try {
                 URL sound = getClass().getResource("/sounds/buzz.mp3");

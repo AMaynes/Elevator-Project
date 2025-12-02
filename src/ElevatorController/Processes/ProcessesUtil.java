@@ -86,22 +86,25 @@ public class ProcessesUtil {
         boolean lastCommand = true;
         System.out.println("Fully closed: "+ doorAssembly.fullyClosed()+
                 " over capacity "+ doorAssembly.overCapacity()+ " obstructed "+ doorAssembly.obstructed());
-        while(!doorAssembly.fullyClosed() && !doorAssembly.overCapacity()){
+        while(!doorAssembly.fullyClosed()){
             if(doorAssembly.obstructed()){
-
-                if (capacity) notifier.playCapacityNoise();
+                if (capacity) {
+                    notifier.playCapacityNoise();
+                }
                 if(lastCommand == false){
                     doorAssembly.open();
                     lastCommand = true;
                 }
-            }else if (doorAssembly.overCapacity()){
-                if(lastCommand == false){
+            }
+            else if (doorAssembly.overCapacity()) {
+                if(lastCommand == false) {
                     doorAssembly.open();
                     lastCommand = true;
                 }
                 notifier.playCapacityNoise();
-            } else {
-                if(lastCommand){
+            }
+            else {
+                if(lastCommand) {
                     System.out.println("Trying to close doors");
                     doorAssembly.close();
                     lastCommand = false;
