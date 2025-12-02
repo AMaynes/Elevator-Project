@@ -275,7 +275,7 @@ public class Buttons {
         if (!callEnabled && !fireKey) return null;
 
         if (!multipleRequests) {
-            FloorNDirection nextService = destinations.getFirst();
+            FloorNDirection nextService = destinations.get(0);
             destinations.clear();
             destinations.add(nextService); //TODO: this seems incorrect?
             return nextService;
@@ -286,7 +286,7 @@ public class Buttons {
         if(destinations.isEmpty()){
             return null;
         }
-        int currServiceFloor = destinations.getFirst().getFloor();
+        int currServiceFloor = destinations.get(0).getFloor();
 
         for (FloorNDirection fd : destinations) {
             //Service incompatible
@@ -315,7 +315,7 @@ public class Buttons {
         else if (currDirection == Direction.DOWN) inticator = -1;
 
         //If not moving, go to the most recently called floor
-        if (inticator == 0) return destinations.getFirst();
+        if (inticator == 0) return destinations.get(0);
 
         //The humble bubble sort glorious! <- so hot! wowowowow!!
         for (int i = 0; i < destinations.size(); i++) {
@@ -332,7 +332,7 @@ public class Buttons {
         //re-add unreachable destinations
         destinations.addAll(unreachable);
 
-        return destinations.getFirst();
+        return destinations.get(0);
     }
     //TODO: HANDLE handleHallCall();
     //            handleFireKey();
