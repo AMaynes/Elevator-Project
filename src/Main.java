@@ -1,6 +1,6 @@
 import Bus.SoftwareBus;
 import CommandCenter.*;
-import EC.HigherLevel.ElevatorMain;
+import ElevatorController.HigherLevel.ElevatorMain;
 import PFDGUI.gui;
 import Mux.BuildingMultiplexor;
 import Mux.ElevatorMultiplexor;

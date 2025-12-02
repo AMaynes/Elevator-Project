@@ -1,4 +1,4 @@
-package EC.Processes;
+package ElevatorController.Processes;
 
 /**
  * Control mode is one where movement is controlled by the Control Room. Using

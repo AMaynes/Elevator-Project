@@ -1,8 +1,8 @@
 package CommandCenter;
 
 
-import EC.Util.Direction;
-import EC.Util.FloorNDirection;
+import ElevatorController.Util.Direction;
+import ElevatorController.Util.FloorNDirection;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;

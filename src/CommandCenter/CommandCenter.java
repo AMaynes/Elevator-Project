@@ -2,9 +2,9 @@ package CommandCenter;
 
 import Bus.SoftwareBus;
 import Bus.SoftwareBusCodes;
-import EC.Util.Direction;
-import EC.Util.FloorNDirection;
-import EC.Util.State;
+import ElevatorController.Util.Direction;
+import ElevatorController.Util.FloorNDirection;
+import ElevatorController.Util.State;
 import Message.Message;
 
 import java.util.Arrays;

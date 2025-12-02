@@ -1,4 +1,4 @@
-package EC.HigherLevel;
+package ElevatorController.HigherLevel;
 
 
 /**

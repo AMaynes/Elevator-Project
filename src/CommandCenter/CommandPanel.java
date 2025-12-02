@@ -1,7 +1,7 @@
 package CommandCenter;
 
 import Bus.SoftwareBusCodes;
-import EC.Util.State;
+import ElevatorController.Util.State;
 import Message.Message;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;

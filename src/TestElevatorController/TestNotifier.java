@@ -1,7 +1,7 @@
 package TestElevatorController;
 
 import Bus.SoftwareBus;
-import EC.Util.Direction;
+import ElevatorController.Util.Direction;
 import Message.Message;
 import Bus.SoftwareBusCodes;
 
