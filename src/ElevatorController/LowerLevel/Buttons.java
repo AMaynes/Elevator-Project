@@ -267,7 +267,11 @@ public class Buttons {
      * @return next service direction and floor (direction non-null for call buttons, null for requests)
      */
     public FloorNDirection nextService(FloorNDirection floorNDirection) {
+        // Helper calls
         handleCabinSelect();
+        handleHallCall();
+        handleFireKey();
+
         currDirection = floorNDirection.direction();
         currFloor = floorNDirection.floor();
 
@@ -275,10 +279,15 @@ public class Buttons {
         if (!callEnabled && !fireKey) return null;
 
         if (!multipleRequests) {
-            FloorNDirection nextService = destinations.get(0);
-            destinations.clear();
-            destinations.add(nextService); //TODO: this seems incorrect?
-            return nextService;
+            if (!destinations.isEmpty()){
+                // Can only get first element of non-empty list
+                FloorNDirection nextService = destinations.getFirst();
+                destinations.clear();
+                destinations.add(nextService); //TODO: this seems incorrect?
+                return nextService;
+            }
+            // no nextService -> return null
+            return null;
         }
 
         //Determine floors not on the way
@@ -315,8 +324,11 @@ public class Buttons {
         else if (currDirection == Direction.DOWN) inticator = -1;
 
         //If not moving, go to the most recently called floor
-        if (inticator == 0) return destinations.get(0);
-
+        if (destinations.isEmpty()){
+            //Don't getFirst() on empty destinations
+            return null;
+        }
+        if (inticator == 0) return destinations.getFirst();
         //The humble bubble sort glorious! <- so hot! wowowowow!!
         for (int i = 0; i < destinations.size(); i++) {
             for (int j = 0; j < destinations.size(); j++) {
