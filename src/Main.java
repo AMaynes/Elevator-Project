@@ -40,10 +40,10 @@ public class Main extends Application {
 
         }
         guiMux.initilizeMuxs(elevatorMuxes);
-        ElevatorMain em1 = new ElevatorMain(elevator1, serverBus);
-        ElevatorMain em2 = new ElevatorMain(elevator2, serverBus);
-        ElevatorMain em3 = new ElevatorMain(elevator3, serverBus);
-        ElevatorMain em4 = new ElevatorMain(elevator4, serverBus);
+        ElevatorMain em1 = new ElevatorMain();
+        ElevatorMain em2 = new ElevatorMain();
+        ElevatorMain em3 = new ElevatorMain();
+        ElevatorMain em4 = new ElevatorMain();
 
         Thread thread1 = new Thread(em1);
         Thread thread2 = new Thread(em2);

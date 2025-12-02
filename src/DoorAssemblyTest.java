@@ -8,11 +8,11 @@ public class DoorAssemblyTest {
     public static void main(String[] args) {
         //SoftwareBus softwareBus=new SoftwareBus(true);
         SoftwareBus softwareBusClient =new SoftwareBus(true);
-        DoorAssembly doorAssembly =new DoorAssembly(1,softwareBusClient);
+//        DoorAssembly doorAssembly =new DoorAssembly(1,softwareBusClient);
         softwareBusClient.subscribe(SoftwareBusCodes.doorControl,1);
 
         while(true){
-           doorAssembly.close();
+//           doorAssembly.close();
             //softwareBusClient.publish(new Message(SoftwareBusCodes.doorControl,1,100));
             try {
                 Thread.sleep(1000);

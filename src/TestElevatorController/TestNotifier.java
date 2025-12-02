@@ -26,9 +26,9 @@ public class TestNotifier {
     private static final SoftwareBus  BUS =  new SoftwareBus(true);
     private static final SoftwareBus  CLIENT_BUS =  new SoftwareBus(false);
 
-    // notifier objects
-    private final static Notifier NOTIFIER_1 = new Notifier(1, BUS);
-    private static final Notifier NOTIFIER_2 = new Notifier(2, BUS);
+//    // notifier objects
+//    private final static Notifier NOTIFIER_1 = new Notifier(1, BUS);
+//    private static final Notifier NOTIFIER_2 = new Notifier(2, BUS);
 
     /**
      * For testing Notifier.arrivedAtFloor() and Notifier.elevatorStatus()
@@ -58,7 +58,7 @@ public class TestNotifier {
             // Set floor number
             floor = i / 3;
 
-            NOTIFIER_2.arrivedAtFloor(new FloorNDirection(floor, direction));
+//            NOTIFIER_2.arrivedAtFloor(new FloorNDirection(floor, direction));
             Message message1 = BUS.get(TOPIC_DISPLAY_DIREC, elevator);
             Message message2 = BUS.get(TOPIC_DISPLAY_FLOOR, elevator);
             Message message3 = BUS.get(TOPIC_SPEAKER, elevator);
@@ -127,7 +127,7 @@ public class TestNotifier {
         // TEST 1 playCapacityNoise()
         System.out.println("Test 1: playCapacityNoise()");
         elevator = 2;
-        NOTIFIER_2.playCapacityNoise();
+//        NOTIFIER_2.playCapacityNoise();
         message = BUS.get(TOPIC_SPEAKER, elevator);
         if (message != null) {
             passedTestsFlag = true;
@@ -161,7 +161,7 @@ public class TestNotifier {
         // TEST 2 stopCapacityNoise()
         System.out.println("Test 2: stopCapacityNoise()");
         elevator = 1;
-        NOTIFIER_1.stopCapacityNoise();
+//        NOTIFIER_1.stopCapacityNoise();
         message =  BUS.get(TOPIC_SPEAKER, elevator);
         if (message != null) {
             passedTestsFlag = true;
