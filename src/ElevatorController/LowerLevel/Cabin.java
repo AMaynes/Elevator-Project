@@ -128,7 +128,7 @@ public class Cabin implements Runnable {
         //Should time stop
         if (motor && almostThere) {
             //Time to stop!
-            System.out.println("ALMOST THERE WOAHHHHHHHHH");
+//            System.out.println("ALMOST THERE WOAHHHHHHHHH");
             if (timeToStop != null && timeToStop.timeout()) stopMotor();
             //Determine time to stop
             else if (timeToStop == null) timeToStop = timeStop();
@@ -184,7 +184,7 @@ public class Cabin implements Runnable {
      * Send message to MUX to stop the motor
      */
     private void stopMotor() {
-        System.out.println("AHAHA IM STOPPJINGNGGDSLKAKLDSAJKDSAJKDKASJKJDASKJDASKJDJAKJASDKJDSALKJghsajkdsb");
+//        System.out.println("AHAHA IM STOPPJINGNGGDSLKAKLDSAJKDSAJKDKASJKJDASKJDASKJDJAKJASDKJDSALKJghsajkdsb");
         motor = false;
         softwareBus.publish(new Message(TOPIC_CAR_STOP, ELEVATOR_ID, STOP_MOTOR));
     }
