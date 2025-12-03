@@ -1,4 +1,7 @@
 package ElevatorController.Util;
+import Team7MotionControl.Util.Constants;
+
+import static Team7MotionControl.Util.Constants.ACCELERATION_TIME;
 
 public class ConstantsElevatorControl {
     public static final long TIME_TO_STOP = 100;

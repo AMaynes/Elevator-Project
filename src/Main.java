@@ -23,12 +23,6 @@ public class Main extends Application {
         //SoftwareBus clientBus = new SoftwareBus(false);
         elevatorControlSystem =new ElevatorControlSystem(serverBus);
 
-
-
-        //TODO will need to change the code in building and elevator
-        // multiplexer to be given a single client software bus. These
-        // changes will need to be made to the init function and the
-        // constructor for both objects.
         BuildingMultiplexor buildingMultiplexor = new Mux.BuildingMultiplexor(serverBus);
         ElevatorMultiplexor[] elevatorMuxes = new ElevatorMultiplexor[4];
         for (int i = 0; i < numElevators; i++) {
@@ -39,10 +33,10 @@ public class Main extends Application {
 
         }
         guiMux.initilizeMuxs(elevatorMuxes);
-        ElevatorMain em1 = new ElevatorMain();
-        ElevatorMain em2 = new ElevatorMain();
-        ElevatorMain em3 = new ElevatorMain();
-        ElevatorMain em4 = new ElevatorMain();
+        ElevatorMain em1 = new ElevatorMain(1, serverBus);
+        ElevatorMain em2 = new ElevatorMain(2, serverBus);
+        ElevatorMain em3 = new ElevatorMain(3, serverBus);
+        ElevatorMain em4 = new ElevatorMain(4, serverBus);
 
         Thread thread1 = new Thread(em1);
         Thread thread2 = new Thread(em2);
