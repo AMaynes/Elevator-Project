@@ -17,8 +17,6 @@ public class ElevatorDoorsAssembly {
     private boolean isClosed;
     // True when an obstruction is placed
     private boolean isObstructed;
-    private boolean isMoving;
-
     // GUI Control reference
     private final gui.GUIControl guiControl;
     // Car ID reference
@@ -33,7 +31,6 @@ public class ElevatorDoorsAssembly {
         this.isOpen = true;
         this.isClosed = false;
         this.isObstructed = false;
-        this.isMoving = false;
     }
 
     /**
@@ -42,12 +39,10 @@ public class ElevatorDoorsAssembly {
      */
     public synchronized void open(){
         if (!isOpen) {
-            isMoving = true;
             System.out.println("[Doors] Opening...");
             simulateDelay(2000);
             isOpen = true;
             guiControl.changeDoorState(carId, isOpen);
-            isMoving = false;
             isClosed = false;
             System.out.println("[Doors] Fully open.");
 
@@ -62,7 +57,6 @@ public class ElevatorDoorsAssembly {
         public synchronized void close() {
         isObstructed();
         if (isOpen) {
-            isMoving = true;
             System.out.println("[Doors] Closing...");
             simulateDelay(2000);
             isOpen = false;
@@ -76,19 +70,6 @@ public class ElevatorDoorsAssembly {
             } else {
                 System.out.println("[Doors] Fully closed.");
             }
-            isMoving = false;
-        }
-    }
-
-    /**
-     * Simulates time delay for the open and close animations. For simulation purposes.
-     * @param ms time to be elapsed
-     */
-    private synchronized void simulateDelay(long ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 
@@ -99,15 +80,6 @@ public class ElevatorDoorsAssembly {
     public synchronized boolean isObstructed() {
         isObstructed = guiControl.getIsDoorObstructed(carId);
         return isObstructed;
-    }
-
-    /**
-     * Sets obstruction state manually for simulation/testing.
-     * @param obstructed whether the GUI has the obstruction box present
-     */
-    public synchronized void setObstruction(boolean obstructed) {
-        this.isObstructed = obstructed;
-        guiControl.setDoorObstruction(carId, obstructed);
     }
 
     /**
@@ -128,5 +100,16 @@ public class ElevatorDoorsAssembly {
         return isClosed;
     }
 
+    /**
+     * Simulates time delay for the open and close animations. For simulation purposes.
+     * @param ms time to be elapsed
+     */
+    private synchronized void simulateDelay(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
 }

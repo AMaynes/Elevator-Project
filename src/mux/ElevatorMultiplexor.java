@@ -63,7 +63,7 @@ public class ElevatorMultiplexor {
      */
 
     // Polls the software bus for messages and handles them accordingly
-    public void startBusPoller() {
+    private void startBusPoller() {
         Thread t = new Thread(() -> {
             // keep polling
             while (true) {
@@ -188,7 +188,7 @@ public class ElevatorMultiplexor {
 
     // Poll and publish cabin overload state changes
     private void pollCabinOverload() {
-        boolean isOverloaded = elev.display.isOverloaded();
+        boolean isOverloaded = elev.panel.isOverloaded();
         if (isOverloaded != lastOverloadState) {
             // Emit CABIN_LOAD message (Topic 205) only on state change
             int v;
@@ -240,12 +240,6 @@ public class ElevatorMultiplexor {
         // Update last sensor reads
         lastTopSensorRead = topSensor;
         lastBottomSensorRead = bottomSensor;
-    }
-
-
-    // Getter for Elevator
-    public Elevator getElevator() {
-        return elev;
     }
 
     /**
@@ -343,20 +337,31 @@ public class ElevatorMultiplexor {
     }
 
     // Handle play arrival/overload Message
-    public void handlePlaySound(Message msg){
+    private void handlePlaySound(Message msg){
         int type = msg.getBody();
         if (type == 0) {
             elev.display.playArrivalChime();
+            elev.panel.playCabinArrivalChime();
         } else {
             elev.display.playOverLoadWarning();
+            elev.panel.playCabinOverloadWarning();
         }
     }
 
     // Handle Fire Alarm Message
-    public void handleFireAlarm(Message msg) {
+    private void handleFireAlarm(Message msg) {
         int modeCode = msg.getBody();
         if (modeCode == 1) {
             elev.panel.clearPressedFloors();
         }
+    }
+
+    /**
+     * Util
+     */
+
+    // Getter for Elevator. Required for simulation purposes.
+    public Elevator getElevator() {
+        return elev;
     }
 }

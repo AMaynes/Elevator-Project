@@ -14,6 +14,12 @@ public interface CabinPassengerPanelAPI {
     // Turn off the lamp for a serviced floor button.
     void resetFloorButton(int floorNumber);
 
+    // Turn on/off the buttons.
+    void setButtonsDisabled(int disabled);
+
+    // Make the selection mode single/multiple.
+    void setButtonsSingle(int single);
+
     // Update the in-cabin display with current floor and travel direction.
     void setDisplay(int currentFloor, String direction);
 
@@ -25,6 +31,9 @@ public interface CabinPassengerPanelAPI {
 
     // Read fire service key switch state for emergency operations.
     boolean isFireKeyActive();
+
+    // Read the overload sensor to determine if the cabin is overloaded.
+    boolean isOverloaded();
 }
 
 /**
@@ -32,7 +41,7 @@ public interface CabinPassengerPanelAPI {
  */
 interface FloorCallButtonsAPI {
 
-    // True if the landing panel’s “Up” call is active (not functonal for the top floor).
+    // True if the landing panel’s “Up” call is active (not functional for the top floor).
     boolean isUpCallPressed();
 
     // True if the landing panel’s “Down” call is active (not functional for the bottom floor).
@@ -40,4 +49,7 @@ interface FloorCallButtonsAPI {
 
     // Reset the specified call indicator ("Up" or "Down") after service.
     void resetCallButton(String direction);
+
+    // Set the buttons to disabled/enabled
+    void setButtonsEnabled(int enabled);
 }
