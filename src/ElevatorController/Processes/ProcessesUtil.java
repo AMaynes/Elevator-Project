@@ -25,7 +25,7 @@ public class ProcessesUtil {
         doorAssembly.open();
         while (!ProcessesUtil.tryDoorOpen(doorAssembly)) ;
         ProcessesUtil.DoorsOpenWait();
-        ProcessesUtil.doorClose(doorAssembly, notifier);
+        //ProcessesUtil.doorClose(doorAssembly, notifier);
     }
     /**
      * Holds the door open for specified time

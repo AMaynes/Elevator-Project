@@ -30,8 +30,7 @@ public class Mode {
     private static final int TOPIC_FIRE_MODE = SoftwareBusCodes.fireMode;
 
     // From MUX to Mode
-    private static final int TOPIC_FIRE_ALARM =
-            SoftwareBusCodes.fireAlarmActive;
+    private static final int TOPIC_FIRE_ALARM = SoftwareBusCodes.fireAlarmActive;
     // From Mode to MUX
     private static final int TOPIC_SET_FIRE = SoftwareBusCodes.fireAlarm;
 
@@ -39,6 +38,8 @@ public class Mode {
     private static final int BODY_CENTRALIZED_MODE  = SoftwareBusCodes.centralized;
     private static final int BODY_NORMAL_MODE = SoftwareBusCodes.normal;
     private static final int BODY_FIRE_MODE = SoftwareBusCodes.fire; //TODO: safe to delete this?
+    private boolean alreadyFire = false;
+    private int lastState;
 
     /**
      * Instantiate a Mode object
@@ -91,24 +92,28 @@ public class Mode {
         int state;
         if(modeMessage!=null){
             state = modeMessage.getBody();
+            lastState = state;
             switch (state){
                 case BODY_CENTRALIZED_MODE -> currentMode = State.CONTROL;
                 case BODY_NORMAL_MODE -> currentMode = State.NORMAL;
             }
         }
 
-
-        //TODO: do we have to send messages to the MUX?
-        //Jackie: Also, don't worry about sending Fire Alarm to each elevator
-        // when fire mode is activated by the pfd GUI specifically. The building
-        // mux handles that automatically. They will need to be sent if you're doing
-        // it via the control center, however @Val
         if(fireMessage!=null){
             state = fireMessage.getBody();
             if (state == SoftwareBusCodes.pulled){
+                System.out.println("PULLED.");
                 softwareBus.publish(new Message(TOPIC_FIRE_MODE, ELEVATOR_ID,
                         SoftwareBusCodes.emptyBody));
                 currentMode = State.FIRE;
+                alreadyFire = false;
+            } else {
+                System.out.println("UNPULLED.");
+                if(lastState == BODY_CENTRALIZED_MODE){
+                    currentMode = State.CONTROL;
+                } else {
+                    currentMode = State.NORMAL;
+                }
             }
         }
 
@@ -121,11 +126,12 @@ public class Mode {
 
 
         // Notify the MUX that the fire is active
-        if (currentMode == State.FIRE){
-            //TODO are these bodies okay?
+        if (currentMode == State.FIRE && !alreadyFire){
+            alreadyFire = true;
+            System.out.println("MODE FIRE.");
             softwareBus.publish(new Message(TOPIC_SET_FIRE, ELEVATOR_ID,
-                    SoftwareBusCodes.emptyBody));
-            softwareBus.publish(new Message(TOPIC_SET_FIRE, SoftwareBusCodes.buildingMUX, SoftwareBusCodes.emptyBody));
+                    1));
+            softwareBus.publish(new Message(TOPIC_SET_FIRE, SoftwareBusCodes.buildingMUX, 1));
         }
     }
 

@@ -5,7 +5,6 @@ import Bus.SoftwareBusCodes;
 import ElevatorController.Util.Direction;
 import ElevatorController.Util.FloorNDirection;
 import Message.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +16,7 @@ import java.util.List;
  */
 public class Buttons {
     private boolean callEnabled;
+    private boolean requestsEnabled;
     private boolean multipleRequests;
     private final int ELEVATOR_ID;
     private final List<FloorNDirection> destinations;
@@ -35,10 +35,8 @@ public class Buttons {
     private final static int TOPIC_RESET_CALL = SoftwareBusCodes.resetCall;
     private final static int RESET_FLOOR_SELECTION = SoftwareBusCodes.resetFloorSelection;
     private final static int TOPIC_CALLS_ENABLED = SoftwareBusCodes.callsEnable;
-    private final static int TOPIC_REQS_ENABLED =
-            SoftwareBusCodes.selectionsEnable;
-    private final static int TOPIC_SELECTION_TYPE =
-            SoftwareBusCodes.selectionsType;
+    private final static int TOPIC_REQS_ENABLED = SoftwareBusCodes.selectionsEnable;
+    private final static int TOPIC_SELECTION_TYPE = SoftwareBusCodes.selectionsType;
 
     //Subtopic for sending to Building MUX
     private final static int SUBTOPIC_BUILD_MUX = SoftwareBusCodes.buildingMUX;
@@ -64,6 +62,7 @@ public class Buttons {
 
         // Assuming normal mode settings initially
         this.callEnabled = true;
+        this.requestsEnabled = true;
         this.multipleRequests = true;
 
         this.destinations = new ArrayList<>();
@@ -98,10 +97,6 @@ public class Buttons {
         //Floor Button Reset
 
         switch(floorNDirection.floor()){
-//            case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, 0));
-//            case DOWN -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, 1));
-//            // if direction is not up or down handle with grace!
-//            default -> throw new IllegalStateException("Unexpected value: " + floorNDirection.direction());
             case 1 -> {
                 switch(floorNDirection.direction()) {
                     case UP -> softwareBus.publish(new Message(TOPIC_RESET_CALL, SUBTOPIC_BUILD_MUX, SoftwareBusCodes.reset1Up));
@@ -188,19 +183,6 @@ public class Buttons {
     }
 
     /**
-     * Call publish on softwareBus with a message that the call button on the given floor, and given direction can be
-     * turned off
-     * Remove that floor from destinations
-     * @param floor the floor request button that is no longer relevant
-     */
-    public void requestReset(int floor) {
-        // I am going to assume these ar the buttons inside the cabin
-        // we may want to consider keeping track of what buttons are on with an array of booleans
-        // this could reduce clutter so we only call publish if the array contains true at the index of the floor
-        softwareBus.publish(new Message(TOPIC_RESET_CALL, ELEVATOR_ID, floor));
-    }
-
-    /**
      * In normal mode, level call buttons are enabled
      */
     public void enableCalls(){
@@ -222,6 +204,7 @@ public class Buttons {
                 SoftwareBusCodes.off));
 
         // Update local
+        destinations.clear();
         this.callEnabled = false;}
 
     /**
@@ -235,6 +218,7 @@ public class Buttons {
                 SoftwareBusCodes.multiple));
 
         // Set local variable
+        this.requestsEnabled = true;
         this.multipleRequests = true;
     }
 
@@ -249,7 +233,19 @@ public class Buttons {
                 SoftwareBusCodes.single));
 
         // Set local variable
+        this.requestsEnabled = true;
         this.multipleRequests = false;
+    }
+
+    public void disableAllRequest(){
+        softwareBus.publish(new Message(TOPIC_REQS_ENABLED,ELEVATOR_ID, SoftwareBusCodes.off));
+        this.requestsEnabled = false;
+        destinations.clear();
+    }
+
+    public boolean isFireKeyActive(){
+        handleMessages();
+        return fireKey;
     }
 
 
@@ -267,17 +263,15 @@ public class Buttons {
      * @return next service direction and floor (direction non-null for call buttons, null for requests)
      */
     public FloorNDirection nextService(FloorNDirection floorNDirection) {
-        handleCabinSelect();
+        handleMessages();
         currDirection = floorNDirection.direction();
         currFloor = floorNDirection.floor();
 
         // Calls disabled case
-        if (!callEnabled && !fireKey) return null;
+        if (!callEnabled && !fireKey && !requestsEnabled) return null;
 
         if (!multipleRequests) {
-            FloorNDirection nextService = destinations.get(0);
-            destinations.clear();
-            destinations.add(nextService); //TODO: this seems incorrect?
+            FloorNDirection nextService = destinations.getFirst();
             return nextService;
         }
 
@@ -317,7 +311,7 @@ public class Buttons {
         //If not moving, go to the most recently called floor
         if (inticator == 0) return destinations.get(0);
 
-        //The humble bubble sort glorious! <- so hot! wowowowow!!
+        //The humble bubble sort
         for (int i = 0; i < destinations.size(); i++) {
             for (int j = 0; j < destinations.size(); j++) {
                 if (i == j) continue;
@@ -332,36 +326,28 @@ public class Buttons {
         //re-add unreachable destinations
         destinations.addAll(unreachable);
 
-        return destinations.get(0);
+        return destinations.getFirst();
     }
-    //TODO: HANDLE handleHallCall();
-    //            handleFireKey();
 
-    /**
-     * Get the fire key message from the MUX
-     */
-    private void handleFireKey() {
-        // Most recent fire key message
-        Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_FIRE_KEY);
-
-        if (message != null) {
-            // If a message exist, use it to update the local fire key variable
-            switch (message.getBody()){
-                case BODY_F_KEY_ACTIVE -> fireKey = true;
-                case BODY_F_KEY_INACTIVE -> fireKey = false;
-                default -> {
-                    fireKey = false;
-                    System.out.println("Unexpected Body in Buttons, TOPIC_FIRE_KEY, body = " + message.getBody());
-                }
-            }
+    private void handleMessages(){
+        Message message = softwareBus.get(TOPIC_CABIN_SELECT, ELEVATOR_ID);
+        if(message != null) {
+            handleCabinSelect(message);
+        }
+        message = softwareBus.get(TOPIC_HALL_CALL, ELEVATOR_ID);
+        if(message != null) {
+            handleHallCall(message);
+        }
+        message = softwareBus.get(TOPIC_FIRE_KEY, ELEVATOR_ID);
+        if(message != null){
+            handleFireKey(message);
         }
     }
 
     /**
      *  Get the cabin selection button presses from MUX
      */
-    private void handleCabinSelect() {
-        Message message = softwareBus.get(TOPIC_CABIN_SELECT,ELEVATOR_ID);
+    private void handleCabinSelect(Message message) {
         while(message!=null){
             int floor = message.getBody();
             System.out.println("adding to destinations: "+floor);
@@ -373,40 +359,54 @@ public class Buttons {
     /**
      *  get the hall call button presses from MUX
      */
-    private void handleHallCall() {
-        Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_HALL_CALL);
-        if(message==null){
-            return;
-        }
-        int floor;
-        int destCode = message.getBody();
-        FloorNDirection fd;
+    private void handleHallCall(Message message) {
+        while (message != null) {
+            int floor;
+            int destCode = message.getBody();
+            FloorNDirection fd;
 
-        /*
-         *  destCode = 1 to 10    -> down calls on that level
-         *  destCode = 101 to 110 -> up calls on that level
-         */
-        if (destCode >=100) {
-            // Subtract 100 to get floor
-            floor = destCode - SoftwareBusCodes.upOffset;
+            /*
+             *  destCode = 1 to 10    -> down calls on that level
+             *  destCode = 101 to 110 -> up calls on that level
+             */
+            if (destCode >= 100) {
+                // Subtract 100 to get floor
+                floor = destCode - SoftwareBusCodes.upOffset;
+                // Direction is UP
+                fd = new FloorNDirection(floor, Direction.UP);
+            } else {
+                // Subtracting 0
+                floor = destCode - SoftwareBusCodes.downOffset;
 
-            // Direction is UP
-            fd = new FloorNDirection(floor, Direction.UP);
-        } else {
-            // Subtracting 0
-            floor = destCode - SoftwareBusCodes.downOffset;
-
-            // Direction is DOWN
-            fd = new FloorNDirection(floor, Direction.DOWN);
+                // Direction is DOWN
+                fd = new FloorNDirection(floor, Direction.DOWN);
+            }
+            if (floor < 1 || floor > 10) {
+                // Unexpected floor, print error message
+                System.out.println("ERROR in Buttons of Elevator " + ELEVATOR_ID +
+                        ", floor = " + floor + ", destCode = " + destCode);
+            }
+            destinations.add(fd);
+            message = softwareBus.get(TOPIC_HALL_CALL, ELEVATOR_ID);
         }
-        if (floor < 1 || floor > 10) {
-            // Unexpected floor, print error message
-            System.out.println("ERROR in Buttons of Elevator " + ELEVATOR_ID +
-                    ", floor = " + floor + ", destCode = " + destCode);
-        }
-        destinations.add(fd);
     }
 
-
+    /**
+     * Get the fire key message from the MUX
+     */
+    private void handleFireKey(Message message) {
+        while (message != null) {
+            // If a message exist, use it to update the local fire key variable
+            switch (message.getBody()){
+                case BODY_F_KEY_ACTIVE -> fireKey = true;
+                case BODY_F_KEY_INACTIVE -> fireKey = false;
+                default -> {
+                    fireKey = false;
+                    System.out.println("Unexpected Body in Buttons, TOPIC_FIRE_KEY, body = " + message.getBody());
+                }
+            }
+            message = softwareBus.get(TOPIC_FIRE_KEY, ELEVATOR_ID);
+        }
+    }
 
 }

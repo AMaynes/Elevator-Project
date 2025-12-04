@@ -27,26 +27,40 @@ public class Fire {
         //buttons handles fire key
         //if single calls are enable then the fire key is inserted
         buttons.disableCalls();
-
-        //TODO: Should this be single or multiple?
-        buttons.enableSingleRequest();
+        if(buttons.isFireKeyActive()){
+            buttons.enableSingleRequest();
+        } else {
+            buttons.disableAllRequest();
+        }
 
         //Close doors
         ProcessesUtil.doorClose(doorAssembly,notifier);
 
         FloorNDirection fireKeyService = null;
+        boolean fireKeyState;
+        boolean lastFKState =  false;
 
         //Listen to requests if fire key is inserted, otherwise go to first floor
-        while (cabin.getTargetFloor() != 1 && !cabin.arrived() && mode.getMode() == State.FIRE) {
+        while (mode.getMode() == State.FIRE) {
+            fireKeyState = buttons.isFireKeyActive();
+            if(fireKeyState && lastFKState != fireKeyState){
+                buttons.enableSingleRequest();
+            } else if (lastFKState != fireKeyState){
+                buttons.disableAllRequest();
+            }
+            lastFKState = fireKeyState;
+
             //Get any services enabled by fire key
-            if (fireKeyService == null) fireKeyService = buttons.nextService(cabin.currentStatus());
+            if (fireKeyService == null && fireKeyState){
+                fireKeyService = buttons.nextService(cabin.currentStatus());
+            }
             //Process services enabled by fire key
-            if (fireKeyService != null)
+            if (fireKeyService != null && cabin.getTargetFloor() != fireKeyService.floor()) {
                 cabin.gotoFloor(fireKeyService.floor());
-            //Go to floor 1 if no requests
-            else if (cabin.getTargetFloor() != 1)
-                cabin.gotoFloor(1);
-            //Arrival process (open doors, wait, close doors)
+            } else if (!fireKeyState) {
+                cabin.gotoFloor(1); //Go to floor 1 if not fire key mode
+            }
+            //Arrival process (open doors)
             if (cabin.arrived()) {
                 ProcessesUtil.arriveProcess(buttons, doorAssembly, notifier, fireKeyService);
                 fireKeyService = null;
@@ -55,6 +69,4 @@ public class Fire {
         //Return exit mode
         return mode.getMode();
     }
-
-
 }

@@ -32,7 +32,7 @@ public class Control {
     public static State control(Mode mode, Buttons buttons, Cabin cabin,
                                 DoorAssembly doorAssembly, Notifier notifier){
         buttons.disableCalls();
-
+        buttons.disableAllRequest();
         //TODO need to implement some API for resetting Request?
         buttons.enableSingleRequest();
 

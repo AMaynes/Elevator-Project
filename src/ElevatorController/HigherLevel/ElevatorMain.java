@@ -30,7 +30,6 @@ public class ElevatorMain implements Runnable{
         notifier = new Notifier(elevatorID, softwareBus);
         mode = new Mode(elevatorID, softwareBus);
         onOff = true;
-
     }
 
     @Override

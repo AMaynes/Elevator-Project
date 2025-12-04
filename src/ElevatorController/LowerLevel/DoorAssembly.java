@@ -124,7 +124,6 @@ public class DoorAssembly {
      *         capacity message was received, true initially
      */
     public boolean overCapacity(){
-        //Todo: assuming 0 for over capacity and 1 for not over capacity
         Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_CABIN_LOAD);
         if (message != null ) {
             if (message.getBody() == OVER_CAPACITY_CODE) overCapacity = true;

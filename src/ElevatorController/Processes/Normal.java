@@ -30,14 +30,8 @@ public class Normal {
         //Prepare for use
         buttons.enableCalls();
         buttons.enableAllRequests();
-        ProcessesUtil.doorClose(doorAssembly,notifier);
+        //ProcessesUtil.doorClose(doorAssembly,notifier);
         FloorNDirection currentService = null;
-
-        //TODO: TEST CODE, CURRENTLY HAUNTED OOHOHHHH (call ghost busters)
-//        cabin.gotoFloor(cabin.getID()*2);
-//        currentService = new FloorNDirection(cabin.getID()*2,null);
-
-
 
         //Process Requests until state changes
         while (mode.getMode() == State.NORMAL) {
@@ -45,10 +39,13 @@ public class Normal {
 
             if (currentService == null) currentService = buttons.nextService(cabin.currentStatus());
             //go to floor of current service
-            if (currentService != null) cabin.gotoFloor(currentService.floor());
+            if (currentService != null){
+                if(ProcessesUtil.doorClose(doorAssembly,notifier)) {
+                    cabin.gotoFloor(currentService.floor());
+                }
+            }
             //arrive (open doors, wait, close doors)
             if (cabin.arrived() && currentService != null) {
-                //System.out.println("the humble 'whatchu doin queen'");
                 ProcessesUtil.arriveProcess(buttons,doorAssembly,notifier,currentService);
                 currentService = null;
             }
