@@ -1,20 +1,8 @@
 package PFDAPI;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import java.net.URL;
-
-import javafx.application.Platform;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import PFDGUI.gui;
-
-//NOTE, below are Mux's original import statements
-//package pfdAPI;
-//
-//import java.util.ArrayList;
-//import java.util.List;
-//import pfdGUI.gui;
 
 /**
  * Device inside of elevators that allows for user-interaction. Allows cabin riders to
@@ -23,11 +11,14 @@ import PFDGUI.gui;
  * API:
  *      public int getPressedFloor()
  *      public void clearPressedFloors()
+ *      public void setButtonsDisabled()
+ *      public void setButtonsSingle()
  *      public void resetFloorButton(int floorNumber)
  *      public void setDisplay(int currentFloor, String direction)
  *      public void playCabinArrivalChime()
  *      public void playCabinOverloadWarning()
  *      public boolean isFireKeyActive()
+ *      public boolean isOverloaded()
  */
 public class CabinPassengerPanel implements CabinPassengerPanelAPI {
 
@@ -38,12 +29,6 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
     private final boolean[] floorButtons;
     // Array of the queue of pressed floor buttons
     private final List<Integer> pressedFloorsQueue;
-    // The current floor the elevator is on/nearest
-    private int currentFloor;
-    // The current direction the elevator is moving in. "UP" "DOWN" and "IDLE
-    private String direction;
-    // State of the fire key; is active/is not active
-    private boolean fireKeyActive;
     // The ID of the associated elevator
     private final int carId;
     // GUI Control reference
@@ -59,24 +44,6 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
         this.totalFloors = totalFloors;
         this.floorButtons = new boolean[totalFloors];
         this.pressedFloorsQueue = new ArrayList<>();
-        this.currentFloor = 1;
-        this.direction = "IDLE";
-        this.fireKeyActive = false;
-    }
-
-    /**
-     * Function for simulating pressing a floor button.
-     * FOR GUI SIMULATION PURPOSES
-     * @param floorNumber The floor being requested
-     */
-    public synchronized void pressFloorButton(int floorNumber) {
-        //System.out.println("IM HERE IM HERE");
-        if (floorNumber >= 1 && floorNumber <= totalFloors && !floorButtons[floorNumber - 1]) {
-            //System.out.println("adding "+floorNumber+ " to pressed floors");
-            floorButtons[floorNumber - 1] = true;
-            pressedFloorsQueue.add(floorNumber);
-            guiControl.pressPanelButton(carId, floorNumber);
-        }
     }
 
     /**
@@ -86,16 +53,11 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
      */
     @Override
     public synchronized int getPressedFloor() {
-        if (pressedFloorsQueue.isEmpty()) {
-            return 0;
-        }
-        return pressedFloorsQueue.remove(0); // Remove and return the head
+        return guiControl.getPressedFloor(carId);
     }
 
     /**
      * Clears all stored pressed floor events.
-     * TODO: Call this in the MUX when the fire alarm is active (either by user or command).
-     *  Decide: should this also be called upon button disables or single/multiple mode switches?
      */
     @Override
     public synchronized void clearPressedFloors() {
@@ -108,6 +70,7 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
      * DOES NOT RESET ANY BUTTONS AUTOMATICALLY.
      * @param disabled, 0 = disable 1 = enable
      */
+    @Override
     public synchronized void setButtonsDisabled(int disabled){
         if(disabled == 0){
             guiControl.setPanelButtonsDisabled(carId,  true);
@@ -123,6 +86,7 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
      * DOES NOT RESET ANY BUTTONS AUTOMATICALLY.
      * @param single, 0 = single mode 1 = multiple mode
      */
+    @Override
     public synchronized void setButtonsSingle(int single){
         if(single == 0){
             guiControl.setSingleSelection(carId, true);
@@ -155,8 +119,6 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
      */
     @Override
     public synchronized void setDisplay(int currentFloor, String direction) {
-        this.currentFloor = currentFloor;
-        this.direction = direction;
         guiControl.setDisplay(carId, currentFloor, direction);
         System.out.println("Display: Floor " + currentFloor + " | Direction: " + direction);
     }
@@ -192,10 +154,11 @@ public class CabinPassengerPanel implements CabinPassengerPanelAPI {
     }
 
     /**
-     * Toggles the fire key for simulation purposes.
+     * Returns whether the Cabin is overloaded.
+     * @return true when Overload is selected in GUI, otherwise false
      */
-    public synchronized void toggleFireKey() {
-        this.fireKeyActive = !this.fireKeyActive;
-        guiControl.setFireAlarm(fireKeyActive);
+    @Override
+    public boolean isOverloaded(){
+        return guiControl.getIsCabinOverloaded(carId);
     }
 }

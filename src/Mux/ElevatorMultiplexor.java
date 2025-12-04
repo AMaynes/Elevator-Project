@@ -1,32 +1,11 @@
 package Mux;
 
-//import Message.Topic;
 import Bus.SoftwareBusCodes;
 import Message.Message;
 import PFDAPI.*;
 import Bus.SoftwareBus;
 import Team7MotionControl.Elevator_Controler.MotionController;
 import Team7MotionControl.Util.Direction;
-
-// NOTE: below are Mux's import statements
-//package mux;
-//
-//import bus.Bus.SoftwareBus;
-//import bus.Bus.SoftwareBusCodes;
-//import bus.Message.Message;
-//import motion.MotionAPI;
-//import motion.Util.Direction;
-//import pfdAPI.*;
-
-// Elevator MUX constructor for taking in software bus:
-// private final SoftwareBus bus;
-//    // Constructor
-//    public ElevatorMultiplexor(int ID, SoftwareBus softwareBus){
-//        bus = softwareBus;
-//        this.ID = ID;
-//        this.elev = new Elevator(ID, 10);
-//        initialize();
-//    }
 
 /**
  * Class that defines the ElevatorMultiplexor, which coordinates communication from the Elevator
@@ -55,12 +34,11 @@ public class ElevatorMultiplexor {
     private boolean lastObstructedState = false;
     private boolean lastOverloadState = false;
     private int lastPressedFloor = 0;
-    private int targetFloor = 0;
     private Integer lastTopSensorRead = motionAPI.top_alignment();
     private Integer lastBottomSensorRead = motionAPI.bottom_alignment();
 
     // Initialize the MUX
-    public void initialize() {
+    private void initialize() {
         bus.subscribe(SoftwareBusCodes.doorControl, ID);
         bus.subscribe(SoftwareBusCodes.displayFloor, ID);
         bus.subscribe(SoftwareBusCodes.displayDirection, ID);
@@ -84,15 +62,12 @@ public class ElevatorMultiplexor {
      */
 
     // Polls the software bus for messages and handles them accordingly
-    public void startBusPoller() {
+    private void startBusPoller() {
         Thread t = new Thread(() -> {
-
             // keep polling
             while (true) {
                 Message msg;
                 msg = bus.get(SoftwareBusCodes.doorControl, ID);
-
-
                 if (msg != null) {
                     handleDoorControl(msg);
                 }
@@ -106,7 +81,6 @@ public class ElevatorMultiplexor {
                 }
                 msg = bus.get(SoftwareBusCodes.carDispatch, ID);
                 if (msg != null) {
-
                     handleCarDispatch(msg);
                 }
                 msg = bus.get(SoftwareBusCodes.resetFloorSelection, ID);
@@ -134,7 +108,6 @@ public class ElevatorMultiplexor {
                 if (msg != null) {
                     handleFireAlarm(msg);
                 }
-
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
@@ -214,7 +187,7 @@ public class ElevatorMultiplexor {
 
     // Poll and publish cabin overload state changes
     private void pollCabinOverload() {
-        boolean isOverloaded = elev.display.isOverloaded();
+        boolean isOverloaded = elev.panel.isOverloaded();
         if (isOverloaded != lastOverloadState) {
             // Emit CABIN_LOAD message (Topic 205) only on state change
             int v;
@@ -266,12 +239,6 @@ public class ElevatorMultiplexor {
         // Update last sensor reads
         lastTopSensorRead = topSensor;
         lastBottomSensorRead = bottomSensor;
-    }
-
-
-    // Getter for Elevator
-    public Elevator getElevator() {
-        return elev;
     }
 
     /**
@@ -369,20 +336,31 @@ public class ElevatorMultiplexor {
     }
 
     // Handle play arrival/overload Message
-    public void handlePlaySound(Message msg){
+    private void handlePlaySound(Message msg){
         int type = msg.getBody();
         if (type == 0) {
             elev.display.playArrivalChime();
+            elev.panel.playCabinArrivalChime();
         } else {
             elev.display.playOverLoadWarning();
+            elev.panel.playCabinOverloadWarning();
         }
     }
 
     // Handle Fire Alarm Message
-    public void handleFireAlarm(Message msg) {
+    private void handleFireAlarm(Message msg) {
         int modeCode = msg.getBody();
         if (modeCode == 1) {
             elev.panel.clearPressedFloors();
         }
+    }
+
+    /**
+     * Util
+     */
+
+    // Getter for Elevator. Necessary for GUI simulation purposes
+    public Elevator getElevator() {
+        return elev;
     }
 }

@@ -4,39 +4,13 @@ import Message.*;
 import Bus.SoftwareBus;
 import Bus.SoftwareBusCodes;
 import PFDAPI.Building;
-
 import javafx.application.Platform;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import PFDAPI.Building;
 import PFDAPI.FloorCallButtons;
-
 import java.net.URL;
 import java.util.Arrays;
-
 import static java.lang.Math.abs;
-
-// Below are the import statements used by Team 10
-//package mux;
-//
-//import bus.Bus.SoftwareBus;
-//import bus.Bus.SoftwareBusCodes;
-//import bus.Message.Message;
-//import javafx.application.Platform;
-//import javafx.scene.media.Media;
-//import javafx.scene.media.MediaPlayer;
-//import pfdAPI.Building;
-//import pfdAPI.FloorCallButtons;
-//
-//import java.net.URL;
-
-// Building MUX constructor for taking in software bus:
-//private final SoftwareBus bus;
-//    // Constructor
-//    public BuildingMultiplexor(SoftwareBus softwareBus){
-//        bus = softwareBus;
-//        initialize();
-//    }
 
 /**
  * Class that defines the BuildingMultiplexor, which coordinates communication from the Elevator
@@ -46,7 +20,7 @@ import static java.lang.Math.abs;
  * Note: car and elevator are used interchangeably in this context.
  */
 public class BuildingMultiplexor {
-private final SoftwareBus bus;
+    private final SoftwareBus bus;
     // Constructor
     public BuildingMultiplexor(SoftwareBus softwareBus){
         bus = softwareBus;
@@ -55,18 +29,17 @@ private final SoftwareBus bus;
 
     // Listener for GUI/API integration
     private final Building bldg = new Building(10);;
-    boolean[][] lastCallState = new boolean[bldg.totalFloors][3]; // Up/Down/Null
+    private boolean[][] lastCallState = new boolean[bldg.totalFloors][3]; // Up/Down/Null
     private boolean lastFireState = false;
-    int[] elevatorPos = new int[4];
+    private int[] elevatorPos = new int[4];
 
-    int DIR_UP = 0;
-    int DIR_DOWN = 1;
-
-    int FIRE_OFF = 0;
-    int FIRE_ON = 1;
+    private int DIR_UP = 0;
+    private int DIR_DOWN = 1;
+    private int FIRE_OFF = 0;
+    private int FIRE_ON = 1;
 
     // Initialize the MUX
-    public void initialize() {
+    private void initialize() {
         bus.subscribe(SoftwareBusCodes.fireAlarm, 5);
         bus.subscribe(SoftwareBusCodes.resetCall, 5);
         bus.subscribe(SoftwareBusCodes.callsEnable, 5);
@@ -88,11 +61,10 @@ private final SoftwareBus bus;
      */
 
     // Polls the software bus for messages and handles them accordingly
-    public void startBusPoller() {
+    private void startBusPoller() {
         Thread t = new Thread(() -> {
             // keep polling
             while (true) {
-
                 Message msg;
                 msg = bus.get(SoftwareBusCodes.fireAlarm, 5);
                 if (msg != null) {
@@ -102,7 +74,6 @@ private final SoftwareBus bus;
                 if (msg != null) {
                     handleCallReset(msg);
                 }
-
                 msg = bus.get(SoftwareBusCodes.callsEnable, 5);
                 if (msg != null) {
                     handleCallEnable(msg);
@@ -143,7 +114,6 @@ private final SoftwareBus bus;
             while (true) {
                 pollCallButtons();
                 pollFireAlarm();
-
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -163,7 +133,6 @@ private final SoftwareBus bus;
                 bus.publish(new Message(SoftwareBusCodes.hallCall, elevator + 1, floor + 1 + 100));
                 lastCallState[floor][0] = true;
             }
-
             if (bldg.callButtons[floor].isDownCallPressed() && !lastCallState[floor][1]) {
                 System.out.println("Closest elev is " + (elevator+1) + ", floor is " + (floor+1));
                 bus.publish(new Message(SoftwareBusCodes.hallCall, elevator + 1, floor + 1));
@@ -174,7 +143,7 @@ private final SoftwareBus bus;
 
     // Poll fire alarm state
     private void pollFireAlarm() {
-        boolean state = bldg.callButtons[0].getFireAlarmStatus();
+        boolean state = bldg.fireAlarm.getFireAlarmStatus();
         if (state != lastFireState) {
             bus.publish(new Message(SoftwareBusCodes.fireAlarmActive, 5, state ? FIRE_ON : FIRE_OFF));
             lastFireState = state;
@@ -190,21 +159,21 @@ private final SoftwareBus bus;
      */
 
     // Handle Fire Alarm Message
-    public void handleFireAlarm(Message msg) {
+    private void handleFireAlarm(Message msg) {
         int modeCode = msg.getBody();
         if ((modeCode == FIRE_ON) && (!lastFireState)) {
-            bldg.callButtons[0].setFireAlarm(true);
+            bldg.fireAlarm.setFireAlarm(true);
             lastFireState = true;
             fireAlarmResets(false);
             playFireAlarm();
         } else if(modeCode == FIRE_OFF){
-            bldg.callButtons[0].setFireAlarm(false);
+            bldg.fireAlarm.setFireAlarm(false);
             lastFireState = false;
         }
     }
 
     // Handle Call Reset Message
-    public void handleCallReset(Message msg) {
+    private void handleCallReset(Message msg) {
         int floor = msg.getBody()/10;
         int directionCode = msg.getBody()%10;
         if (directionCode == DIR_UP) {
@@ -218,7 +187,7 @@ private final SoftwareBus bus;
     }
 
     // Handle Call Enable/Disable Message
-    public void handleCallEnable(Message msg){
+    private void handleCallEnable(Message msg){
         int body = msg.getBody();
         fireAlarmResets(false);
         bldg.callButtons[1].setButtonsEnabled(body);
@@ -248,6 +217,7 @@ private final SoftwareBus bus;
         return choose;
     }
 
+    // Resets all buttons upon fire alarm ON event
     private void fireAlarmResets(boolean sendMsg){
         for(FloorCallButtons buttons : bldg.callButtons){
             buttons.resetCallButton("DOWN");
@@ -261,6 +231,7 @@ private final SoftwareBus bus;
         }
     }
 
+    // Plays the fire alarm sound
     private void playFireAlarm(){
         System.out.println("FIRE!");
         Platform.runLater(() -> {

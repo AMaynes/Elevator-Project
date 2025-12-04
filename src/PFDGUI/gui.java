@@ -1,7 +1,6 @@
 package PFDGUI;
 
 import java.util.ArrayList;
-
 import Mux.ElevatorMultiplexor;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -71,9 +70,10 @@ public class gui {
         private int lastSelected = 0;
 
         // Getters for internal state variables
-        public ArrayList<Integer> getPressedFloors(int ID) {
+        public int getPressedFloor(int ID) {
             int panelIndex = ID - 1;
-            return (panelIndex >= 0 && panelIndex < numElevators) ? pressedFloors[panelIndex] : new ArrayList<>();
+            return (panelIndex >= 0 && panelIndex < numElevators && !pressedFloors[panelIndex].isEmpty()) ?
+                    pressedFloors[panelIndex].removeFirst() : 0;
         }
         public boolean getIsDoorObstructed(int ID) {
             int panelIndex = ID - 1;
@@ -106,19 +106,6 @@ public class gui {
             singleSelection[panelIndex] = single;
         }
 
-        // Press panel button
-        public void pressPanelButton(int ID, int floorNumber) {
-            Platform.runLater(() -> {
-                for (Node n : panels[ID-1].panelOverlay.getChildren()) {
-                    if (n instanceof Label lbl && lbl.getText().equals(String.valueOf(floorNumber))) {
-                        if (n == panels[ID-1].digitalLabel) continue;
-                        lbl.setStyle("-fx-text-fill: white;");
-                        pressedFloors[ID-1].add(floorNumber);
-                    }
-                }
-            });
-        }
-
         // Reset panel button
         public void resetPanelButton(int ID, int floorNumber) {
             Platform.runLater(() -> {
@@ -145,23 +132,6 @@ public class gui {
                     }
                 }
                 pressedFloors[ID-1].clear();
-            });
-        }
-
-        // Set the door obstruction state of a given elevator
-        public void setDoorObstruction(int ID, boolean isObstructed) {
-            Platform.runLater(() -> {
-                doorObstructions[ID-1] = isObstructed;
-                ImageView doorImg = doors[ID-1].elevDoorsImg;
-
-                // Update image based on current door state + new obstruction state
-                if (loader.imageList.get(6).equals(doorImg.getImage()) ||
-                        loader.imageList.get(7).equals(doorImg.getImage())) {
-                    // Door is open - update open state
-                    doorImg.setImage(isObstructed ? loader.imageList.get(7) : loader.imageList.get(6));
-                }
-                // If door is closed or transitioning, obstruction state is stored but image doesn't change
-                // until next open/close operation
             });
         }
 
@@ -215,19 +185,6 @@ public class gui {
             });
         }
 
-
-        // Set the cabin overload state of a given elevator
-        public void setCabinOverload(int ID, boolean isOverloaded) {
-            Platform.runLater(() -> {
-                cabinOverloads[ID-1] = isOverloaded;
-                if (isOverloaded) {
-                    weighScales[ID-1].weightTriggerButton.setStyle("-fx-background-color: #684b4bff; -fx-text-fill: black;");
-                } else {
-                    weighScales[ID-1].weightTriggerButton.setStyle("-fx-background-color: #bdbdbdff; -fx-text-fill: black;");
-                }
-            });
-        }
-
         // Set the floor display of a given elevator
         public void setDisplay(int carId, int floorNumber, String direction) {
             Platform.runLater(() -> {
@@ -244,21 +201,6 @@ public class gui {
                     panels[carId-1].elevPanelImg.setImage(loader.imageList.get(0));
                 }
             });
-        }
-
-        // Set the floor call button state
-        public void setCallButton(int floorNumber, String direction) {
-            int buttonIndex = floorNumber - 1;  // Convert floor number (1-10) to array index (0-9)
-            if (buttonIndex >= 0 && buttonIndex < numFloors) {
-                Platform.runLater(() -> {
-                    if (direction.contains("UP")) {
-                        callButtons[buttonIndex].elevCallButtonsImg.setImage(loader.imageList.get(15));
-                    } else if (direction.contains("DOWN")) {
-                        callButtons[buttonIndex].elevCallButtonsImg.setImage(loader.imageList.get(14));
-
-                    }
-                });
-            }
         }
 
         // Reset the floor call button state
@@ -369,9 +311,6 @@ public class gui {
         primaryStage.setTitle("Elevator Passenger Devices");
         primaryStage.setScene(scene);
         return primaryStage;
-//        primaryStage.show();
-
-
     }
 
     public void initilizeMuxs(ElevatorMultiplexor[] elevatorMuxes){
@@ -420,7 +359,7 @@ public class gui {
                         if(!internalState.panelButtonsDisabled[carId]) {
                             if(!internalState.singleSelection[carId] || internalState.lastSelected == 0) {
                                 if (elevatorMuxes != null && carId < elevatorMuxes.length && elevatorMuxes[carId] != null) {
-                                    elevatorMuxes[carId].getElevator().panel.pressFloorButton(leftFloorNumber);
+                                    internalState.pressedFloors[carId].add(leftFloorNumber);
                                     internalState.lastSelected = leftFloorNumber;
                                 }
                                 left.setStyle("-fx-text-fill: #ffffffff;");
@@ -443,7 +382,7 @@ public class gui {
                         if(!internalState.panelButtonsDisabled[carId]) {
                             if(!internalState.singleSelection[carId] || internalState.lastSelected == 0) {
                                 if (elevatorMuxes != null && carId < elevatorMuxes.length && elevatorMuxes[carId] != null) {
-                                    elevatorMuxes[carId].getElevator().panel.pressFloorButton(rightFloorNumber);
+                                    internalState.pressedFloors[carId].add(rightFloorNumber);
                                     internalState.lastSelected = rightFloorNumber;
                                 }
                                 right.setStyle("-fx-text-fill: #ffffffff;");
@@ -679,15 +618,4 @@ public class gui {
             });
         }
     }
-
-    /**************************************************
-     * Main Application Entry Point
-     ****************************************
-     */
-
-//    public static void main(String[] args) {
-//        launch(args);
-//    }
-
-
 }

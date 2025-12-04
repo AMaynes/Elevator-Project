@@ -8,8 +8,14 @@ public interface CabinPassengerPanelAPI {
     // Return all floor selections made since last poll, panel queues presses so none are missed.
     int getPressedFloor();
 
-    // Clear the pending floor selections after they’ve been processed.
+    // Clear the pending floor selections.
     void clearPressedFloors();
+
+    // Makes the buttons disabled (off or fire mode)/enabled.
+    void setButtonsDisabled(int disabled);
+
+    // Sets the selection mode to single (fire key)/multiple.
+    void setButtonsSingle(int single);
 
     // Turn off the lamp for a serviced floor button.
     void resetFloorButton(int floorNumber);
@@ -25,6 +31,9 @@ public interface CabinPassengerPanelAPI {
 
     // Read fire service key switch state for emergency operations.
     boolean isFireKeyActive();
+
+    // Checks the weight sensor to determine if overloaded.
+    boolean isOverloaded();
 }
 
 /**
@@ -40,4 +49,7 @@ interface FloorCallButtonsAPI {
 
     // Reset the specified call indicator ("Up" or "Down") after service.
     void resetCallButton(String direction);
+
+    // Turns the buttons on/off.
+    void setButtonsEnabled(int enabled);
 }
