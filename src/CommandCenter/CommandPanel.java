@@ -250,12 +250,17 @@ public class CommandPanel extends GridPane {
     private void updateGUI(){
         Thread t = new Thread(() -> {
             while (true) {
-                if(commandCenter.getMode()== State.FIRE){
+                State now = commandCenter.getMode();
+                if(now == State.FIRE){
                     Platform.runLater(() -> {
                         systemMode = "FIRE";
                         updateForFireMode(true);
                     });
-
+                } else if(now!=null){
+                    Platform.runLater(() -> {
+                       systemMode = "INDEPENDENT";
+                       updateForAutoMode(systemMode);
+                    });
                 }
                 try {
                     Thread.sleep(10);
@@ -264,7 +269,6 @@ public class CommandPanel extends GridPane {
         });
         t.setDaemon(true);
         t.start();
-
     }
 
 

@@ -30,24 +30,27 @@ public class Normal {
         //Prepare for use
         buttons.enableCalls();
         buttons.enableAllRequests();
-        //ProcessesUtil.doorClose(doorAssembly,notifier);
         FloorNDirection currentService = null;
+        boolean alreadyServiced = false;
 
         //Process Requests until state changes
         while (mode.getMode() == State.NORMAL) {
             //get next service
-
-            if (currentService == null) currentService = buttons.nextService(cabin.currentStatus());
+            if (currentService == null) {
+                currentService = buttons.nextService(cabin.currentStatus());
+            }
             //go to floor of current service
             if (currentService != null){
                 if(ProcessesUtil.doorClose(doorAssembly,notifier)) {
                     cabin.gotoFloor(currentService.floor());
+                    alreadyServiced = false;
                 }
             }
             //arrive (open doors, wait, close doors)
-            if (cabin.arrived() && currentService != null) {
+            if (cabin.arrived() && currentService != null && !alreadyServiced) {
                 ProcessesUtil.arriveProcess(buttons,doorAssembly,notifier,currentService);
                 currentService = null;
+                alreadyServiced = true;
             }
         }
         //Exit mode

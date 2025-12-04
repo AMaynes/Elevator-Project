@@ -22,22 +22,17 @@ public class Mode {
     // *** Topic Constants ***
     // From Command Center to Mode
     private static final int TOPIC_ON_OFF = SoftwareBusCodes.elevatorOnOff;
-    //TODO: do we need to handle a SYSTEM_RESET message?
     private static final int TOPIC_MODE = SoftwareBusCodes.setMode;
-    private static final int TOPIC_DESTINATION =
-            SoftwareBusCodes.setDestination;
+    private static final int TOPIC_DESTINATION = SoftwareBusCodes.setDestination;
     // From Mode to Command Center
     private static final int TOPIC_FIRE_MODE = SoftwareBusCodes.fireMode;
-
     // From MUX to Mode
     private static final int TOPIC_FIRE_ALARM = SoftwareBusCodes.fireAlarmActive;
     // From Mode to MUX
     private static final int TOPIC_SET_FIRE = SoftwareBusCodes.fireAlarm;
-
     // Body for mode changes
     private static final int BODY_CENTRALIZED_MODE  = SoftwareBusCodes.centralized;
-    private static final int BODY_NORMAL_MODE = SoftwareBusCodes.normal;
-    private static final int BODY_FIRE_MODE = SoftwareBusCodes.fire; //TODO: safe to delete this?
+    private static final int BODY_NORMAL_MODE = SoftwareBusCodes.independent;
     private boolean alreadyFire = false;
     private int lastState;
 
@@ -48,7 +43,6 @@ public class Mode {
      * @param softwareBus the means of communication
      */
     public Mode(int elevatorID, SoftwareBus softwareBus) {
-        //TODO call subscribe on softwareBus w/ relevant topic/subtopic
         this.softwareBus = softwareBus;
         this.ELEVATOR_ID = elevatorID;
 
@@ -87,19 +81,24 @@ public class Mode {
 
         // From the MUX, was the fire alarm pulled? Use building-wide subtopic so
         // a single fire-clear message is enough to exit fire mode.
-        Message fireMessage =  MessageHelper.pullAllMessages(softwareBus, SoftwareBusCodes.allElevators, TOPIC_FIRE_ALARM);
+        Message fireMessage =  MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_FIRE_ALARM);
 
         // From the Command Center, On/Off
         Message onOffMessage = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_ON_OFF);
-
 
         int state;
         if(modeMessage!=null){
             state = modeMessage.getBody();
             lastState = state;
             switch (state){
-                case BODY_CENTRALIZED_MODE -> currentMode = State.CONTROL;
-                case BODY_NORMAL_MODE -> currentMode = State.NORMAL;
+                case BODY_CENTRALIZED_MODE -> {
+                    currentMode = State.CONTROL;
+                    System.out.println("MODE IS NOW CENTRALIZED!!!!!!");
+                }
+                case BODY_NORMAL_MODE -> {
+                    currentMode = State.NORMAL;
+                    System.out.println("MODE IS NOW NORMAL!!!!!!");
+                }
             }
         }
 
@@ -114,14 +113,9 @@ public class Mode {
                 alreadyFire = false;
             } else {
                 System.out.println("UNPULLED.");
-            // Publish that fire mode is ending (building-level)
-            softwareBus.publish(new Message(TOPIC_FIRE_MODE, 0,
-                SoftwareBusCodes.idle));
-                if(lastState == BODY_CENTRALIZED_MODE){
-                    currentMode = State.CONTROL;
-                } else {
-                    currentMode = State.NORMAL;
-                }
+                // Publish that fire mode is ending (building-level)
+                softwareBus.publish(new Message(TOPIC_FIRE_MODE, 0, SoftwareBusCodes.idle));
+                currentMode = State.NORMAL;
             }
         }
 
@@ -156,8 +150,6 @@ public class Mode {
      */
     public FloorNDirection nextService(){
         int floor;
-
-
         Message message = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_DESTINATION);
 
         if (message != null){
@@ -166,7 +158,7 @@ public class Mode {
             floor = message.getBody();
             System.out.println("Please take me to floor "+floor);
         } else {
-            return currDestination;
+            return null;
         }
 
         // Update currDestination based on Message

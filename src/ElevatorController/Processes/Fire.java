@@ -23,7 +23,6 @@ public class Fire {
                              DoorAssembly doorAssembly, Notifier notifier){
         //In fire mode, move all elevators down to floor one
         //Mode gets fire key message
-
         //buttons handles fire key
         //if single calls are enable then the fire key is inserted
         buttons.disableCalls();
@@ -33,12 +32,10 @@ public class Fire {
             buttons.disableAllRequest();
         }
 
-        //Close doors
-        ProcessesUtil.doorClose(doorAssembly,notifier);
-
         FloorNDirection fireKeyService = null;
         boolean fireKeyState;
         boolean lastFKState =  false;
+        boolean alreadyServiced = false;
 
         //Listen to requests if fire key is inserted, otherwise go to first floor
         while (mode.getMode() == State.FIRE) {
@@ -55,15 +52,22 @@ public class Fire {
                 fireKeyService = buttons.nextService(cabin.currentStatus());
             }
             //Process services enabled by fire key
-            if (fireKeyService != null && cabin.getTargetFloor() != fireKeyService.floor()) {
-                cabin.gotoFloor(fireKeyService.floor());
-            } else if (!fireKeyState) {
-                cabin.gotoFloor(1); //Go to floor 1 if not fire key mode
+            if (fireKeyService != null) {
+                if(ProcessesUtil.doorClose(doorAssembly,notifier)){
+                    cabin.gotoFloor(fireKeyService.floor());
+                    alreadyServiced = false;
+                }
+            } else if (!fireKeyState && !alreadyServiced) {
+                if(ProcessesUtil.doorClose(doorAssembly,notifier)){
+                    cabin.gotoFloor(1);
+                    alreadyServiced = false;
+                }
             }
             //Arrival process (open doors)
-            if (cabin.arrived()) {
+            if (cabin.arrived() && !alreadyServiced) {
                 ProcessesUtil.arriveProcess(buttons, doorAssembly, notifier, fireKeyService);
                 fireKeyService = null;
+                alreadyServiced = true;
             }
         }
         //Return exit mode

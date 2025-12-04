@@ -29,7 +29,7 @@ public class Buttons {
     // Receiving from MUX
     private final static int TOPIC_HALL_CALL = SoftwareBusCodes.hallCall; // buttons in the halls
     private final static int TOPIC_CABIN_SELECT = SoftwareBusCodes.cabinSelect; // button events in the cabin
-    private final static int TOPIC_FIRE_KEY = SoftwareBusCodes.fireKey; //TODO: handle fire key messages
+    private final static int TOPIC_FIRE_KEY = SoftwareBusCodes.fireKey;
 
     //Sending to MUX
     private final static int TOPIC_RESET_CALL = SoftwareBusCodes.resetCall;
@@ -248,7 +248,6 @@ public class Buttons {
         return fireKey;
     }
 
-
     /*
      * Note; call events have associated directions, and request events do not
      *
@@ -280,8 +279,11 @@ public class Buttons {
         List<FloorNDirection> unreachable = new ArrayList<>();
         if(destinations.isEmpty()){
             return null;
+        } else if (destinations.size() == 1){
+            return destinations.getFirst();
         }
-        int currServiceFloor = destinations.get(0).getFloor();
+
+        int currServiceFloor = destinations.getFirst().getFloor();
 
         for (FloorNDirection fd : destinations) {
             //Service incompatible
@@ -331,7 +333,7 @@ public class Buttons {
         destinations.addAll(unreachable);
 
         if (destinations.isEmpty()) return null;
-        return destinations.get(0);
+        return destinations.getFirst();
     }
 
     private void handleMessages(){

@@ -13,8 +13,6 @@ import Message.*;
  * sensors, the scale, and the door obstruction sensors.
  */
 public class DoorAssembly {
-    private boolean opened;  // TODO: do we need to store this in Door Assembly?
-    private boolean closed;
     private boolean obstructed;
     private boolean fullyClosed;
     private boolean fullyOpen;
@@ -43,9 +41,6 @@ public class DoorAssembly {
      * @param softwareBus The means of communication
      */
     public DoorAssembly(int elevatorID, SoftwareBus  softwareBus) {
-
-        this.opened = true;
-        this.closed = false;
         this.obstructed = false;
         this.fullyClosed = false;
         this.fullyOpen = true;
@@ -53,7 +48,6 @@ public class DoorAssembly {
         this.softwareBus = softwareBus;
         this.elevatorID = elevatorID;
 
-        //Todo: (DOOR_STATUS or DOOR_SENSOR????????)
         softwareBus.subscribe(TOPIC_DOOR_SENSOR, elevatorID);
         softwareBus.subscribe(TOPIC_CABIN_LOAD, elevatorID);
         softwareBus.subscribe(TOPIC_DOOR_STATUS, elevatorID);
@@ -95,7 +89,6 @@ public class DoorAssembly {
      * to the MUX)
      */
     public void open(){
-        // correct body for current mux
         softwareBus.publish(new Message(TOPIC_DOOR_CONTROL, elevatorID, OPEN_CODE));
     }
 
@@ -104,7 +97,6 @@ public class DoorAssembly {
      * to the MUX)
      */
     public void close(){
-        // correcct body for current mux 11/23/2025
         softwareBus.publish(new Message(TOPIC_DOOR_CONTROL, elevatorID, CLOSE_CODE));
 
     }
@@ -113,7 +105,6 @@ public class DoorAssembly {
      * @return true if obstruction sensor triggered, false otherwise
      */
     public boolean obstructed(){
-        //Todo: ok so I assume this will return a message that says 0 for not obstructed and 1 if obstructed (DOOR_STATUS or DOOR_SENSOR????????)
         Message message = MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_DOOR_SENSOR);
         if (message != null ) {
             if (message.getBody() == OBSTRUCTED_CODE) obstructed = true;
@@ -126,7 +117,6 @@ public class DoorAssembly {
      * @return true if fully closed sensor triggered, false otherwise
      */
     public boolean fullyClosed(){
-        // Todo: assuming 3 for fully closed and 4 for not fully closed (DOOR_STATUS or DOOR_SENSOR????????)
         Message message =  MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_DOOR_STATUS);
         if (message != null ) {
             int body = message.getBody();
@@ -141,7 +131,6 @@ public class DoorAssembly {
      * @return true if fully open sensor triggered, false otherwise
      */
     public boolean fullyOpen(){
-        // Todo: assuming 5 for fully closed and 6 for not fully closed (DOOR_STATUS or DOOR_SENSOR????????)
         Message message =  MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_DOOR_STATUS);
         if (message != null ) {
             if (message.getBody() == OPEN_CODE) fullyOpen = true;

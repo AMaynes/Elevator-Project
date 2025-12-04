@@ -10,12 +10,6 @@ import ElevatorController.Util.State;
  * assumes full control over the system.
  */
 public class Control {
-    private Mode mode;
-    private Buttons buttons;
-    private Cabin cabin;
-    private DoorAssembly doorAssembly;
-    private Notifier notifier;
-
     /**
      * Create an instance of the Fire Procedure
      * @param mode the mode lower level object
@@ -31,39 +25,36 @@ public class Control {
      */
     public static State control(Mode mode, Buttons buttons, Cabin cabin,
                                 DoorAssembly doorAssembly, Notifier notifier){
+        //Check if control
+        if (mode.getMode() != State.CONTROL) return mode.getMode();
+
+        //Prepare for use
         buttons.disableCalls();
         buttons.disableAllRequest();
-        //TODO need to implement some API for resetting Request?
-        buttons.enableSingleRequest();
+        FloorNDirection currentService = null;
+        boolean alreadyServiced = false;
 
-        //Close doors only if there is a pending destination to service
-        if (mode.nextService() != null) {
-            ProcessesUtil.doorClose(doorAssembly, notifier);
-        }
-
-        FloorNDirection nextSer = null;
-        while(mode.getMode() == State.CONTROL){
-            nextSer = mode.nextService();
-            if(nextSer != null && cabin.getTargetFloor() != nextSer.floor()){
-                cabin.gotoFloor(nextSer.floor());
+        //Process Requests until state changes
+        while (mode.getMode() == State.CONTROL) {
+            //get next service
+            if (currentService == null) {
+                currentService = mode.nextService();
             }
-            //Arrival process (open doors, wait, close doors)
-            if (cabin.arrived()) {
-                ProcessesUtil.arriveProcess(buttons, doorAssembly, notifier,
-                        nextSer);
-                nextSer = null;
+            //go to floor of current service
+            if (currentService != null){
+                if(ProcessesUtil.doorClose(doorAssembly,notifier)) {
+                    cabin.gotoFloor(currentService.floor());
+                    alreadyServiced = false;
+                }
+            }
+            //arrive (open doors, wait,)
+            if (cabin.arrived() && currentService != null && !alreadyServiced) {
+                ProcessesUtil.arriveProcess(buttons,doorAssembly,notifier,currentService);
+                currentService = null;
+                alreadyServiced = true;
             }
         }
-        
-        // Cleanup when exiting control mode - re-enable buttons for normal operation
-        State exitMode = mode.getMode();
-        if (exitMode == State.NORMAL) {
-            buttons.enableCalls();
-            buttons.enableAllRequests();
-        } else if (exitMode == State.FIRE) {
-            // Fire mode will handle its own button setup
-        }
-        
-        return exitMode;
+        //Exit mode
+        return mode.getMode();
     }
 }

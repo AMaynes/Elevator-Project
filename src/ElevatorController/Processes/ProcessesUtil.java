@@ -10,8 +10,6 @@ import ElevatorController.Util.Timer;
 import static ElevatorController.Util.ConstantsElevatorControl.DOOR_CLOSE_TIMEOUT;
 
 public class ProcessesUtil {
-
-
     /**
      * Method for elevator arrival
      * @param buttons buttons to reset
@@ -26,7 +24,6 @@ public class ProcessesUtil {
         doorAssembly.open();
         while (!ProcessesUtil.tryDoorOpen(doorAssembly)) ;
         ProcessesUtil.DoorsOpenWait();
-        //ProcessesUtil.doorClose(doorAssembly, notifier);
     }
     /**
      * Holds the door open for specified time
@@ -62,14 +59,11 @@ public class ProcessesUtil {
      */
     public static boolean doorClose(DoorAssembly doorAssembly, Notifier notifier) {
         boolean success;
-        //TODO:This is causing a problem
         success = ProcessesUtil.tryDoorClose(doorAssembly,notifier, false);
         if (success) return true;
         while(!success){
-            notifier.playCapacityNoise();
             success = ProcessesUtil.tryDoorClose(doorAssembly,notifier, true);
         }
-        notifier.stopCapacityNoise();
         return false;
     }
 
@@ -88,11 +82,13 @@ public class ProcessesUtil {
         
         System.out.println("[DoorClose] Starting door close sequence");
         Timer timer =new Timer(DOOR_CLOSE_TIMEOUT);
+        boolean alreadyPlayedNoise = false;
 
         boolean lastCommand = true;
         while(!doorAssembly.fullyClosed()){
             if(doorAssembly.obstructed()){
-                if (capacity) {
+                if (capacity && !alreadyPlayedNoise) {
+                    alreadyPlayedNoise = true;
                     notifier.playCapacityNoise();
                 }
                 if(lastCommand == false){
@@ -105,7 +101,10 @@ public class ProcessesUtil {
                     doorAssembly.open();
                     lastCommand = true;
                 }
-                notifier.playCapacityNoise();
+                if(!alreadyPlayedNoise){
+                    notifier.playCapacityNoise();
+                    alreadyPlayedNoise = true;
+                }
             }
             else {
                 if(lastCommand) {

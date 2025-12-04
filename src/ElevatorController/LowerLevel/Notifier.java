@@ -11,9 +11,6 @@ import Message.Message;
  * floor display (up/down arrows and LEDs for displaying the floor number). The
  * notifier object does not receive any messages from the Software Bus.
  */
-
-//Todo: what am I supposed to do with overloaded here?
-    // Seems like the MUX should be telling us overloaded?
 public class Notifier {
     private final int ELEVATOR_ID;
     private final SoftwareBus softwareBus;
@@ -77,12 +74,4 @@ public class Notifier {
         softwareBus.publish(new Message(TOPIC_PLAY_SOUND, ELEVATOR_ID,
                 BODY_OVERLOAD));
     }
-
-    /**
-     * Notify the MUX to stop playing the capacity buzzer
-     */
-    public void stopCapacityNoise(){
-        // NEVER HAPPENS, capacity nose plays for a set duration and stops on its own
-    }
-
 }

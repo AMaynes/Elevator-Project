@@ -15,12 +15,7 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         int numElevators = 4;
-        int elevator1 = 1;
-        int elevator2 = 2;
-        int elevator3 = 3;
-        int elevator4 = 4;
         SoftwareBus serverBus = new SoftwareBus(true);
-        //SoftwareBus clientBus = new SoftwareBus(false);
         elevatorControlSystem =new ElevatorControlSystem(serverBus);
 
         BuildingMultiplexor buildingMultiplexor = new Mux.BuildingMultiplexor(serverBus);
@@ -28,9 +23,6 @@ public class Main extends Application {
         for (int i = 0; i < numElevators; i++) {
             elevatorMuxes[i] = new Mux.ElevatorMultiplexor(i + 1,serverBus);  // Store
             // the reference
-
-
-
         }
         guiMux.initilizeMuxs(elevatorMuxes);
         ElevatorMain em1 = new ElevatorMain(1, serverBus);

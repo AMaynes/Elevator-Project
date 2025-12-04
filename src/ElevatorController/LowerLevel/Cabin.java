@@ -35,7 +35,6 @@ public class Cabin implements Runnable {
 
     //Constants for cabin bodies
     private static final int STOP_MOTOR = 0;
-    private static final int START_MOTOR = 1;
 
     /**
      * Instanciate the Cabin

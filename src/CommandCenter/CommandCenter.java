@@ -119,6 +119,10 @@ public class CommandCenter {
     public void sendModeMessage(int modeMessage){
         System.out.println("In command center; mode message sent");
         bus.publish(new Message(SET_MODE,0,modeMessage));
+        bus.publish(new Message(SET_MODE,1,modeMessage));
+        bus.publish(new Message(SET_MODE,2,modeMessage));
+        bus.publish(new Message(SET_MODE,3,modeMessage));
+        bus.publish(new Message(SET_MODE,4,modeMessage));
     }
 
     /**
@@ -141,6 +145,8 @@ public class CommandCenter {
             } else if (body == SoftwareBusCodes.idle) {
                 currMode = State.NORMAL;
             }
+        } else {
+            return null;
         }
         return currMode;
     }
