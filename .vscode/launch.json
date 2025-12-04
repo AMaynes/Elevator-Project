@@ -1,0 +1,39 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "Main",
+            "projectName": "Elevator-Project_afb49d72",
+            "vmArgs": "--module-path \"C:\\Program Files\\JavaFX\\openjfx-21.0.2_windows-x64_bin-sdk\\javafx-sdk-21.0.2\\lib\" --add-modules javafx.controls,javafx.fxml,javafx.media --add-exports javafx.base/com.sun.javafx=ALL-UNNAMED --add-exports javafx.media/com.sun.media.jfxmedia=ALL-UNNAMED"
+        },
+        {
+            "type": "java",
+            "name": "gui",
+            "request": "launch",
+            "mainClass": "pfdGUI.gui",
+            "projectName": "Elevator-Project_afb49d72",
+            "vmArgs": "--module-path \"C:\\Program Files\\JavaFX\\openjfx-21.0.2_windows-x64_bin-sdk\\javafx-sdk-21.0.2\\lib\" --add-modules javafx.controls,javafx.fxml,javafx.media --add-exports javafx.base/com.sun.javafx=ALL-UNNAMED --add-exports javafx.media/com.sun.media.jfxmedia=ALL-UNNAMED"
+        },
+        {
+            "type": "java",
+            "name": "TestCommandCenterMain",
+            "request": "launch",
+            "mainClass": "center.TestCommandCenterMain",
+            "projectName": "Elevator-Project_afb49d72",
+            "vmArgs": "--module-path \"C:\\Program Files\\JavaFX\\openjfx-21.0.2_windows-x64_bin-sdk\\javafx-sdk-21.0.2\\lib\" --add-modules javafx.controls,javafx.fxml,javafx.media --add-exports javafx.base/com.sun.javafx=ALL-UNNAMED --add-exports javafx.media/com.sun.media.jfxmedia=ALL-UNNAMED"
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "vmArgs": "--module-path \"C:\\Program Files\\JavaFX\\openjfx-21.0.2_windows-x64_bin-sdk\\javafx-sdk-21.0.2\\lib\" --add-modules javafx.controls,javafx.fxml,javafx.media --add-exports javafx.base/com.sun.javafx=ALL-UNNAMED --add-exports javafx.media/com.sun.media.jfxmedia=ALL-UNNAMED"
+        }
+    ]
+}

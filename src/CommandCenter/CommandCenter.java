@@ -6,6 +6,7 @@ import ElevatorController.Util.Direction;
 import ElevatorController.Util.FloorNDirection;
 import ElevatorController.Util.State;
 import Message.Message;
+import Message.MessageHelper;
 
 import java.util.Arrays;
 
@@ -107,6 +108,7 @@ public class CommandCenter {
     public void clearFireMessage() {
         System.out.println("In command center: clear fire message sent");
         bus.publish(new Message(SoftwareBusCodes.clearFire,0,0));
+        sendModeMessage(0);
     }
 
 
@@ -131,7 +133,15 @@ public class CommandCenter {
      */
     public State getMode() {
         //hard coded for fire alarm, would need to handle other cases if we are told to switch to other modes
-        if (bus.get(GET_MODE,0) != null) return State.FIRE;
+        Message msg = MessageHelper.pullAllMessages(bus, 0, GET_MODE);
+        if (msg != null) {
+            int body = msg.getBody();
+            if (body == SoftwareBusCodes.pulled) {
+                currMode = State.FIRE;
+            } else if (body == SoftwareBusCodes.idle) {
+                currMode = State.NORMAL;
+            }
+        }
         return currMode;
     }
 
@@ -141,17 +151,22 @@ public class CommandCenter {
      * @return current floor and motion of the elevator
      */
     public FloorNDirection getElevatorStatus(int id) {
-        int message = bus.get(GET_ELEVATOR_STATUS,id).getBody();
-        FloorNDirection floorNDirection;
-        if (message > 200){
-            floorNDirection= new FloorNDirection(message-200,Direction.UP);
-        }
-        if (message > 100)
-            floorNDirection= new FloorNDirection(message-100,Direction.STOPPED);
-        else
-            floorNDirection= new FloorNDirection(message,Direction.DOWN);
+        // Floor is sent directly on GET_ELEVATOR_STATUS
+        int floor = bus.get(GET_ELEVATOR_STATUS, id).getBody();
 
-        floorNDirections[id-1]=floorNDirection;
+        // Direction is sent separately on ccElevatorDirection
+        int dirCode = bus.get(SoftwareBusCodes.ccElevatorDirection, id).getBody();
+        Direction dir;
+        if (dirCode == Direction.UP.getIntegerVersion()) {
+            dir = Direction.UP;
+        } else if (dirCode == Direction.DOWN.getIntegerVersion()) {
+            dir = Direction.DOWN;
+        } else {
+            dir = Direction.STOPPED;
+        }
+
+        FloorNDirection floorNDirection = new FloorNDirection(floor, dir);
+        floorNDirections[id - 1] = floorNDirection;
         return floorNDirection;
     }
 

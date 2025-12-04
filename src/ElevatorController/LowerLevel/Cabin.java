@@ -107,6 +107,26 @@ public class Cabin implements Runnable {
     private Timer timeToStop;
 
     /**
+     * Immediately stop motion and lock destination to the current floor.
+     * Used by fire mode to hard-freeze the elevator.
+     */
+    public synchronized void emergencyStopAtCurrentFloor() {
+        // Refresh sensor data and floor estimate once
+        topAlignment();
+        bottomAlignment();
+        updateCurrFloor();
+
+        // Lock destination and direction to stopped at current floor
+        currDest = currFloor;
+        currDirection = Direction.STOPPED;
+
+        // Stop motor if it is currently running
+        if (motor) {
+            stopMotor();
+        }
+    }
+
+    /**
      * Main thread method, used to step towards a target floor
      */
     private synchronized void stepTowardsDest() {
@@ -211,6 +231,9 @@ public class Cabin implements Runnable {
             case DOWN -> {
                 // Going down -> current floor based on bottom of floor sensors
                 currFloor = topAlign / 2 + 1;
+            }
+            case STOPPED -> {
+                // Stopped -> maintain current floor
             }
         }
     }

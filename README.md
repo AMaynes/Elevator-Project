@@ -11,9 +11,10 @@ Ding-dong; you have reached the: CS460 Elevator Project, System Design.
 
 ## Notes/TODO
 - In the debugging stage.
-- Doors need to open upon an Elevator turning on. Should only close when it has a request to service.
-- Needs to play sounds.
-- Needs to react to call button presses properly.
+- Doors need to open upon an Elevator turning on. Should only close when it has a request to service. Elevators start open though and on floor 1.
+- Needs to play sounds. (I think this is done now?)
+- Needs to react to call button presses properly. (I think this is done now?)
+- Need to fix elevators continuously going up when fire alarm is pressed.
 - NUMEROUS OTHER ISSUES
 - Acceptable commands for the MUXs:
 ```

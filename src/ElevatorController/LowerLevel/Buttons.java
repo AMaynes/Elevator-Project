@@ -271,7 +271,8 @@ public class Buttons {
         if (!callEnabled && !fireKey && !requestsEnabled) return null;
 
         if (!multipleRequests) {
-            FloorNDirection nextService = destinations.getFirst();
+            if (destinations.isEmpty()) return null;
+            FloorNDirection nextService = destinations.get(0);
             return nextService;
         }
 
@@ -309,7 +310,10 @@ public class Buttons {
         else if (currDirection == Direction.DOWN) inticator = -1;
 
         //If not moving, go to the most recently called floor
-        if (inticator == 0) return destinations.get(0);
+        if (inticator == 0) {
+            if (destinations.isEmpty()) return null;
+            return destinations.get(0);
+        }
 
         //The humble bubble sort
         for (int i = 0; i < destinations.size(); i++) {
@@ -326,7 +330,8 @@ public class Buttons {
         //re-add unreachable destinations
         destinations.addAll(unreachable);
 
-        return destinations.getFirst();
+        if (destinations.isEmpty()) return null;
+        return destinations.get(0);
     }
 
     private void handleMessages(){
@@ -350,7 +355,7 @@ public class Buttons {
     private void handleCabinSelect(Message message) {
         while(message!=null){
             int floor = message.getBody();
-            System.out.println("adding to destinations: "+floor);
+            System.out.println("[Buttons " + ELEVATOR_ID + "] Cabin select received: adding floor " + floor + " to destinations");
             destinations.add(new FloorNDirection(floor, null));
             message=softwareBus.get(TOPIC_CABIN_SELECT,ELEVATOR_ID);
         }
@@ -385,6 +390,8 @@ public class Buttons {
                 // Unexpected floor, print error message
                 System.out.println("ERROR in Buttons of Elevator " + ELEVATOR_ID +
                         ", floor = " + floor + ", destCode = " + destCode);
+            } else {
+                System.out.println("[Buttons " + ELEVATOR_ID + "] Hall call received: adding floor " + floor + " " + fd.direction() + " to destinations");
             }
             destinations.add(fd);
             message = softwareBus.get(TOPIC_HALL_CALL, ELEVATOR_ID);

@@ -27,6 +27,7 @@ public class DoorAssembly {
     private static final int TOPIC_DOOR_SENSOR = SoftwareBusCodes.doorSensor;
     private static final int TOPIC_CABIN_LOAD = SoftwareBusCodes.cabinLoad;
     private static final int TOPIC_DOOR_STATUS = SoftwareBusCodes.doorStatus;
+    private static final int TOPIC_ELEV_ONOFF = SoftwareBusCodes.elevatorOnOff;
 
     //Constants for body codes
     private static final int OPEN_CODE = SoftwareBusCodes.doorOpen;
@@ -56,6 +57,37 @@ public class DoorAssembly {
         softwareBus.subscribe(TOPIC_DOOR_SENSOR, elevatorID);
         softwareBus.subscribe(TOPIC_CABIN_LOAD, elevatorID);
         softwareBus.subscribe(TOPIC_DOOR_STATUS, elevatorID);
+        // Listen for elevator on/off commands so doors open when elevator turns on
+        softwareBus.subscribe(TOPIC_ELEV_ONOFF, elevatorID);
+
+        // Publish initial door status so MUX/GUI reflect actual starting state
+        if (this.fullyOpen) {
+            softwareBus.publish(new Message(TOPIC_DOOR_STATUS, elevatorID, OPEN_CODE));
+        } else if (this.fullyClosed) {
+            softwareBus.publish(new Message(TOPIC_DOOR_STATUS, elevatorID, CLOSE_CODE));
+        }
+
+        // Start a small poller to react to elevator on/off messages
+        Thread onOffPoller = new Thread(() -> {
+            while (true) {
+                Message msg = softwareBus.get(TOPIC_ELEV_ONOFF, elevatorID);
+                if (msg != null) {
+                    int body = msg.getBody();
+                    if (body == SoftwareBusCodes.on) {
+                        // Ensure doors are open when elevator is turned on
+                        open();
+                    }
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        });
+        onOffPoller.setDaemon(true);
+        onOffPoller.start();
     }
 
     /**
@@ -97,11 +129,10 @@ public class DoorAssembly {
         // Todo: assuming 3 for fully closed and 4 for not fully closed (DOOR_STATUS or DOOR_SENSOR????????)
         Message message =  MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_DOOR_STATUS);
         if (message != null ) {
-            if (message.getBody() == OPEN_CODE) fullyClosed = false;
-            if (message.getBody() == CLOSE_CODE) fullyClosed = true;
-            else System.out.println("Unexpected body in SoftwareBusCodes.doorStatus Message in DoorAssembly: body = " + message.getBody());
-        }else{
-            //System.out.println("NULL MESSAGE IN DOOR ASSEMBLY YOU MORON OF COURSE ITS A NULL MESSAGE");
+            int body = message.getBody();
+            if (body == OPEN_CODE) fullyClosed = false;
+            else if (body == CLOSE_CODE) fullyClosed = true;
+            else System.out.println("Unexpected body in SoftwareBusCodes.doorStatus Message in DoorAssembly: body = " + body);
         }
         return fullyClosed;
     }
@@ -114,7 +145,7 @@ public class DoorAssembly {
         Message message =  MessageHelper.pullAllMessages(softwareBus, elevatorID, TOPIC_DOOR_STATUS);
         if (message != null ) {
             if (message.getBody() == OPEN_CODE) fullyOpen = true;
-            if (message.getBody() == OPEN_CODE) fullyOpen = false;
+            if (message.getBody() == CLOSE_CODE) fullyOpen = false;
         }
         return fullyOpen;
     }

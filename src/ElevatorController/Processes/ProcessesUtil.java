@@ -22,6 +22,7 @@ public class ProcessesUtil {
     public static void arriveProcess(Buttons buttons, DoorAssembly doorAssembly,
                                      Notifier notifier, FloorNDirection currentRequest) {
         buttons.callReset(currentRequest);
+        notifier.arrivedAtFloor(currentRequest); // Play arrival sound
         doorAssembly.open();
         while (!ProcessesUtil.tryDoorOpen(doorAssembly)) ;
         ProcessesUtil.DoorsOpenWait();
@@ -80,11 +81,15 @@ public class ProcessesUtil {
      * @return true if doors successfully close before timeout
      */
     public static boolean tryDoorClose(DoorAssembly doorAssembly, Notifier notifier, boolean capacity){
+        // Early return if doors are already fully closed
+        if(doorAssembly.fullyClosed()){
+            return true;
+        }
+        
+        System.out.println("[DoorClose] Starting door close sequence");
         Timer timer =new Timer(DOOR_CLOSE_TIMEOUT);
 
         boolean lastCommand = true;
-        System.out.println("Fully closed: "+ doorAssembly.fullyClosed()+
-                " over capacity "+ doorAssembly.overCapacity()+ " obstructed "+ doorAssembly.obstructed());
         while(!doorAssembly.fullyClosed()){
             if(doorAssembly.obstructed()){
                 if (capacity) {
@@ -110,9 +115,17 @@ public class ProcessesUtil {
                 }
             }
             if(timer.timeout()&&!doorAssembly.fullyClosed()){
+                System.out.println("[DoorClose] Timeout reached, doors not fully closed");
                 return false;
             }
+            // Small sleep to prevent excessive CPU usage and logging
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
+        System.out.println("[DoorClose] Doors successfully closed");
         return true;
     }
 }

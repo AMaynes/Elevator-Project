@@ -40,6 +40,7 @@ public class ElevatorController {
                     case CONTROL -> currentMode = control(mode, buttons, cabin,
                             doorAssembly, notifier);
                     case OFF -> on = false;
+                    case NULL -> {} // no-op for null state
                 }
             } else {
                 if (mode.getMode() != State.OFF) on = true;

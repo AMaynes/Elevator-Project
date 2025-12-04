@@ -5,6 +5,8 @@ import javafx.application.Platform;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import java.net.URL;
+import javax.sound.sampled.*;
+import java.io.File;
 
 /**
  * Class that defines the functionality of the Elevator floor displays. Represents
@@ -40,43 +42,54 @@ public class ElevatorFloorDisplay {
     /**
      * Simulates the arrival noise.
      */
-    public synchronized void playArrivalChime() {
+    public void playArrivalChime() {
         System.out.println("*Ding! Elevator " + carId + " has arrived.");
-        Platform.runLater(() -> {
-            try {
-                URL sound = getClass().getResource("/sounds/ding.mp3");
-                if (sound == null) {
-                    System.err.println("Sound file not found.");
-                    return;
-                }
-
-                Media media = new Media(sound.toExternalForm());
-                MediaPlayer player = new MediaPlayer(media);
-                player.play();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        playSound("res/sounds/ding.mp3", "Arrival sound");
     }
 
     /**
      * Simulates the overload buzz.
      */
-    public synchronized void playOverLoadWarning() {
-        Platform.runLater(() -> {
+    public void playOverLoadWarning() {
+        System.out.println("*Buzz! Elevator " + carId + " is overloaded!");
+        playSound("res/sounds/buzz.mp3", "Overload sound");
+    }
+    
+    /**
+     * Helper method to play sounds
+     */
+    private void playSound(String filePath, String soundName) {
+        new Thread(() -> {
             try {
-                URL sound = getClass().getResource("/sounds/buzz.mp3");
-                if (sound == null) {
-                    System.err.println("Sound file not found.");
+                File soundFile = new File(filePath);
+                if (!soundFile.exists()) {
+                    System.err.println(soundName + " file not found: " + soundFile.getAbsolutePath());
                     return;
                 }
-                Media media = new Media(sound.toExternalForm());
-                MediaPlayer player = new MediaPlayer(media);
-                player.play();
+                
+                // Use Platform.runLater for MediaPlayer creation on JavaFX thread
+                // but don't block the calling thread
+                Platform.runLater(() -> {
+                    try {
+                        Media media = new Media(soundFile.toURI().toString());
+                        MediaPlayer player = new MediaPlayer(media);
+                        
+                        // Dispose after playing completes
+                        player.setOnEndOfMedia(() -> player.dispose());
+                        player.setOnError(() -> {
+                            System.err.println("MediaPlayer error for " + soundName + ": " + player.getError());
+                            player.dispose();
+                        });
+                        
+                        player.play();
+                    } catch (Exception e) {
+                        System.err.println("JavaFX media player error for " + soundName + ": " + e.getMessage());
+                    }
+                });
             } catch (Exception e) {
-                e.printStackTrace();
+                System.err.println("Error playing " + soundName + ": " + e.getMessage());
             }
-        });
+        }).start();
     }
 }
 

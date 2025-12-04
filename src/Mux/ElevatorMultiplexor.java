@@ -6,6 +6,7 @@ import PFDAPI.*;
 import Bus.SoftwareBus;
 import Team7MotionControl.Elevator_Controler.MotionController;
 import Team7MotionControl.Util.Direction;
+import Util.SoundUtil;
 
 /**
  * Class that defines the ElevatorMultiplexor, which coordinates communication from the Elevator
@@ -159,8 +160,9 @@ public class ElevatorMultiplexor {
     // Poll and publish pressed floor buttons
     private void pollPressedFloors() {
         int targetFloor = elev.panel.getPressedFloor();
-        //System.out.println("Target Elevator in mux is "+ targetFloor);
         if (targetFloor != 0 && targetFloor != lastPressedFloor) {
+            System.out.println("[ElevatorMUX " + ID + "] Cabin button pressed: floor " + targetFloor);
+            SoundUtil.playButtonClick();
             Message selectMsg = new Message(SoftwareBusCodes.cabinSelect, ID, targetFloor);
             bus.publish(selectMsg);
             lastPressedFloor = targetFloor;

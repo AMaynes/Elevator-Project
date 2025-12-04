@@ -57,11 +57,14 @@ public class Mode {
         // Initially in Normal mode
         this.currentMode = State.NORMAL;
 
-        // Subscribe to relevant topics, subtopic is elevatorID
+        // Subscribe to relevant topics
         softwareBus.subscribe(TOPIC_ON_OFF, elevatorID);
         softwareBus.subscribe(TOPIC_MODE, elevatorID);
         softwareBus.subscribe(TOPIC_DESTINATION, elevatorID);
+        // listen for fire alarm both per-elevator and building-wide
         softwareBus.subscribe(TOPIC_FIRE_ALARM, elevatorID);
+        softwareBus.subscribe(TOPIC_FIRE_ALARM, SoftwareBusCodes.allElevators);
+        softwareBus.subscribe(TOPIC_FIRE_ALARM, SoftwareBusCodes.buildingMUX);
     }
 
     /**
@@ -82,8 +85,9 @@ public class Mode {
         // From the Command Center
         Message modeMessage =  MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_MODE);
 
-        // From the MUX, was the fire alarm pulled?
-        Message fireMessage =  MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_FIRE_ALARM);
+        // From the MUX, was the fire alarm pulled? Use building-wide subtopic so
+        // a single fire-clear message is enough to exit fire mode.
+        Message fireMessage =  MessageHelper.pullAllMessages(softwareBus, SoftwareBusCodes.allElevators, TOPIC_FIRE_ALARM);
 
         // From the Command Center, On/Off
         Message onOffMessage = MessageHelper.pullAllMessages(softwareBus, ELEVATOR_ID, TOPIC_ON_OFF);
@@ -102,13 +106,17 @@ public class Mode {
         if(fireMessage!=null){
             state = fireMessage.getBody();
             if (state == SoftwareBusCodes.pulled){
-                System.out.println("PULLED.");
-                softwareBus.publish(new Message(TOPIC_FIRE_MODE, ELEVATOR_ID,
-                        SoftwareBusCodes.emptyBody));
+            System.out.println("PULLED.");
+            // publish building-level fire mode so CommandCenter (subtopic 0) can see it
+            softwareBus.publish(new Message(TOPIC_FIRE_MODE, 0,
+                SoftwareBusCodes.pulled));
                 currentMode = State.FIRE;
                 alreadyFire = false;
             } else {
                 System.out.println("UNPULLED.");
+            // Publish that fire mode is ending (building-level)
+            softwareBus.publish(new Message(TOPIC_FIRE_MODE, 0,
+                SoftwareBusCodes.idle));
                 if(lastState == BODY_CENTRALIZED_MODE){
                     currentMode = State.CONTROL;
                 } else {
@@ -121,6 +129,13 @@ public class Mode {
             state = onOffMessage.getBody();
             if (state == SoftwareBusCodes.off){
                 currentMode = State.OFF;
+            } else if (state == SoftwareBusCodes.on) {
+                // Turn elevator back on - restore to previous mode
+                if(lastState == BODY_CENTRALIZED_MODE){
+                    currentMode = State.CONTROL;
+                } else {
+                    currentMode = State.NORMAL;
+                }
             }
         }
 

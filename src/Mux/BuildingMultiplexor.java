@@ -8,9 +8,9 @@ import javafx.application.Platform;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import PFDAPI.FloorCallButtons;
-import java.net.URL;
 import java.util.Arrays;
 import static java.lang.Math.abs;
+import Util.SoundUtil;
 
 /**
  * Class that defines the BuildingMultiplexor, which coordinates communication from the Elevator
@@ -32,6 +32,7 @@ public class BuildingMultiplexor {
     private boolean[][] lastCallState = new boolean[bldg.totalFloors][3]; // Up/Down/Null
     private boolean lastFireState = false;
     private int[] elevatorPos = new int[4];
+    private MediaPlayer fireAlarmPlayer = null; // Reference to fire alarm player for stopping
 
     private int DIR_UP = 0;
     private int DIR_DOWN = 1;
@@ -115,7 +116,7 @@ public class BuildingMultiplexor {
                 pollCallButtons();
                 pollFireAlarm();
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(200); // Poll more frequently for better responsiveness
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -129,12 +130,14 @@ public class BuildingMultiplexor {
         for (int floor = 0; floor < bldg.callButtons.length; floor++) {
             int elevator = bestElevator(floor);
             if (bldg.callButtons[floor].isUpCallPressed() && !lastCallState[floor][0]) {
-                System.out.println("Closest elev is " + (elevator+1) + ", floor is " + (floor+1));
+                System.out.println("[BuildingMUX] UP call on floor " + (floor+1) + " -> dispatching to Elevator " + (elevator+1));
+                SoundUtil.playButtonClick();
                 bus.publish(new Message(SoftwareBusCodes.hallCall, elevator + 1, floor + 1 + 100));
                 lastCallState[floor][0] = true;
             }
             if (bldg.callButtons[floor].isDownCallPressed() && !lastCallState[floor][1]) {
-                System.out.println("Closest elev is " + (elevator+1) + ", floor is " + (floor+1));
+                System.out.println("[BuildingMUX] DOWN call on floor " + (floor+1) + " -> dispatching to Elevator " + (elevator+1));
+                SoundUtil.playButtonClick();
                 bus.publish(new Message(SoftwareBusCodes.hallCall, elevator + 1, floor + 1));
                 lastCallState[floor][1] = true;
             }
@@ -153,6 +156,8 @@ public class BuildingMultiplexor {
             if(state){
                 fireAlarmResets(true);
                 playFireAlarm();
+            } else {
+                stopFireAlarm();
             }
         }
     }
@@ -172,6 +177,7 @@ public class BuildingMultiplexor {
         } else if(modeCode == FIRE_OFF){
             bldg.fireAlarm.setFireAlarm(false);
             lastFireState = false;
+            stopFireAlarm();
         }
     }
 
@@ -236,21 +242,57 @@ public class BuildingMultiplexor {
 
     // Plays the fire alarm sound
     private void playFireAlarm(){
+        // Stop any existing fire alarm first
+        stopFireAlarm();
+        
         System.out.println("FIRE!");
+        
+        // Use Platform.runLater to create MediaPlayer on JavaFX thread
+        // but don't block - just schedule it
         Platform.runLater(() -> {
             try {
-                URL sound = getClass().getResource("/sounds/firealarm.mp3");
-                if (sound == null) {
-                    System.err.println("Sound file not found.");
+                java.io.File soundFile = new java.io.File("res/sounds/firealarm.mp3");
+                if (!soundFile.exists()) {
+                    System.err.println("Fire alarm sound file not found: " + soundFile.getAbsolutePath());
                     return;
                 }
-
-                Media media = new Media(sound.toExternalForm());
-                MediaPlayer player = new MediaPlayer(media);
-                player.play();
+                
+                try {
+                    Media media = new Media(soundFile.toURI().toString());
+                    MediaPlayer player = new MediaPlayer(media);
+                    player.setCycleCount(MediaPlayer.INDEFINITE); // Loop continuously
+                    player.setVolume(0.7);
+                    player.play();
+                    
+                    // Store player reference for stopping later
+                    synchronized(BuildingMultiplexor.this) {
+                        fireAlarmPlayer = player;
+                    }
+                } catch (Exception e) {
+                    System.err.println("JavaFX media player unavailable: " + e.getMessage());
+                }
             } catch (Exception e) {
-                e.printStackTrace();
+                System.err.println("Error playing fire alarm sound: " + e.getMessage());
             }
         });
+    }
+    // Stops the fire alarm sound
+    private void stopFireAlarm() {
+        synchronized(this) {
+            if (fireAlarmPlayer != null) {
+                final MediaPlayer playerToStop = fireAlarmPlayer;
+                fireAlarmPlayer = null;
+                
+                // Stop on JavaFX thread to avoid threading issues
+                Platform.runLater(() -> {
+                    try {
+                        playerToStop.stop();
+                        playerToStop.dispose();
+                    } catch (Exception e) {
+                        System.err.println("Error stopping fire alarm: " + e.getMessage());
+                    }
+                });
+            }
+        }
     }
 }

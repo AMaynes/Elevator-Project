@@ -36,8 +36,10 @@ public class Control {
         //TODO need to implement some API for resetting Request?
         buttons.enableSingleRequest();
 
-        //Close doors
-        ProcessesUtil.doorClose(doorAssembly,notifier);
+        //Close doors only if there is a pending destination to service
+        if (mode.nextService() != null) {
+            ProcessesUtil.doorClose(doorAssembly, notifier);
+        }
 
         FloorNDirection nextSer = null;
         while(mode.getMode() == State.CONTROL){
@@ -52,6 +54,16 @@ public class Control {
                 nextSer = null;
             }
         }
-        return mode.getMode();
+        
+        // Cleanup when exiting control mode - re-enable buttons for normal operation
+        State exitMode = mode.getMode();
+        if (exitMode == State.NORMAL) {
+            buttons.enableCalls();
+            buttons.enableAllRequests();
+        } else if (exitMode == State.FIRE) {
+            // Fire mode will handle its own button setup
+        }
+        
+        return exitMode;
     }
 }
